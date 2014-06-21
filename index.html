@@ -2,13 +2,20 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title></title>
+		<title>Simple File Upload</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 	</head>
 	<body>
+		<section class="js_fileupload fileupload">
+			<div class="selectfile btn">
+				<input type="file" name="fileinput" class="fileinput js_fileinput" multiple>
+				<span>Auswählen</span>
+			</div>
+			<div class="dropbox js_dropbox">Datei hierher ziehen.</span></div>
+			<!-- <ul class="list js_list"></ul> -->
+			<ul class="previewList js_previewList"></ul>
+		</section>
 	</body>
 
 	<script>

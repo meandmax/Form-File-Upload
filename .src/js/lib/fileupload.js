@@ -2,14 +2,13 @@ var DropBox     = require('./dropbox.js');
 var FilePreview = require('./filepreview.js');
 var Progress    = require('./progress.js');
 
-var Fileupload = function($fileInput, url, opts){
+var Fileupload = function($, $fileInput, url, opts){
 	var self = this;
 
 	var options = {};
 	var selectedFiles = [];
 
 	var defaultOptions = {
-
 		/**
 		 * Tests to ensure that Filereader, DragnDrop and FormData are not undefined
 		 * @type {Object}
@@ -62,11 +61,22 @@ var Fileupload = function($fileInput, url, opts){
 		progess: false,
 
 		/**
+		 * Default errormessages
+		 * @type {Object}
+		 */
+		errormessages:{
+			FileSizeLimit: "We allow Files with a max. filesize of 3 MB.",
+			fileNumberLimit: "The allowed number of fileuploads is 3."
+		},
+
+		/**
 		 * Default accepted types, can be extended with further data formats
 		 * @type {Object}
 		 */
 		acceptedTypes: { 'image/png': true, 'image/jpeg': true, 'image/gif': true}
 	};
+
+
 
 
 	var init = function() {
@@ -105,8 +115,6 @@ var Fileupload = function($fileInput, url, opts){
 			var fileData = $(this).prop('files');
 			self.uploadFiles(fileData);
 		});
-
-		console.log(options);
 	};
 
 	/**
@@ -171,13 +179,11 @@ var Fileupload = function($fileInput, url, opts){
 			cache: false,
 			contentType: 'multipart/form-data',
 			processData: false,
-			if(options.progress) progress:
-			data: filedata,
+			data: filedata
 		});
 
 		return promise;
 	};
-
 
 	var onFileUploadDone = function(file){
 		if(options.filePreview){

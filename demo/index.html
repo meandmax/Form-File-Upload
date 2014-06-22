@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Simple File Upload</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="../src/app.css">
+	</head>
+	<body>
+		<div class="container">
+			<section class="js_fileupload fileupload">
+				<h2 class="hl">Simple File Upload</h2>
+				<div class="dropbox js_dropbox"><span class="msg">Datei hierher ziehen.</span></div>
+				<div class="selectfile btn">
+					<input type="file" name="fileinput" class="fileinput js_fileinput" multiple>
+					<span>Auswählen</span>
+				</div>
+				<!-- <ul class="list js_list"></ul> -->
+				<ul class="previewlist js_previewlist"></ul>
+			</section>
+		</div>
+	</body>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="../src/app.js" inline></script>
+</html>

@@ -1,5 +1,4 @@
 var DropBox = function ($dropBox, uploadFilesCallback){
-	console.log('bier bier bier');
 
 	/**
 	 * DragnDrop Eventlistener

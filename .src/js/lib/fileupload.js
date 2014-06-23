@@ -1,7 +1,7 @@
 var DropBox     = require('./dropbox.js');
 var FilePreview = require('./filepreview.js');
 
-var Fileupload = function($, $fileInput, url, opts){
+var Fileupload = function(fileInput, url, opts){
 	var self = this;
 
 	var options = {};
@@ -99,14 +99,16 @@ var Fileupload = function($, $fileInput, url, opts){
 			self.filePreview = initFilePreview();
 		};
 
+		console.log(options);
+
 		/**
 		 * [description]
 		 * @return {[type]} [description]
 		 */
-		$fileInput.on('change', function(){
-			var fileData = $(this).prop('files');
-			self.uploadFiles(fileData);
-		});
+		// $fileInput.on('change', function(){
+		// 	var fileData = $(this).prop('files');
+		// 	self.uploadFiles(fileData);
+		// });
 	};
 
 	/**
@@ -164,18 +166,25 @@ var Fileupload = function($, $fileInput, url, opts){
 	 * @param  {[type]} files [description]
 	 * @return {[type]}       [description]
 	 */
-	var sendData = function(filedata){
-		var promise = $.ajax({
-			url: url,
-			type: 'POST',
-			cache: false,
-			contentType: 'multipart/form-data',
-			processData: false,
-			data: filedata
-		});
+	var sendData = function(files){
+      xhr = new XMLHttpRequest();
+      for(var i = 0; i < files.length; i++){
+      	var file = files[i];
+      	file.xhr = xhr;
+      }
 
-	// 	return promise;
-	// };
+		// var promise = $.ajax({
+		// 	url: url,
+		// 	type: 'POST',
+		// 	cache: false,
+		// 	contentType: 'multipart/form-data',
+		// 	processData: false,
+		// 	data: filedata
+		// });
+
+		// return promise;
+
+	};
 
 	var onFileUploadDone = function(file){
 		if(options.filePreview){
@@ -219,12 +228,8 @@ var Fileupload = function($, $fileInput, url, opts){
 	 * @return {[type]} [description]
 	 */
 	this.uploadFiles = function(fileData){
-		for(var i = 0; i < fileData.length; i++){
-			var file = fileData[i];
-			selectedFiles.push(file);
-			var promise = sendData(file);
+			var promise = sendData(fileData);
 			handleAjaxResponse(promise, file);
-		}
 	};
 
 	init();

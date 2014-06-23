@@ -1,6 +1,5 @@
 var DropBox     = require('./dropbox.js');
 var FilePreview = require('./filepreview.js');
-var Progress    = require('./progress.js');
 
 var Fileupload = function($, $fileInput, url, opts){
 	var self = this;
@@ -101,13 +100,6 @@ var Fileupload = function($, $fileInput, url, opts){
 		};
 
 		/**
-		 * If true then
-		 */
-		if(options.progress){
-			self.progress = progress();
-		};
-
-		/**
 		 * [description]
 		 * @return {[type]} [description]
 		 */
@@ -182,8 +174,8 @@ var Fileupload = function($, $fileInput, url, opts){
 			data: filedata
 		});
 
-		return promise;
-	};
+	// 	return promise;
+	// };
 
 	var onFileUploadDone = function(file){
 		if(options.filePreview){

@@ -1,25 +1,15 @@
-var Fileupload  = require('./lib/fileupload.js');
+var EasyFileupload = require('./lib/easyfileupload.js');
 
 var initializeFileUpload = function() {
-	var contactform = this;
-	var fileUpload = contactform.querySelector('.js_fileupload');
-	var fileInput = fileUpload.querySelector('.js_fileinput');
-	var dropBox = fileUpload.querySelector('.js_dropbox');
-	var list = contactform.querySelector('.js_list');
+	var $fileUpload = $('.js_fileupload');
 
-	// console.log(list);
-	// console.log(dropBox);
-	// console.log(fileInput);
-	// console.log(fileUpload);
-
-	// For Simple File Display
-	// var $list = $fileUpload.find('.js_list');
+	var url = '/';
 
 	var options = {
-		dropBox: false
+		maxFileSize: 6145728
 	};
 
-	var fileUpload = new Fileupload(fileInput, '/', options);
+	var easyFileupload = new EasyFileupload($fileUpload, url, options);
 };
 
 $(document).ready(initializeFileUpload);

@@ -10,38 +10,17 @@
 	<body>
 		<div class="container">
 			<section class="js_fileupload fileupload">
-				<h2 class="hl">Simple File Upload</h2>
+				<h2 class="hl">Easy File Upload</h2>
 				<div class="dropbox js_dropbox"><span class="msg">Datei hierher ziehen.</span></div>
-				<div class="selectfile btn">
-					<input type="file" name="fileinput" class="fileinput js_fileinput" multiple>
+				<div class="selectfile btn js_selectfile">
 					<span>Auswählen</span>
 				</div>
-				<ul class="list js_list">
-					<li class="file">
-						<span class="filepreview js_filepreview"><img class="thumbnail" src="http://placehold.it/70x70" /></span>
-						<span class="label name">Filename</span>
-						<span class="label type">Filetype</span>
-						<span class="label size">Filesize</span>
-						<span class="remove js_remove"></span>
-					</li>
-					<li class="file">
-						<span class="filepreview js_filepreview"><img class="thumbnail" src="http://placehold.it/70x70" /></span>
-						<span class="label name">Filename</span>
-						<span class="label type">Filetype</span>
-						<span class="label size">Filesize</span>
-						<span class="remove js_remove"></span>
-					</li>
-					<li class="file">
-						<span class="filepreview js_filepreview"><img class="thumbnail" src="http://placehold.it/70x70" /></span>
-						<span class="label name">Filename</span>
-						<span class="label type">Filetype</span>
-						<span class="label size">Filesize</span>
-						<span class="remove js_remove"></span>
-					</li>
-				</ul>
+				<div class="fileInputs js_fileInputs"></div>
+				<ul class="list js_list"></ul>
 			</section>
 		</div>
 	</body>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<!-- 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
+	<script src="../vendor/jquery.min.js" inline></script>
 	<script src="../src/app.js" inline></script>
 </html>

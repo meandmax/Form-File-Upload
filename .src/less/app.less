@@ -69,31 +69,53 @@ body{
 		}
 	}
 
-	.fileinput{
-
-	}
-
 	.file{
 		width: 500px;
 		display: table;
-		font-size: @small-fontsize;
-		color: @darkblue;
+		margin-bottom: 10px;
+		font-size: @fontsize;
+		color: #fff;
+		width: 100%;
+
+		.thumbnail{
+			display: table-cell;
+			vertical-align: middle;
+			width: 100px;
+
+			img{
+				margin-right: 20px;
+			}
+		}
+
+		.label{
+			width: auto;
+		}
 
 		.name{
 			display: table-cell;
+			width: 200px;
+			max-width: 200px;
 			vertical-align: middle;
-		}
-
-		.type{
-			display: table-cell;
-			vertical-align: middle;
+	        white-space: nowrap;
+	        overflow: hidden;
+	        text-overflow: ellipsis;
 		}
 
 		.size{
 			display: table-cell;
 			vertical-align: middle;
+			text-align: center;
+		}
+
+		.type{
+			display: table-cell;
+			vertical-align: middle;
 			text-align: right;
 		}
+	}
+
+	.fileInputs{
+		display: none;
 	}
 
 	.dropbox{

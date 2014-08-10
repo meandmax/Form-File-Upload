@@ -5,11 +5,11 @@ var less          = require('gulp-less');
 var csso          = require('gulp-csso');
 var watch         = require('gulp-watch');
 var uglify        = require('gulp-uglify');
-var jshint        = require('gulp-jshint');
-var jshintStylish = require('jshint-stylish');
 var inlinesource  = require('gulp-inline-source');
 var livereload    = require('gulp-livereload');
 var sourcemaps    = require('gulp-sourcemaps');
+var jshint        = require('gulp-jshint');
+var jshintStylish = require('jshint-stylish');
 
 var lvr = false;
 

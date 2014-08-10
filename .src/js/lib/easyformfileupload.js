@@ -1,45 +1,98 @@
-var EasyFileUpload = function($fileUpload, url, opts) {
+var toArray = function(object) {
+	return Array.prototype.slice.call(object, 0);
+};
+
+var hasFileReader = function() {
+	return !!(window.File && window.FileList && window.FileReader);
+};
+
+var noPropagation = function(e) {
+	e.stopPropagation();
+	if (e.preventDefault) {
+		return e.preventDefault();
+	} else {
+		return e.returnValue = false;
+	}
+};
+
+var EasyFormFileUpload = function($fileUpload, url, opts) {
+
 	var $selectButton = $fileUpload.find('.js_selectfile');
 	var $dropBox      = $fileUpload.find('.js_dropbox');
 	var $fileView     = $fileUpload.find('.js_list');
 	var $fileInputs   = $fileUpload.find('.js_fileinputs');
 
-	var fileNumber    = 0;
-	var requestSize   = 0;
-	var options       = {};
-
-	var self          = this;
-
-	var toArray = function(object) {
-		return Array.prototype.slice.call(object, 0);
-	};
-
-	var hasFileReader = function() {
-		return !!(window.File && window.FileList && window.FileReader);
-	};
-
-	var noPropagation = function(e) {
-		e.stopPropagation();
-		if (e.preventDefault) {
-			return e.preventDefault();
-		} else {
-			return e.returnValue = false;
-		}
-	};
+	var self        = this;
+	var fileNumber  = 0;
+	var requestSize = 0;
+	var options     = {};
 
 	var defaultOptions = {
+
+		/**
+		 * [emptyImage description]
+		 * @type {String}
+		 */
 		emptyImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=',
+
+		/**
+		 * [errorMessageTimeout description]
+		 * @type {Number}
+		 */
 		errorMessageTimeout: 5000,
+
+		/**
+		 * [maxFileSize description]
+		 * @type {Number}
+		 */
 		maxFileSize: 3145728,
+
+		/**
+		 * [maxFileNumber description]
+		 * @type {Number}
+		 */
 		maxFileNumber: 3,
+
+		/**
+		 * [maxRequestSize description]
+		 * @type {Number}
+		 */
 		maxRequestSize: 9437184,
-		errorMessages: {
-			invalidFileNameError: 'Der Dateiname enthält ungültige Zeichen.',
-			invalidFileTypeError: 'Ein Dateiformat ist nicht zugelassen. Bitte wählen sie ein anderes Dateiformat.',
-			maxRequestSizeError: 'Das Datenlimit für den Upload von Dateien ist überschritten.',
-			maxFileNumberError: 'Sie können nur maximal 3 Dateien anhängen.',
-			maxFileSizeError: 'Eine Datei ist zu groß. Maximal 3 MB pro Datei sind zugelassen.'
-		},
+
+		/**
+		 * [invalidFileNameError description]
+		 * @type {String}
+		 */
+		invalidFileNameError: 'Der Dateiname enthält ungültige Zeichen.',
+
+		/**
+		 * [invalidFileTypeError description]
+		 * @type {String}
+		 */
+		invalidFileTypeError: 'Ein Dateiformat ist nicht zugelassen. Bitte wählen sie ein anderes Dateiformat.',
+
+		/**
+		 * [maxRequestSizeError description]
+		 * @type {String}
+		 */
+		maxRequestSizeError: 'Das Datenlimit für den Upload von Dateien ist überschritten.',
+
+		/**
+		 * [maxFileNumberError description]
+		 * @type {String}
+		 */
+		maxFileNumberError: 'Sie können nur maximal 3 Dateien anhängen.',
+
+		/**
+		 * [maxFileSizeError description]
+		 * @type {String}
+		 */
+		maxFileSizeError: 'Eine Datei ist zu groß. Maximal 3 MB pro Datei sind zugelassen.',
+
+		/**
+		 * [acceptedTypes description]
+		 * @type {Object}
+		 */
 		acceptedTypes: {
 			'image/png': 'PNG-Bild',
 			'image/jpeg': 'JPEG-Bild',
@@ -67,7 +120,6 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 		}
 	}
 
-
 	/**
 	 * Returns the Filetype
 	 * @param  {[type]} nativeFile [description]
@@ -80,7 +132,6 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 		}
 		return nativeFile.type;
 	};
-
 
 	/**
 	 * Takes the native filesize in bytes and returns the prettified filesize
@@ -112,6 +163,11 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 		return (Math.round(size) / 10) + ' ' + string;
 	};
 
+	/**
+	 * [getReadableFileType description]
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
 	var getReadableFileType = function (nativeFile) {
 		return options.acceptedTypes[getFileType(nativeFile)] || 'Unbekannt';
 	};
@@ -185,26 +241,25 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 
 	var validateFile = function(nativeFile) {
 		var hasErrors = false;
-		var errorMessages = options.errorMessages;
 
 		if (fileNumber >= options.maxFileNumber) {
 			hasErrors = true;
-			showErrorMessage(errorMessages.maxFileNumberError);
+			showErrorMessage(options.maxFileNumberError);
 		}
 
 		if (requestSize >= options.maxRequestSize) {
 			hasErrors = true;
-			showErrorMessage(errorMessages.maxRequestSizeError);
+			showErrorMessage(options.maxRequestSizeError);
 		}
 
 		if (!options.acceptedTypes[getFileType(nativeFile)]) {
 			hasErrors = true;
-			showErrorMessage(errorMessages.invalidFileTypeError);
+			showErrorMessage(options.invalidFileTypeError);
 		}
 
 		if (nativeFile.size > options.maxFileSize) {
 			hasErrors = true;
-			showErrorMessage(errorMessages.maxFileSizeError);
+			showErrorMessage(options.maxFileSizeError);
 		}
 
 		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(nativeFile.name)) {
@@ -214,6 +269,9 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 
 		return !hasErrors;
 	};
+
+	// Maybe I also add the DOM ELements in the options Array
+	var addrequiredElementsToDOM = function(){};
 
 	var addFilePreview = function(nativeFile, $fileViewElement) {
 		var reader = new FileReader();
@@ -354,7 +412,7 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 		createDndHandler(event);
 	});
 
-	$dropBox.on('dragenter', function(ect) {
+	$dropBox.on('dragenter', function(event) {
 		noPropagation(event);
 	});
 
@@ -371,8 +429,7 @@ var EasyFileUpload = function($fileUpload, url, opts) {
 	if (!hasFileReader) {
 		$dropBox.hide();
 	}
-
 };
 
-module.exports = EasyFileUpload
+module.exports = EasyFormFileUpload
 

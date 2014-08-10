@@ -1,7 +1,7 @@
 {
-  "name": "simplefileupload.com",
+  "name": "EasyFormFileUpload",
   "version": "0.0.1",
-  "description": "Simple Ajax File Upload using Jquery",
+  "description": "Easy Form File Upload",
   "author": "Maximilian Heinz",
   "private": true,
   "devDependencies": {

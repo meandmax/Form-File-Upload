@@ -54,6 +54,12 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 		maxFileNumber: 3,
 
 		/**
+		 * [roundedThumbnail description]
+		 * @type {Boolean}
+		 */
+		circleThumbnail: false,
+
+		/**
 		 * [maxRequestSize description]
 		 * @type {Number}
 		 */
@@ -177,7 +183,6 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 	};
 
 	var convertToBase64File = function (nativeFile) {
-		/* eslint new-cap: 0 */
 		var deferred = $.Deferred();
 		var reader = new FileReader();
 
@@ -270,13 +275,14 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 		return !hasErrors;
 	};
 
-	// Maybe I also add the DOM ELements in the options Array
-	var addrequiredElementsToDOM = function(){};
-
 	var addFilePreview = function(nativeFile, $fileViewElement) {
 		var reader = new FileReader();
 
 		var $imgWrapper = $('<span class="thumbnail"></span>');
+
+		if(!!options.circleThumbnail){
+			$imgWrapper.addClass('circle');
+		}
 
 		reader.onload = function (event) {
 			var image = new Image();
@@ -286,8 +292,6 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 			} else {
 				image.src = EMPTY_IMAGE;
 			}
-
-			image.width = 100;
 
 			$fileViewElement.prepend($imgWrapper.append(image));
 		};
@@ -431,5 +435,5 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 	}
 };
 
-module.exports = EasyFormFileUpload
+module.exports = EasyFormFileUpload;
 

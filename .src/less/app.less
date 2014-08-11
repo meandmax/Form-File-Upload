@@ -39,6 +39,10 @@ body{
 	width: 500px;
 	margin: 0 auto;
 
+	canvas{
+		width: 100px;
+		height: 100px;
+	}
 	.selectfile{
 		cursor: pointer;
 		display: inline-block;
@@ -80,10 +84,19 @@ body{
 		.thumbnail{
 			display: table-cell;
 			vertical-align: middle;
-			width: 100px;
 
 			img{
+				width: 100px;
+				height: 100px;
 				margin-right: 20px;
+			}
+
+			&.circle{
+				img{
+					width: 100px;
+					height: 100px;
+					border-radius: 100px;
+				}
 			}
 		}
 

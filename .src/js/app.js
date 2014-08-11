@@ -1,4 +1,4 @@
-var EasyFileupload = require('./lib/easyfileupload.js');
+var EasyFileupload = require('./lib/easyformfileupload.js');
 
 var initializeFileUpload = function() {
 	var $fileUpload = $('.js_fileupload');

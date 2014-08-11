@@ -15,12 +15,18 @@ var noPropagation = function(e) {
 	}
 };
 
-var EasyFormFileUpload = function($fileUpload, url, opts) {
+/**
+ * [EasyFormFileUpload description]
+ * @param {[type]} $fileUpload [description]
+ * @param {[type]} $fileSelect [description]
+ * @param {[type]} $dropBox    [description]
+ * @param {[type]} url         [description]
+ * @param {[type]} opts        [description]
+ */
+var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, url, opts) {
 
-	var $selectButton = $fileUpload.find('.js_selectfile');
-	var $dropBox      = $fileUpload.find('.js_dropbox');
-	var $fileView     = $fileUpload.find('.js_list');
-	var $fileInputs   = $fileUpload.find('.js_fileinputs');
+	var $fileView   = $fileUpload.find('.js_list');
+	var $fileInputs = $fileUpload.find('.js_fileinputs');
 
 	var self        = this;
 	var fileNumber  = 0;
@@ -345,7 +351,7 @@ var EasyFormFileUpload = function($fileUpload, url, opts) {
 		$fileInput.attr('type', 'file');
 		$fileInput.addClass('fileinput');
 
-		$selectButton.prepend($fileInput);
+		$fileSelectton.prepend($fileInput);
 
 		$fileInput.on('change', function () {
 			removeErrors(false);

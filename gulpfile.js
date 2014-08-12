@@ -1,4 +1,3 @@
-var path          = require('path');
 var gulp          = require('gulp');
 var browserify    = require('gulp-browserify');
 var less          = require('gulp-less');
@@ -13,45 +12,43 @@ var jshintStylish = require('jshint-stylish');
 var lvr = false;
 
 gulp.task('less', function () {
-	var stream = gulp.src('.src/less/app.less')
-		.pipe(less({
-			paths: [ path.join(__dirname, '.src', 'less') ]
-		}))
+	var stream = gulp.src('./src/less/app.less')
+		.pipe(less())
 		.pipe(sourcemaps.init())
 			.pipe(csso())
 		.pipe(sourcemaps.write())
-		.pipe(gulp.dest('./src'));
+		.pipe(gulp.dest('./demo'));
 	lvr && stream.pipe(livereload());
 });
 
 gulp.task('scripts', function() {
 	// Single entry point to browserify
-	var stream = gulp.src('.src/js/app.js')
+	var stream = gulp.src('./src/js/*.js')
 			.pipe(browserify())
 			.pipe(sourcemaps.init())
 				.pipe(uglify())
 			.pipe(sourcemaps.write())
-		.pipe(gulp.dest('./src'));
+		.pipe(gulp.dest('./dist'));
 	lvr && stream.pipe(livereload());
 });
 
 gulp.task('lint', function() {
-	return gulp.src('.src/js/**/*.js')
+	return gulp.src('./src/js/*.js')
 		.pipe(jshint())
 		.pipe(jshint.reporter(jshintStylish));
-});
-
-gulp.task('watch', function() {
-	lvr = true;
-	// calls 'build-js' whenever anything changes
-	gulp.watch('.src/js/**/*.js', ['lint']);
-	gulp.watch('.src/js/**/*.js', ['scripts']);
-	gulp.watch('.src/less/**/*.less', ['less']);
 });
 
 gulp.task('dist', ['scripts'], function() {
 	gulp.src('./src/**/*.js')
 		.pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('watch', function() {
+	lvr = true;
+	// calls 'build-js' whenever anything changes
+	gulp.watch('./src/js/**/*.js', ['lint']);
+	gulp.watch('./src/js/**/*.js', ['scripts']);
+	gulp.watch('./src/less/**/*.less', ['less']);
 });
 
 gulp.task('default', ['scripts', 'less', 'lint']);

@@ -1,7 +1,7 @@
 @import 'vars';
 @import 'fonts';
 
-*{
+* {
 	box-sizing: border-box;
 	// -webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -17,15 +17,15 @@ body, html {
 	margin: 0;
 }
 
-body{
+body {
 	font: @small-fontsize / @small-lineheight 'Source Sans Pro', Helvetica, sans-serif;
 }
 
-.formrow{
+.formrow {
 	width: 100%;
 }
 
-.label{
+.label {
 	display: inline-block;
 	width: 148px;
 	font-size: @fontsize;
@@ -57,22 +57,23 @@ input[type="text"] {
 	color: @white;
 }
 
-.fileupload{
+.fileupload {
 	width: 500px;
 	margin: 0 auto;
 
-	canvas{
+	canvas {
 		width: 100px;
 		height: 100px;
 	}
-	.selectfile{
+
+	.selectfile {
 		cursor: pointer;
 		display: inline-block;
 		overflow: hidden;
 		position: relative;
 		margin: 10px 0 20px 0;
 
-		input{
+		input {
 			position: absolute;
 			top: 0;
 			right: 0;
@@ -84,7 +85,7 @@ input[type="text"] {
 			opacity: 0.01;
 		}
 
-		span{
+		span {
 			display: inline-block;
 			background: transparent;
 			color: #fff;
@@ -95,7 +96,7 @@ input[type="text"] {
 		}
 	}
 
-	.file{
+	.file {
 		width: 500px;
 		display: table;
 		margin-bottom: 10px;
@@ -131,9 +132,9 @@ input[type="text"] {
 			width: 200px;
 			max-width: 200px;
 			vertical-align: middle;
-	        white-space: nowrap;
-	        overflow: hidden;
-	        text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		.size{

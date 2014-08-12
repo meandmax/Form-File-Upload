@@ -12,10 +12,22 @@
 			<section class="js_fileupload fileupload">
 				<h2 class="hl">Easy Form File Upload</h2>
 				<form action="/process" method="POST" class="form wide" enctype="multipart/form-data">
-					<div class="dropbox js_dropbox"><span class="msg">Datei hierher ziehen.</span></div>
+
+					<div class="formrow">
+						<span class="label">Vorname:</span>
+						<input type="text" name="firstname" placeholder="Vorname" value="" />
+					</div>
+
+					<div class="formrow">
+						<span class="label required">Nachname:</span>
+						<input type="text" name="lastname" placeholder="Nachname" value="" />
+					</div>
+
 					<div class="selectfile btn js_selectfile">
 						<span>Auswählen</span>
 					</div>
+					<div class="dropbox js_dropbox"><span class="msg">Datei hierher ziehen.</span></div>
+
 					<div class="fileInputs js_fileInputs"></div>
 					<ul class="list js_list"></ul>
 				</form>

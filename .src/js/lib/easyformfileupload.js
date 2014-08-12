@@ -351,7 +351,7 @@ var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, url, opts)
 		$fileInput.attr('type', 'file');
 		$fileInput.addClass('fileinput');
 
-		$fileSelectton.prepend($fileInput);
+		$fileSelect.prepend($fileInput);
 
 		$fileInput.on('change', function () {
 			removeErrors(false);

@@ -2,7 +2,7 @@ var EasyFileupload = require('./lib/easyformfileupload.js');
 
 var initializeFileUpload = function() {
 	var $fileUpload = $('.js_fileupload');
-	var $selectButton = $fileUpload.find('.js_selectfile');
+	var $fileSelect = $fileUpload.find('.js_selectfile');
 	var $dropBox      = $fileUpload.find('.js_dropbox');
 
 	var url = '/';

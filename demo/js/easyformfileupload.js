@@ -6,10 +6,9 @@
  * @param {[type]} $fileUpload [description]
  * @param {[type]} $fileSelect [description]
  * @param {[type]} $dropBox    [description]
- * @param {[type]} url         [description]
  * @param {[type]} opts        [description]
  */
-var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, url, opts) {
+var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, opts) {
 
 	var $fileView   = $fileUpload.find('.js_list');
 	var $fileInputs = $fileUpload.find('.js_fileinputs');

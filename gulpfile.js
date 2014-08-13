@@ -8,10 +8,11 @@ var livereload    = require('gulp-livereload');
 var sourcemaps    = require('gulp-sourcemaps');
 var jshint        = require('gulp-jshint');
 var jshintStylish = require('jshint-stylish');
+var rename        = require('gulp-rename');
 
 var lvr = false;
 
-gulp.task('less', function () {
+gulp.task('less', function() {
 	var stream = gulp.src('./src/less/app.less')
 		.pipe(less())
 		.pipe(sourcemaps.init())
@@ -36,6 +37,16 @@ gulp.task('umd', function() {
 		.pipe(gulp.dest('./dist'))
 });
 
+gulp.task('minify', function() {
+	var stream = gulp.src('./demo/js/easyformfileupload.js')
+		.pipe(rename(function (path) {
+			path.basename += ".min";
+		}))
+		.pipe(uglify())
+		.pipe(gulp.dest('./dist'))
+		.pipe(gulp.dest('./demo/js'));
+});
+
 gulp.task('lint', function() {
 	return gulp.src('./src/js/*.js')
 		.pipe(jshint())
@@ -53,6 +64,7 @@ gulp.task('watch', function() {
 	gulp.watch('./src/js/**/*.js', ['lint']);
 	gulp.watch('./src/js/**/*.js', ['scripts']);
 	gulp.watch('./src/less/**/*.less', ['less']);
+	gulp.watch('./demo/js/easyformfileupload.js', ['minify']);
 });
 
-gulp.task('default', ['scripts', 'less', 'lint']);
+gulp.task('default', ['scripts', 'less', 'lint', 'minify']);

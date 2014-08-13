@@ -24,12 +24,16 @@ gulp.task('less', function () {
 gulp.task('scripts', function() {
 	// Single entry point to browserify
 	var stream = gulp.src('./src/js/*.js')
-			.pipe(browserify())
-			.pipe(sourcemaps.init())
-				.pipe(uglify())
-			.pipe(sourcemaps.write())
-		.pipe(gulp.dest('./dist'));
+		.pipe(browserify({standalone: 'EasyFileUpload'}))
+		.pipe(gulp.dest('./dist'))
+		.pipe(gulp.dest('./demo/js'));
 	lvr && stream.pipe(livereload());
+});
+
+gulp.task('umd', function() {
+	var stream = gulp.src('./src/js/*.js')
+		.pipe(browserify({standalone: 'EasyFileUpload'}))
+		.pipe(gulp.dest('./dist'))
 });
 
 gulp.task('lint', function() {

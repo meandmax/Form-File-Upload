@@ -1,19 +1,4 @@
-var toArray = function(object) {
-	return Array.prototype.slice.call(object, 0);
-};
 
-var hasFileReader = function() {
-	return !!(window.File && window.FileList && window.FileReader);
-};
-
-var noPropagation = function(e) {
-	e.stopPropagation();
-	if (e.preventDefault) {
-		return e.preventDefault();
-	} else {
-		return e.returnValue = false;
-	}
-};
 
 /**
  * [EasyFormFileUpload description]
@@ -118,11 +103,28 @@ var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, url, opts)
 		}
 	};
 
+	var toArray = function(object) {
+		return Array.prototype.slice.call(object, 0);
+	};
+
+	var hasFileReader = function() {
+		return !!(window.File && window.FileList && window.FileReader);
+	};
+
+	var noPropagation = function(e) {
+		e.stopPropagation();
+		if (e.preventDefault) {
+			return e.preventDefault();
+		} else {
+			return e.returnValue = false;
+		}
+	};
+
 	/**
 	 * Merge defaultoptions and useroptions in one object
 	 */
 	for (var i in defaultOptions) {
-		if(opts.hasOwnProperty(i)) {
+		if(opts && opts.hasOwnProperty(i)) {
 			options[i] = opts[i];
 			if (typeof(options[i]) === 'function') {
 				options[i] = options[i].bind(self);
@@ -396,6 +398,8 @@ var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, url, opts)
 				if (!validateFile(nativeFile)) {
 					return false;
 				}
+
+				debuggger;
 
 				trackFile(nativeFile);
 

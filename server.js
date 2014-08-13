@@ -12,14 +12,19 @@ const PORT = 3000;
 // process file uploads
 app.use(route.post('/process', function *() {
     if (this.request.is('multipart/*')) {
-        let parts = parse(this, {
-            autoFields: true
-        });
+        let parts = parse(this);
 
         let part;
 
         while (part = yield parts) {
-            part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
+            if (part.length) {
+                var key = part[0];
+                var value = part[1];
+
+                console.log(key + ': ' + value);
+            } else {
+                part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
+            }
         }
     }
 

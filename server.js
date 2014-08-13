@@ -1,42 +1,14 @@
-var http = require('http')
-var url = require('url')
+'use strict';
 
-var port = 3000;
-var name = 'JSON API';
+let serve = require('koa-static');
+let koa   = require('koa');
+let app   = koa();
 
-function parsetime (time) {
-  return {
-    hour: time.getHours(),
-    minute: time.getMinutes(),
-    second: time.getSeconds()
-  }
-}
+const PORT = 3000;
 
-function unixtime (time) {
-  return { unixtime : time.getTime() }
-}
+app.use(serve('demo'));
+app.use(serve('vendor'));
 
-var server = http.createServer(function (req, res) {
-  var parsedUrl = url.parse(req.url, true)
-  var time = new Date(parsedUrl.query.iso)
+app.listen(PORT);
 
-  var json = {'id': '1'};
-
-  // if (/^\/api\/parsetime/.test(req.url))
-  //   result = parsetime(time)
-  // else if (/^\/api\/unixtime/.test(req.url))
-  //   result = unixtime(time)
-
-  if (json) {
-    res.writeHead(200, { 'Content-Type': 'application/json'})
-    res.end(JSON.stringify(json));
-  } else {
-    res.writeHead(404)
-    res.end()
-  }
-})
-
-server.listen(function() {
-  address = server.address();
-  console.log("opened server on %j", address);
-});
+console.log('Listening on port %d', PORT);

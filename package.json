@@ -17,6 +17,14 @@
     "gulp-uglify": "^0.3.1",
     "gulp-watch": "^0.6.7",
     "jshint-stylish": "^0.2.0",
-    "mocha": "^1.21.4"
+    "mocha": "^1.21.4",
+    "koa": "~0.10.0",
+    "koa-send": "~1.2.4",
+    "koa-route": "~2.0.0",
+    "koa-static": "~1.4.6"
+  },
+  "scripts": {
+    "start": "node --harmony server.js",
+    "test": "node_modules/.bin/gulp"
   }
 }

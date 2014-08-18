@@ -7,7 +7,7 @@ let serve = require('koa-static');
 let koa   = require('koa');
 let app   = koa();
 
-const PORT = 3000;
+const PORT = 8000;
 
 // process file uploads
 app.use(route.post('/process', function *() {

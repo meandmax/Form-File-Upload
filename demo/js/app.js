@@ -3,7 +3,11 @@ var initializeFileUpload = function() {
 	var $fileSelect = $fileUpload.find('.js_selectfile');
 	var $dropBox    = $fileUpload.find('.js_dropbox');
 
-	var easyFileupload = new EasyFileUpload($fileUpload, $fileSelect, $dropBox);
+	var fileUpload = document.querySelector('.js_fileupload');
+	var fileSelect = document.querySelector('.js_selectfile');
+	var dropBox    = document.querySelector('.js_dropbox');
+
+	var easyFileUpload = new EasyFormFileUpload(fileUpload, fileSelect, dropBox);
 };
 
 $(document).ready(initializeFileUpload);

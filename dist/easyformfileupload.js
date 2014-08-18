@@ -1,6 +1,4 @@
-!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.EasyFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-
-
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.EasyFormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /**
  * [EasyFormFileUpload description]
  * @param {[type]} $fileUpload [description]
@@ -8,15 +6,232 @@
  * @param {[type]} $dropBox    [description]
  * @param {[type]} opts        [description]
  */
-var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, opts) {
+var easyFormFileUploadApi = function() {
 
-	var $fileView   = $fileUpload.find('.js_list');
-	var $fileInputs = $fileUpload.find('.js_fileinputs');
-
-	var self        = this;
 	var fileNumber  = 0;
 	var requestSize = 0;
-	var options     = {};
+
+	/**
+	 * [extractDOMNodes description]
+	 * @param  {[type]} obj [description]
+	 * @return {[type]}     [description]
+	 */
+	extractDOMNodes = function(obj) {
+		if(typeof obj === 'function'){
+			return obj[0];
+		}
+		return obj;
+	};
+
+	/**
+	 * [toArray description]
+	 * @param  {[type]} object [description]
+	 * @return {[type]}        [description]
+	 */
+	toArray = function(object) {
+		return Array.prototype.slice.call(object, 0);
+	};
+
+	/**
+	 * [hasFileReader description]
+	 * @return {Boolean} [description]
+	 */
+	hasFileReader = function() {
+		return !!(window.File && window.FileList && window.FileReader);
+	};
+
+	/**
+	 * [noPropagation description]
+	 * @param  {[type]} e [description]
+	 * @return {[type]}   [description]
+	 */
+	noPropagation = function(e) {
+		e.stopPropagation();
+		if (e.preventDefault) {
+			return e.preventDefault();
+		} else {
+			return e.returnValue = false;
+		}
+	};
+
+	/**
+	 * [mergeOptions description]
+	 * @param  {[type]} opts           [description]
+	 * @param  {[type]} defaultoptions [description]
+	 * @return {[type]}                [description]
+	 */
+	mergeOptions = function(opts, defaultOptions, self) {
+		var options = {};
+		for (var i in defaultOptions) {
+			if(opts && opts.hasOwnProperty(i)) {
+				options[i] = opts[i];
+				if (typeof(options[i]) === 'function') {
+					options[i] = options[i].bind(self);
+				}
+			} else{
+				options[i] = defaultOptions[i];
+			}
+		}
+		return options;
+	};
+
+	/**
+	 * Returns the Filetype
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
+	getFileType = function (nativeFile) {
+		// Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
+		if ((/\.xls$/).test(nativeFile.name) && !nativeFile.type) {
+			return 'application/vnd.ms-excel';
+		}
+		return nativeFile.type;
+	};
+
+		/**
+	 * Takes the native filesize in bytes and returns the prettified filesize
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
+	getReadableFileSize = function(nativeFile) {
+		var size = nativeFile.size;
+		var string;
+
+		if (size >= 1024 * 1024 * 1024 * 1024 ) {
+			size = size / (1024 * 1024 * 1024 * 1024 / 10);
+			string = 'TB';
+		} else if (size >= 1024 * 1024 * 1024 ) {
+			size = size / (1024 * 1024 * 1024 / 10);
+			string = 'GB';
+		} else if (size >= 1024 * 1024) {
+			size = size / (1024 * 1024 / 10);
+			string = 'MB';
+		} else if (size >= 1024) {
+			size = size / (1024 / 10);
+			string = 'KB';
+		} else {
+			size = size * 10;
+			string = 'B';
+		}
+
+		return (Math.round(size) / 10) + ' ' + string;
+	};
+
+	/**
+	 * [getReadableFileType description]
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
+	getReadableFileType = function (nativeFile) {
+		return options.acceptedTypes[getFileType(nativeFile)] || 'Unbekannt';
+	};
+
+	/**
+	 * [isImage description]
+	 * @param  {[type]}  nativeFile [description]
+	 * @return {Boolean}            [description]
+	 */
+	isImage = function(nativeFile) {
+		return (/^image\//).test(getFileType(nativeFile));
+	};
+
+	/* Next Task, reimplementing and testing*/
+
+	trackFile = function (nativeFile) {
+		fileNumber += 1;
+		requestSize += nativeFile.size;
+	};
+
+	untrackFile = function (nativeFile) {
+		fileNumber -= 1;
+		requestSize -= nativeFile.size;
+	};
+
+	showErrorMessage = function (error) {
+		clearTimeout(errorTimeoutId);
+
+		errorTimeoutId = setTimeout(function () {
+			removeErrors(true);
+		}, ERROR_MESSAGE_TIMEOUT);
+
+		$dropBox.after($('<li class="error">' + error + '<li>'));
+	};
+
+	removeErrors = function (fadeOut) {
+		var $errors = $fileUpload.find('.error');
+
+		if (fadeOut) {
+			$errors.fadeOut(400, function () {
+				$errors.remove();
+			});
+		} else {
+			$errors.remove();
+		}
+	};
+
+	/**
+	 * [validateFile description]
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
+	validateFile = function(nativeFile) {
+		var hasErrors = false;
+
+		if (fileNumber >= options.maxFileNumber) {
+			hasErrors = true;
+			showErrorMessage(options.maxFileNumberError);
+		}
+
+		if (requestSize >= options.maxRequestSize) {
+			hasErrors = true;
+			showErrorMessage(options.maxRequestSizeError);
+		}
+
+		if (!options.acceptedTypes[getFileType(nativeFile)]) {
+			hasErrors = true;
+			showErrorMessage(options.invalidFileTypeError);
+		}
+
+		if (nativeFile.size > options.maxFileSize) {
+			hasErrors = true;
+			showErrorMessage(options.maxFileSizeError);
+		}
+
+		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(nativeFile.name)) {
+			hasErrors = true;
+			showErrorMessage(invalidFileNameError);
+		}
+
+		return !hasErrors;
+	};
+
+	//Reimplementing in vanilla
+	addhiddenInputToDOM = function(base64File) {
+		// var $hiddenDataField = $('<input type="hidden">');
+		// $hiddenDataField.val(base64File.base64);
+		// $hiddenDataField.attr('name', 'file:' + base64File.name);
+		// $hiddenDataField.appendTo($fileInputs);
+	};
+
+
+};
+
+module.exports = easyFormFileUploadApi;
+
+},{}],2:[function(_dereq_,module,exports){
+var easyFormFileUploadApi = _dereq_('./easyformfileuploadapi.js');
+
+var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
+
+	easyFormFileUploadApi();
+
+	var fileUpload = extractDOMNodes(fileUpload);
+	var fileSelect = extractDOMNodes(fileSelect);
+	var dropBox    = extractDOMNodes(dropBox);
+	var fileView   = document.querySelector('.js_list');
+	var fileInputs = document.querySelector('.js_fileinputs');
+
+	var self        = this;
 
 	var defaultOptions = {
 
@@ -103,351 +318,208 @@ var EasyFormFileUpload = function($fileUpload, $fileSelect, $dropBox, opts) {
 		}
 	};
 
-	var toArray = function(object) {
-		return Array.prototype.slice.call(object, 0);
-	};
-
-	var hasFileReader = function() {
-		return !!(window.File && window.FileList && window.FileReader);
-	};
-
-	var noPropagation = function(e) {
-		e.stopPropagation();
-		if (e.preventDefault) {
-			return e.preventDefault();
-		} else {
-			return e.returnValue = false;
-		}
-	};
-
-	/**
-	 * Merge defaultoptions and useroptions in one object
-	 */
-	for (var i in defaultOptions) {
-		if(opts && opts.hasOwnProperty(i)) {
-			options[i] = opts[i];
-			if (typeof(options[i]) === 'function') {
-				options[i] = options[i].bind(self);
-			}
-		} else{
-			options[i] = defaultOptions[i];
-		}
-	}
-
-	/**
-	 * Returns the Filetype
-	 * @param  {[type]} nativeFile [description]
-	 * @return {[type]}            [description]
-	 */
-	var getFileType = function (nativeFile) {
-		// Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
-		if ((/\.xls$/).test(nativeFile.name) && !nativeFile.type) {
-			return 'application/vnd.ms-excel';
-		}
-		return nativeFile.type;
-	};
-
-	/**
-	 * Takes the native filesize in bytes and returns the prettified filesize
-	 * @param  {[type]} nativeFile [description]
-	 * @return {[type]}            [description]
-	 */
-	var getReadableFileSize = function(nativeFile) {
-		var size = nativeFile.size;
-
-		var string;
-
-		if (size >= 1024 * 1024 * 1024 * 1024 ) {
-			size = size / (1024 * 1024 * 1024 * 1024 / 10);
-			string = 'TB';
-		} else if (size >= 1024 * 1024 * 1024 ) {
-			size = size / (1024 * 1024 * 1024 / 10);
-			string = 'GB';
-		} else if (size >= 1024 * 1024) {
-			size = size / (1024 * 1024 / 10);
-			string = 'MB';
-		} else if (size >= 1024) {
-			size = size / (1024 / 10);
-			string = 'kB';
-		} else {
-			size = size * 10;
-			string = 'B';
-		}
-
-		return (Math.round(size) / 10) + ' ' + string;
-	};
-
-	/**
-	 * [getReadableFileType description]
-	 * @param  {[type]} nativeFile [description]
-	 * @return {[type]}            [description]
-	 */
-	var getReadableFileType = function (nativeFile) {
-		return options.acceptedTypes[getFileType(nativeFile)] || 'Unbekannt';
-	};
-
-	var isImage = function(nativeFile) {
-		return (/^image\//).test(getFileType(nativeFile));
-	};
-
-	var convertToBase64File = function (nativeFile) {
-		var deferred = $.Deferred();
-		var reader = new FileReader();
-
-		reader.onload = function (event) {
-			deferred.resolve({
-				data: event.target.result,
-				nativeFile : nativeFile
-			});
-		};
-
-		reader.onerror = function(){
-			deferred.reject(this);
-		};
-
-		reader.readAsDataURL(nativeFile);
-
-		return deferred.promise();
-	};
-
-	var parseBase64Files = function (nativeFiles) {
-		return $.when.apply(null, nativeFiles.map(function (nativeFile) {
-			return convertToBase64File(nativeFile);
-		})).then(function () {
-			return toArray(arguments);
-		});
-	};
-
-	var trackFile = function (nativeFile) {
-		fileNumber += 1;
-		requestSize += nativeFile.size;
-	};
-
-	var untrackFile = function (nativeFile) {
-		fileNumber -= 1;
-		requestSize -= nativeFile.size;
-	};
+	var options = mergeOptions(opts, defaultOptions, self);
 
-	var removeErrors = function (fadeOut) {
-		var $errors = $fileUpload.find('.error');
+	// var convertToBase64File = function (nativeFile, callback) {
+	// 	var deferred = $.Deferred();
+	// 	var reader = new FileReader();
 
-		if (fadeOut) {
-			$errors.fadeOut(400, function () {
-				$errors.remove();
-			});
-		} else {
-			$errors.remove();
-		}
-	};
+	// 	reader.onload = function (event) {
+	// 		callback(null, data)
 
-	var errorTimeoutId;
+	// 		deferred.resolve({
+	// 			data: event.target.result,
+	// 			nativeFile : nativeFile
+	// 		});
+	// 	};
 
-	var showErrorMessage = function (error) {
-		clearTimeout(errorTimeoutId);
+	// 	reader.onerror = function(){
+	// 		deferred.reject(this);
+	// 	};
 
-		errorTimeoutId = setTimeout(function () {
-			removeErrors(true);
-		}, ERROR_MESSAGE_TIMEOUT);
+	// 	reader.readAsDataURL(nativeFile);
 
-		$dropBox.after($('<li class="error">' + error + '<li>'));
-	};
+	// 	return deferred.promise();
+	// };
 
-	var validateFile = function(nativeFile) {
-		var hasErrors = false;
+	// var parseBase64Files = function (nativeFiles) {
+	// 	return $.when.apply(null, nativeFiles.map(function (nativeFile) {
+	// 		return convertToBase64File(nativeFile);
+	// 	})).then(function () {
+	// 		return toArray(arguments);
+	// 	});
+	// };
+	// var showErrorMessage = function (error) {
+	// 	clearTimeout(errorTimeoutId);
 
-		if (fileNumber >= options.maxFileNumber) {
-			hasErrors = true;
-			showErrorMessage(options.maxFileNumberError);
-		}
+	// 	errorTimeoutId = setTimeout(function () {
+	// 		removeErrors(true);
+	// 	}, ERROR_MESSAGE_TIMEOUT);
 
-		if (requestSize >= options.maxRequestSize) {
-			hasErrors = true;
-			showErrorMessage(options.maxRequestSizeError);
-		}
+	// 	$dropBox.after($('<li class="error">' + error + '<li>'));
+	// };
+	// var addFilePreview = function(nativeFile, $fileViewElement) {
+	// 	var reader = new FileReader();
 
-		if (!options.acceptedTypes[getFileType(nativeFile)]) {
-			hasErrors = true;
-			showErrorMessage(options.invalidFileTypeError);
-		}
+	// 	var $imgWrapper = $('<span class="thumbnail"></span>');
 
-		if (nativeFile.size > options.maxFileSize) {
-			hasErrors = true;
-			showErrorMessage(options.maxFileSizeError);
-		}
+	// 	if(!!options.circleThumbnail){
+	// 		$imgWrapper.addClass('circle');
+	// 	}
 
-		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(nativeFile.name)) {
-			hasErrors = true;
-			showErrorMessage(invalidFileNameError);
-		}
+	// 	reader.onload = function (event) {
+	// 		var image = new Image();
 
-		return !hasErrors;
-	};
+	// 		if (isImage(nativeFile)) {
+	// 			image.src = event.target.result;
+	// 		} else {
+	// 			image.src = EMPTY_IMAGE;
+	// 		}
 
-	var addFilePreview = function(nativeFile, $fileViewElement) {
-		var reader = new FileReader();
+	// 		$fileViewElement.prepend($imgWrapper.append(image));
+	// 	};
 
-		var $imgWrapper = $('<span class="thumbnail"></span>');
+	// 	reader.readAsDataURL(nativeFile);
+	// };
 
-		if(!!options.circleThumbnail){
-			$imgWrapper.addClass('circle');
-		}
+	// var addFileToView = function(nativeFile, removeHandler) {
+	// 	var fileSize = getReadableFileSize(nativeFile);
+	// 	var fileType = getReadableFileType(nativeFile);
 
-		reader.onload = function (event) {
-			var image = new Image();
+	// 	var $fileViewElement = $('<li class="file"></li>');
 
-			if (isImage(nativeFile)) {
-				image.src = event.target.result;
-			} else {
-				image.src = EMPTY_IMAGE;
-			}
+	// 	$fileViewElement.append([
+	// 		'<span class="label name">',
+	// 		nativeFile.name,
+	// 		'</span><span class="label size">',
+	// 		fileSize,
+	// 		'</span><span class="label type">',
+	// 		fileType,
+	// 		'</span>'
+	// 	].join(''));
 
-			$fileViewElement.prepend($imgWrapper.append(image));
-		};
+	// 	var $removeButton = $('<span/>');
 
-		reader.readAsDataURL(nativeFile);
-	};
+	// 	$fileViewElement.append($removeButton);
 
-	var addFileToView = function(nativeFile, removeHandler) {
-		var fileSize = getReadableFileSize(nativeFile);
-		var fileType = getReadableFileType(nativeFile);
+	// 	$removeButton.addClass('remove');
 
-		var $fileViewElement = $('<li class="file"></li>');
+	// 	$removeButton.on('click', function () {
+	// 		$fileViewElement.remove();
 
-		$fileViewElement.append([
-			'<span class="label name">',
-			nativeFile.name,
-			'</span><span class="label size">',
-			fileSize,
-			'</span><span class="label type">',
-			fileType,
-			'</span>'
-		].join(''));
+	// 		removeHandler();
+	// 	});
 
-		var $removeButton = $('<span/>');
+	// 	if (hasFileReader) {
+	// 		addFilePreview(nativeFile, $fileViewElement);
+	// 	}
 
-		$fileViewElement.append($removeButton);
+	// 	$fileView.append($fileViewElement);
+	// };
+	// var fileInputId = 0;
 
-		$removeButton.addClass('remove');
+	// var addNewFileInput = function () {
+	// 	var $fileInput = $('<input/>');
 
-		$removeButton.on('click', function () {
-			$fileViewElement.remove();
+	// 	fileInputId += 1;
 
-			removeHandler();
-		});
+	// 	$fileInput.attr('name', 'fileInput' + fileInputId);
+	// 	$fileInput.attr('type', 'file');
+	// 	$fileInput.addClass('fileinput');
 
-		if (hasFileReader) {
-			addFilePreview(nativeFile, $fileViewElement);
-		}
+	// 	$fileSelect.prepend($fileInput);
 
-		$fileView.append($fileViewElement);
-	};
+	// 	$fileInput.on('change', function () {
+	// 		removeErrors(false);
 
-	var fileInputId = 0;
+	// 		var nativeFiles = toArray($(this).prop('files'));
 
-	var addNewFileInput = function () {
-		var $fileInput = $('<input/>');
+	// 		if (!nativeFiles.length) {
+	// 			return;
+	// 		}
 
-		fileInputId += 1;
+	// 		var nativeFile = nativeFiles[0];
 
-		$fileInput.attr('name', 'fileInput' + fileInputId);
-		$fileInput.attr('type', 'file');
-		$fileInput.addClass('fileinput');
+	// 		if (!validateFile(nativeFile)) {
+	// 			$fileInput.remove();
+	// 		} else {
+	// 			trackFile(nativeFile);
 
-		$fileSelect.prepend($fileInput);
+	// 			$fileInput.appendTo($fileInputs);
 
-		$fileInput.on('change', function () {
-			removeErrors(false);
+	// 			addFileToView(nativeFile, function () {
+	// 				untrackFile(nativeFile);
 
-			var nativeFiles = toArray($(this).prop('files'));
+	// 				$fileInput.remove();
+	// 			});
+	// 		}
 
-			if (!nativeFiles.length) {
-				return;
-			}
+	// 		addNewFileInput();
+	// 	});
+	// };
 
-			var nativeFile = nativeFiles[0];
+	// addNewFileInput();
 
-			if (!validateFile(nativeFile)) {
-				$fileInput.remove();
-			} else {
-				trackFile(nativeFile);
+	// var createDndHandler = function (event) {
+	// 	removeErrors(false);
 
-				$fileInput.appendTo($fileInputs);
+	// 	var nativeFiles = toArray(event.originalEvent.dataTransfer.files);
 
-				addFileToView(nativeFile, function () {
-					untrackFile(nativeFile);
+	// 	parseBase64Files(nativeFiles).done(function (base64Files) {
+	// 		base64Files.every(function (base64File) {
+	// 			var nativeFile = base64File.nativeFile;
 
-					$fileInput.remove();
-				});
-			}
+	// 			if (!validateFile(nativeFile)) {
+	// 				return false;
+	// 			}
 
-			addNewFileInput();
-		});
-	};
 
-	addNewFileInput();
+	// 			trackFile(nativeFile);
 
-	var createDndHandler = function (event) {
-		removeErrors(false);
+	// 			var $hiddenDataField = $('<input type="hidden">');
 
-		var nativeFiles = toArray(event.originalEvent.dataTransfer.files);
+	// 			$hiddenDataField.val(base64File.data);
+	// 			$hiddenDataField.attr('name', 'file:' + nativeFile.name);
+	// 			$hiddenDataField.appendTo($fileInputs);
 
-		parseBase64Files(nativeFiles).done(function (base64Files) {
-			base64Files.every(function (base64File) {
-				var nativeFile = base64File.nativeFile;
+	// 			addFileToView(nativeFile, function () {
+	// 				untrackFile(nativeFile);
 
-				if (!validateFile(nativeFile)) {
-					return false;
-				}
+	// 				$hiddenDataField.remove();
+	// 			});
 
-				debuggger;
+	// 			return true;
+	// 		});
+	// 	});
+	// };
 
-				trackFile(nativeFile);
-
-				var $hiddenDataField = $('<input type="hidden">');
-
-				$hiddenDataField.val(base64File.data);
-				$hiddenDataField.attr('name', 'file:' + nativeFile.name);
-				$hiddenDataField.appendTo($fileInputs);
-
-				addFileToView(nativeFile, function () {
-					untrackFile(nativeFile);
-
-					$hiddenDataField.remove();
-				});
-
-				return true;
-			});
-		});
-	};
-
-	$dropBox.on('drop', function(event) {
+	dropBox.addEventListener('drop', function(event) {
 		noPropagation(event);
-		$(this).removeClass('active');
-		createDndHandler(event);
+		// $(this).removeClass('active');
+		dndHandler(event);
 	});
 
-	$dropBox.on('dragenter', function(event) {
+	dropBox.addEventListener('dragenter', function(event) {
 		noPropagation(event);
 	});
 
-	$dropBox.on('dragover', function(event) {
+	dropBox.addEventListener('dragover', function(event) {
 		noPropagation(event);
-		$(this).addClass('active');
+		// $(this).addClass('active');
 	});
 
-	$dropBox.on('dragleave', function(event) {
+	dropBox.addEventListener('dragleave', function(event) {
 		noPropagation(event);
-		$(this).removeClass('active');
+		// $(this).removeClass('active');
 	});
 
-	if (!hasFileReader) {
-		$dropBox.hide();
+	if (!hasFileReader()) {
+		// dropBox.hide();
 	}
 };
 
 module.exports = EasyFormFileUpload;
 
-
-},{}]},{},[1])
-(1)
+},{"./easyformfileuploadapi.js":1}]},{},[2])
+(2)
 });

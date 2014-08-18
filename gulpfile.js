@@ -9,6 +9,7 @@ var sourcemaps    = require('gulp-sourcemaps');
 var jshint        = require('gulp-jshint');
 var jshintStylish = require('jshint-stylish');
 var rename        = require('gulp-rename');
+var mocha         = require('gulp-mocha');
 
 var lvr = false;
 
@@ -24,16 +25,16 @@ gulp.task('less', function() {
 
 gulp.task('scripts', function() {
 	// Single entry point to browserify
-	var stream = gulp.src('./src/js/*.js')
-		.pipe(browserify({standalone: 'EasyFileUpload'}))
+	var stream = gulp.src('./src/js/easyformfileupload.js')
+		.pipe(browserify({standalone: 'EasyFormFileUpload'}))
 		.pipe(gulp.dest('./dist'))
 		.pipe(gulp.dest('./demo/js'));
 	lvr && stream.pipe(livereload());
 });
 
 gulp.task('umd', function() {
-	var stream = gulp.src('./src/js/*.js')
-		.pipe(browserify({standalone: 'EasyFileUpload'}))
+	var stream = gulp.src('./src/js/easyformfileupload.js')
+		.pipe(browserify({standalone: 'EasyFormFileUpload'}))
 		.pipe(gulp.dest('./dist'))
 });
 
@@ -51,6 +52,11 @@ gulp.task('lint', function() {
 	return gulp.src('./src/js/*.js')
 		.pipe(jshint())
 		.pipe(jshint.reporter(jshintStylish));
+});
+
+gulp.task('test', function () {
+	return gulp.src('test/easyformfileuploadTest.js', {read: false})
+		.pipe(mocha());
 });
 
 gulp.task('dist', ['scripts'], function() {

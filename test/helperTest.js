@@ -1,12 +1,8 @@
-var api    = require('../src/js/easyformfileuploadapi.js')();
+var helper = require('../src/js/helper.js');
 var assert = require('assert');
 var sinon  = require('sinon');
 var expect = require('expect.js');
-var mocha = require('mocha');
-
-// console.log(sinon);
-// console.log(expect);
-// console.log(mocha);
+var mocha  = require('mocha');
 
 var self = sinon.spy();
 
@@ -39,20 +35,7 @@ var nativeFileXls = {
 	size: '293002'
 };
 
-describe('EasyFormFileUploadApi', function() {
-
-	describe('api', function() {
-		it('check API functions', function() {
-			expect(extractDOMNodes).to.be.a('function')
-			expect(toArray).to.be.a('function')
-			expect(hasFileReader).to.be.a('function')
-			expect(noPropagation).to.be.a('function')
-			expect(mergeOptions).to.be.a('function')
-		})
-	})
-})
-
-describe('EasyFormFileUpload', function() {
+describe('helper functions', function() {
 
 	describe('extractDOMNodes', function() {
 		describe('extractDOMNodes called with JqueryInput', function() {
@@ -64,7 +47,7 @@ describe('EasyFormFileUpload', function() {
 			var jqueryMock = new JqueryMock();
 
 			it('should return the value of the JqueryMock', function() {
-				assert.equal('jqueryElement', extractDOMNodes(jqueryMock)[0]);
+				assert.equal('jqueryElement', helper.extractDOMNodes(jqueryMock)[0]);
 			})
 		})
 
@@ -73,7 +56,7 @@ describe('EasyFormFileUpload', function() {
 			var DOMNodeMock = 'domElement';
 
 			it('should return the value of the DOMNodeMock', function() {
-				assert.equal('domElement', extractDOMNodes(DOMNodeMock));
+				assert.equal('domElement', helper.extractDOMNodes(DOMNodeMock));
 			})
 		})
 	})
@@ -94,7 +77,7 @@ describe('EasyFormFileUpload', function() {
 		var evtMock              = new EventMock();
 		var noPreventDefaultMock = new NoPreventDefaultMock();
 
-		noPropagation(evtMock);
+		helper.noPropagation(evtMock);
 
 		it('should call stopPropagation once', function() {
 			assert(evtMock.stopPropagation.calledOnce);
@@ -120,7 +103,7 @@ describe('EasyFormFileUpload', function() {
 			1: [2, 3, 4, 5]
 		};
 
-		var hasToBeAnArray = toArray(mockArrayInObject[0]);
+		var hasToBeAnArray = helper.toArray(mockArrayInObject[0]);
 
 		it('takes an array in an object and converts it to an array', function() {
 			expect(hasToBeAnArray).to.be.an(Array);
@@ -145,7 +128,7 @@ describe('EasyFormFileUpload', function() {
 			maxFileNumber: 23
 		};
 
-		var options = mergeOptions(mockObjB, mockObjA, self);
+		var options = helper.mergeOptions(mockObjB, mockObjA, self);
 
 		it('should return the merged options from default options', function() {
 			assert.equal(options.hasOwnProperty('errorMessageTimeout'), true);
@@ -173,12 +156,12 @@ describe('EasyFormFileUpload', function() {
 
 		describe('should return the filetype based on the native file', function() {
 			it('should return the right filetype for an excel file', function(){
-				var filetype = getFileType(nativeFileXls);
+				var filetype = helper.getFileType(nativeFileXls);
 				assert(filetype, 'application/vnd.ms-excel');
 			})
 
 			it('should return the right filetype for an jpeg image', function(){
-				var filetype= getFileType(nativeFileJpg);
+				var filetype= helper.getFileType(nativeFileJpg);
 				assert(filetype, 'image/jpeg');
 			})
 		})
@@ -188,11 +171,11 @@ describe('EasyFormFileUpload', function() {
 
 		describe('depending how large the file is in bytes, should return the best unit for it', function() {
 			it('should return the the size 92838478 and return the proper size 88.5 with the right unitsize KB', function(){
-				assert(getReadableFileSize(nativeFileJpg), '88.5 MB');
+				assert(helper.getReadableFileSize(nativeFileJpg), '88.5 MB');
 			})
 
 			it('should return the the size 293002 and return the proper size 286.1 with the right unitsize MB', function(){
-				assert(getReadableFileSize(nativeFileXls), '286.1 KB');
+				assert(helper.getReadableFileSize(nativeFileXls), '286.1 KB');
 			})
 		})
 	})
@@ -201,14 +184,14 @@ describe('EasyFormFileUpload', function() {
 
 		describe('returns true if filetype contains image', function() {
 			it('should return true for jpg, tiff, gif & png', function(){
-				assert(getReadableFileSize(nativeFileJpg), true);
-				assert(getReadableFileSize(nativeFilePng), true);
-				assert(getReadableFileSize(nativeFileTiff), true);
-				assert(getReadableFileSize(nativeFileGif), true);
+				assert(helper.getReadableFileSize(nativeFileJpg), true);
+				assert(helper.getReadableFileSize(nativeFilePng), true);
+				assert(helper.getReadableFileSize(nativeFileTiff), true);
+				assert(helper.getReadableFileSize(nativeFileGif), true);
 			})
 
 			it('should return false for example excel', function(){
-				assert(getReadableFileSize(nativeFileXls), false);
+				assert(helper.getReadableFileSize(nativeFileXls), false);
 			})
 		})
 	})

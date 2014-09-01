@@ -55,7 +55,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('test', function () {
-	return gulp.src('test/easyformfileuploadTest.js', {read: false})
+	return gulp.src('./test/helperTest.js', {read: false})
 		.pipe(mocha());
 });
 

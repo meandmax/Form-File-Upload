@@ -14,23 +14,24 @@
 				<form action="/process" method="POST" class="form wide" enctype="multipart/form-data">
 
 					<div class="formrow">
-						<span class="label">Vorname:</span>
+						<span class="label">Firstname:</span>
 						<input type="text" name="firstname" placeholder="Vorname" value="" />
 					</div>
 
 					<div class="formrow">
-						<span class="label required">Nachname:</span>
+						<span class="label required">Surname:</span>
 						<input type="text" name="lastname" placeholder="Nachname" value="" />
 					</div>
 
-					<div class="selectfile btn js_selectfile">
-						<span>Auswählen</span>
-					</div>
-					<div class="dropbox js_dropbox"><span class="msg">Datei hierher ziehen.</span></div>
+					<!-- <div class="selectfile btn js_selectfile">
+						<span>Select</span>
+					</div> -->
+
+					<div class="dropbox js_dropbox"><span class="msg">Drop file here</span></div>
 
 					<div class="fileInputs js_fileInputs"></div>
 					<ul class="list js_list"></ul>
-					<input type="submit" class="btn" value="Absenden">
+					<input type="submit" class="btn" value="Send">
 				</form>
 			</section>
 		</div>

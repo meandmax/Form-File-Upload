@@ -1,16 +1,13 @@
-var easyFormFileUploadApi = require('./easyformfileuploadapi.js');
+var helper = require('./helper.js');
 
 var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
-
-	easyFormFileUploadApi();
-
-	var fileUpload = extractDOMNodes(fileUpload);
-	var fileSelect = extractDOMNodes(fileSelect);
-	var dropBox    = extractDOMNodes(dropBox);
-	var fileView   = document.querySelector('.js_list');
-	var fileInputs = document.querySelector('.js_fileinputs');
-
 	var self        = this;
+	var fileUpload  = helper.extractDOMNodes(fileUpload);
+	var fileSelect  = helper.extractDOMNodes(fileSelect);
+	var dropBox     = helper.extractDOMNodes(dropBox);
+	var fileView    = document.querySelector('.js_list');
+	var fileInputs  = document.querySelector('.js_fileinputs');
+	var fileInputId = 0;
 
 	var defaultOptions = {
 
@@ -97,203 +94,139 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		}
 	};
 
-	var options = mergeOptions(opts, defaultOptions, self);
+	var options = helper.mergeOptions(opts, defaultOptions, self);
 
-	// var convertToBase64File = function (nativeFile, callback) {
-	// 	var deferred = $.Deferred();
-	// 	var reader = new FileReader();
+	/**
+	 * [getReadableFileType description]
+	 * @param  {[type]} nativeFile [description]
+	 * @return {[type]}            [description]
+	 */
+	var getReadableFileType = function (file) {
+		return options.acceptedTypes[helper.getFileType(file)] || 'Unbekannt';
+	};
 
-	// 	reader.onload = function (event) {
-	// 		callback(null, data)
+	var removeFileHandler = function(){};
 
-	// 		deferred.resolve({
-	// 			data: event.target.result,
-	// 			nativeFile : nativeFile
-	// 		});
-	// 	};
+	var addThumbnail = function(file, element){
+		var reader = new FileReader();
+		var imgWrapper = document.createElement('span');
+		var fileName = element.querySelector('.js_name');
+		imgWrapper.className = 'thumbnail';
 
-	// 	reader.onerror = function(){
-	// 		deferred.reject(this);
-	// 	};
+		if(!!options.circleThumbnail){
+			imgWrapper.className += ' circle';
+		}
 
-	// 	reader.readAsDataURL(nativeFile);
+		reader.onload = function (event) {
+			var image = new Image();
 
-	// 	return deferred.promise();
-	// };
+			if (helper.isImage(file)) {
+				image.src = event.target.result;
+			} else {
+				image.src = EMPTY_IMAGE;
+			}
 
-	// var parseBase64Files = function (nativeFiles) {
-	// 	return $.when.apply(null, nativeFiles.map(function (nativeFile) {
-	// 		return convertToBase64File(nativeFile);
-	// 	})).then(function () {
-	// 		return toArray(arguments);
-	// 	});
-	// };
-	// var showErrorMessage = function (error) {
-	// 	clearTimeout(errorTimeoutId);
+			imgWrapper.appendChild(image);
+			element.insertBefore(imgWrapper, fileName);
+		};
 
-	// 	errorTimeoutId = setTimeout(function () {
-	// 		removeErrors(true);
-	// 	}, ERROR_MESSAGE_TIMEOUT);
+		reader.readAsDataURL(file);
 
-	// 	$dropBox.after($('<li class="error">' + error + '<li>'));
-	// };
-	// var addFilePreview = function(nativeFile, $fileViewElement) {
-	// 	var reader = new FileReader();
+	};
 
-	// 	var $imgWrapper = $('<span class="thumbnail"></span>');
+	var addFileToView = function(fileObj, removeFileHandler){
+		var fileSize = helper.getReadableFileSize(fileObj.file);
+		var fileType = getReadableFileType(fileObj.file);
 
-	// 	if(!!options.circleThumbnail){
-	// 		$imgWrapper.addClass('circle');
-	// 	}
+		var fileElement = document.createElement('li');
 
-	// 	reader.onload = function (event) {
-	// 		var image = new Image();
+		fileElement.className = 'file';
 
-	// 		if (isImage(nativeFile)) {
-	// 			image.src = event.target.result;
-	// 		} else {
-	// 			image.src = EMPTY_IMAGE;
-	// 		}
-
-	// 		$fileViewElement.prepend($imgWrapper.append(image));
-	// 	};
-
-	// 	reader.readAsDataURL(nativeFile);
-	// };
-
-	// var addFileToView = function(nativeFile, removeHandler) {
-	// 	var fileSize = getReadableFileSize(nativeFile);
-	// 	var fileType = getReadableFileType(nativeFile);
-
-	// 	var $fileViewElement = $('<li class="file"></li>');
-
-	// 	$fileViewElement.append([
-	// 		'<span class="label name">',
-	// 		nativeFile.name,
-	// 		'</span><span class="label size">',
-	// 		fileSize,
-	// 		'</span><span class="label type">',
-	// 		fileType,
-	// 		'</span>'
-	// 	].join(''));
-
-	// 	var $removeButton = $('<span/>');
-
-	// 	$fileViewElement.append($removeButton);
-
-	// 	$removeButton.addClass('remove');
-
-	// 	$removeButton.on('click', function () {
-	// 		$fileViewElement.remove();
-
-	// 		removeHandler();
-	// 	});
-
-	// 	if (hasFileReader) {
-	// 		addFilePreview(nativeFile, $fileViewElement);
-	// 	}
-
-	// 	$fileView.append($fileViewElement);
-	// };
-	// var fileInputId = 0;
-
-	// var addNewFileInput = function () {
-	// 	var $fileInput = $('<input/>');
-
-	// 	fileInputId += 1;
-
-	// 	$fileInput.attr('name', 'fileInput' + fileInputId);
-	// 	$fileInput.attr('type', 'file');
-	// 	$fileInput.addClass('fileinput');
-
-	// 	$fileSelect.prepend($fileInput);
-
-	// 	$fileInput.on('change', function () {
-	// 		removeErrors(false);
-
-	// 		var nativeFiles = toArray($(this).prop('files'));
-
-	// 		if (!nativeFiles.length) {
-	// 			return;
-	// 		}
-
-	// 		var nativeFile = nativeFiles[0];
-
-	// 		if (!validateFile(nativeFile)) {
-	// 			$fileInput.remove();
-	// 		} else {
-	// 			trackFile(nativeFile);
-
-	// 			$fileInput.appendTo($fileInputs);
-
-	// 			addFileToView(nativeFile, function () {
-	// 				untrackFile(nativeFile);
-
-	// 				$fileInput.remove();
-	// 			});
-	// 		}
-
-	// 		addNewFileInput();
-	// 	});
-	// };
-
-	// addNewFileInput();
-
-	// var createDndHandler = function (event) {
-	// 	removeErrors(false);
-
-	// 	var nativeFiles = toArray(event.originalEvent.dataTransfer.files);
-
-	// 	parseBase64Files(nativeFiles).done(function (base64Files) {
-	// 		base64Files.every(function (base64File) {
-	// 			var nativeFile = base64File.nativeFile;
-
-	// 			if (!validateFile(nativeFile)) {
-	// 				return false;
-	// 			}
+		fileElement.innerHTML = '<span class="label js_name name">'
+		+ fileObj.file.name + '</span><span class="label size">'
+		+ fileSize + '</span><span class="label type">' + fileType + '</span>';
 
 
-	// 			trackFile(nativeFile);
+		if (helper.hasFileReader) {
+			addThumbnail(fileObj.file, fileElement);
+		}
 
-	// 			var $hiddenDataField = $('<input type="hidden">');
+		fileView.appendChild(fileElement);
 
-	// 			$hiddenDataField.val(base64File.data);
-	// 			$hiddenDataField.attr('name', 'file:' + nativeFile.name);
-	// 			$hiddenDataField.appendTo($fileInputs);
+		// Add remove Element & register remove Handler
+		var removeButton = document.createElement('span');
+		removeButton.className = 'remove';
 
-	// 			addFileToView(nativeFile, function () {
-	// 				untrackFile(nativeFile);
+		removeButton.addEventListener('click', function(event) {
+			removeFileHandler();
+			fileElement.remove();
+		});
+	};
 
-	// 				$hiddenDataField.remove();
-	// 			});
+	var addBase64ToDom = function(fileObj){
+		var input = document.createElement("input");
+		input.type = "hidden";
+		input.value = fileObj.data;
+		input.name = 'file: ' + fileObj.file.name;
+		fileUpload.appendChild(input);
+		addFileToView(fileObj, removeFileHandler);
+	};
 
-	// 			return true;
-	// 		});
-	// 	});
-	// };
+	var convertBase64FileHandler = function(err, fileObj){
+		if (err) {
+			console.log(err);
+		}
+
+		if (fileObj) {
+			addBase64ToDom(fileObj);
+		}
+	};
+
+	var convertFilesToBase64 = function(files, convertBase64FileHandler){
+		files.forEach(function(file) {
+			var reader = new FileReader();
+			reader.onload = function (event) {
+				convertBase64FileHandler(null, {
+					data: event.target.result,
+					file: file
+				});
+			};
+
+			reader.onerror = function(){
+				convertBase64FileHandler('Error while loading the file');
+			};
+
+			reader.readAsDataURL(file);
+		})
+	};
+
+	var dndHandler = function(event){
+		var files = helper.toArray(event.dataTransfer.files);
+		convertFilesToBase64(files, convertBase64FileHandler);
+	};
 
 	dropBox.addEventListener('drop', function(event) {
-		noPropagation(event);
-		// $(this).removeClass('active');
+		helper.noPropagation(event);
+		$(this).removeClass('active');
 		dndHandler(event);
 	});
 
 	dropBox.addEventListener('dragenter', function(event) {
-		noPropagation(event);
+		helper.noPropagation(event);
 	});
 
 	dropBox.addEventListener('dragover', function(event) {
-		noPropagation(event);
-		// $(this).addClass('active');
+		helper.noPropagation(event);
+		$(this).addClass('active');
 	});
 
 	dropBox.addEventListener('dragleave', function(event) {
-		noPropagation(event);
-		// $(this).removeClass('active');
+		helper.noPropagation(event);
+		$(this).removeClass('active');
 	});
 
-	if (!hasFileReader()) {
-		// dropBox.hide();
+	if (!helper.hasFileReader()) {
+		dropBox.hide();
 	}
 };
 

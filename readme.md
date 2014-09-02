@@ -42,9 +42,15 @@ Chrome, Safari, FireFox, Internet Explorer 9+
 
 ## Options
 
-Pass some options to the init function for customizing the fileupload module
+Pass some options to the init function for customizing the fileupload module.
 
+## Development Server
 
+Not yet ready to use, but coming soon. Use the ``--harmony`` flag and the latest version of node to start the server. The server should be able to handle the the normal data, the base64 filedata and also files which are attached to fileinputs for the fallback.
+
+```
+node --harmony server.js
+```
 
 ## Tests
 

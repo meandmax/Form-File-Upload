@@ -3,6 +3,7 @@
 [![Version](http://img.shields.io/badge/version-0.0.1-green.svg)]()
 [![Build Status](https://magnum.travis-ci.com/meandmax/easy-FormFileUpload.svg?token=apnBwHLjZ974yJCoHTh7&branch=master)](https://magnum.travis-ci.com/meandmax/easy-FormFileUpload)
 [![devDependency Status](https://david-dm.org/meandmax/easy-FormFileUpload/dev-status.svg)](https://david-dm.org/meandmax/easy-FormFileUpload#info=devDependencies)
+[![Dependency Status](https://david-dm.org/meandmax/easy-FormFileUpload.svg)](https://david-dm.org/meandmax/easy-FormFileUpload.svg)
 
 Easy-FormFileUpload is a very lightweight module to implement a Drag\`n Drop Fileupload in your forms. It is as lightweight as possible, so no jQuery ( the module could still handle jQuery Objects if you want) and no other dependencies. It supports not even uploading files async via Ajax. It is simply just for that one usecase: To have a smart little module with datavalidation, filepreview and Drag\`n Drop support to upload base64 converted files to your server. Nothing special, but very helpful if you need exactly this.
 

@@ -108,7 +108,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} file [description]
 	 * @return {[type]}      [description]
 	 */
-	validateFile = function(file) {
+	var validateFile = function(file) {
 		var hasErrors = false;
 
 		if (fileNumber >= options.maxFileNumber) {
@@ -144,7 +144,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} file [description]
 	 * @return {[type]}      [description]
 	 */
-	trackFile = function (file) {
+	var trackFile = function (file) {
 		fileNumber += 1;
 		requestSize += file.size;
 	};
@@ -154,7 +154,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} file [description]
 	 * @return {[type]}      [description]
 	 */
-	untrackFile = function (file) {
+	var untrackFile = function (file) {
 		fileNumber -= 1;
 		requestSize -= file.size;
 	};
@@ -164,7 +164,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} error [description]
 	 * @return {[type]}       [description]
 	 */
-	showErrorMessage = function (error) {
+	var showErrorMessage = function (error) {
 		removeErrors();
 
 		clearTimeout(errorTimeoutId);
@@ -189,7 +189,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} fadeOut [description]
 	 * @return {[type]}         [description]
 	 */
-	removeErrors = function () {
+	var removeErrors = function () {
 		var errors = document.querySelectorAll('.error');
 		errorWrapper.innerHTML = '';
 	};
@@ -353,7 +353,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
-		$(this).removeClass('active');
+
 		dndHandler(event);
 	});
 
@@ -363,12 +363,10 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 
 	dropBox.addEventListener('dragover', function(event) {
 		helper.noPropagation(event);
-		$(this).addClass('active');
 	});
 
 	dropBox.addEventListener('dragleave', function(event) {
 		helper.noPropagation(event);
-		$(this).removeClass('active');
 	});
 
 	if (!helper.hasFileReader()) {

@@ -8,4 +8,4 @@ var initializeFileUpload = function() {
 	});
 };
 
-$(document).ready(initializeFileUpload);
+document.addEventListener("DOMContentLoaded", initializeFileUpload);

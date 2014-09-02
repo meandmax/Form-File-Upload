@@ -2,24 +2,26 @@
 var helper = _dereq_('./helper.js');
 
 var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
+
+	var ERROR_MESSAGE_TIMEOUT = 5000;
+	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+
+	var errorTimeoutId;
+
 	var self        = this;
 	var fileUpload  = helper.extractDOMNodes(fileUpload);
 	var fileSelect  = helper.extractDOMNodes(fileSelect);
 	var dropBox     = helper.extractDOMNodes(dropBox);
 	var fileView    = document.querySelector('.js_list');
 	var fileInputs  = document.querySelector('.js_fileinputs');
+	var send        = document.querySelector('.js_send');
+	var form        = document.querySelector('.js_form');
 	var fileInputId = 0;
 
 	var fileNumber  = 0;
 	var requestSize = 0;
 
 	var defaultOptions = {
-
-		/**
-		 * [emptyImage description]
-		 * @type {String}
-		 */
-		emptyImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=',
 
 		/**
 		 * [errorMessageTimeout description]
@@ -136,36 +138,57 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		return !hasErrors;
 	};
 
+	/**
+	 * [trackFile description]
+	 * @param  {[type]} file [description]
+	 * @return {[type]}      [description]
+	 */
 	trackFile = function (file) {
 		fileNumber += 1;
 		requestSize += file.size;
 	};
 
+
+	/**
+	 * [untrackFile description]
+	 * @param  {[type]} file [description]
+	 * @return {[type]}      [description]
+	 */
 	untrackFile = function (file) {
 		fileNumber -= 1;
 		requestSize -= file.size;
 	};
 
+
+	/**
+	 * [showErrorMessage description]
+	 * @param  {[type]} error [description]
+	 * @return {[type]}       [description]
+	 */
 	showErrorMessage = function (error) {
 		clearTimeout(errorTimeoutId);
 
 		errorTimeoutId = setTimeout(function () {
-			removeErrors(true);
+			removeErrors();
 		}, ERROR_MESSAGE_TIMEOUT);
 
-		// $dropBox.after($('<li class="error">' + error + '<li>'));
+		var errorElement = document.createElement('li');
+		errorElement.className = 'error';
+
+		errorElement.innerHTML = error;
+		console.log(errorElement);
+
+		form.insertBefore(errorElement, send);
 	};
 
-	removeErrors = function (fadeOut) {
-		// var $errors = $fileUpload.find('.error');
-
-		if (fadeOut) {
-			// $errors.fadeOut(400, function () {
-			// $errors.remove();
-			//});
-		} else {
-			// $errors.remove();
-		}
+	/**
+	 * [removeErrors description]
+	 * @param  {[type]} fadeOut [description]
+	 * @return {[type]}         [description]
+	 */
+	removeErrors = function () {
+		var errors = document.querySelectorAll('.error');
+		//errors.remove();
 	};
 
 	/**

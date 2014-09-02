@@ -9,6 +9,9 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	var fileInputs  = document.querySelector('.js_fileinputs');
 	var fileInputId = 0;
 
+	var fileNumber  = 0;
+	var requestSize = 0;
+
 	var defaultOptions = {
 
 		/**
@@ -97,16 +100,87 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	var options = helper.mergeOptions(opts, defaultOptions, self);
 
 	/**
+	 * [validateFile description]
+	 * @param  {[type]} file [description]
+	 * @return {[type]}      [description]
+	 */
+	validateFile = function(file) {
+		var hasErrors = false;
+
+		if (fileNumber >= options.maxFileNumber) {
+			hasErrors = true;
+			showErrorMessage(options.maxFileNumberError);
+		}
+
+		if (requestSize >= options.maxRequestSize) {
+			hasErrors = true;
+			showErrorMessage(options.maxRequestSizeError);
+		}
+
+		if (!options.acceptedTypes[helper.getFileType(file)]) {
+			hasErrors = true;
+			showErrorMessage(options.invalidFileTypeError);
+		}
+
+		if (file.size > options.maxFileSize) {
+			hasErrors = true;
+			showErrorMessage(options.maxFileSizeError);
+		}
+
+		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(file.name)) {
+			hasErrors = true;
+			showErrorMessage(invalidFileNameError);
+		}
+
+		return !hasErrors;
+	};
+
+	trackFile = function (file) {
+		fileNumber += 1;
+		requestSize += file.size;
+	};
+
+	untrackFile = function (file) {
+		fileNumber -= 1;
+		requestSize -= file.size;
+	};
+
+	showErrorMessage = function (error) {
+		clearTimeout(errorTimeoutId);
+
+		errorTimeoutId = setTimeout(function () {
+			removeErrors(true);
+		}, ERROR_MESSAGE_TIMEOUT);
+
+		// $dropBox.after($('<li class="error">' + error + '<li>'));
+	};
+
+	removeErrors = function (fadeOut) {
+		// var $errors = $fileUpload.find('.error');
+
+		if (fadeOut) {
+			// $errors.fadeOut(400, function () {
+			// $errors.remove();
+			//});
+		} else {
+			// $errors.remove();
+		}
+	};
+
+	/**
 	 * [getReadableFileType description]
-	 * @param  {[type]} nativeFile [description]
-	 * @return {[type]}            [description]
+	 * @param  {[type]} file [description]
+	 * @return {[type]}      [description]
 	 */
 	var getReadableFileType = function (file) {
 		return options.acceptedTypes[helper.getFileType(file)] || 'Unbekannt';
 	};
 
-	var removeFileHandler = function(){};
-
+	/**
+	 * [addThumbnail description]
+	 * @param {[type]} file    [description]
+	 * @param {[type]} element [description]
+	 */
 	var addThumbnail = function(file, element){
 		var reader = new FileReader();
 		var imgWrapper = document.createElement('span');
@@ -134,7 +208,12 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 
 	};
 
-	var addFileToView = function(fileObj, removeFileHandler){
+	/**
+	 * [addFileToView description]
+	 * @param {[type]} fileObj           [description]
+	 * @param {[type]} removeFileHandler [description]
+	 */
+	var addFileToView = function(fileObj, removeFileHandlerCallback){
 		var fileSize = helper.getReadableFileSize(fileObj.file);
 		var fileType = getReadableFileType(fileObj.file);
 
@@ -158,30 +237,57 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		removeButton.className = 'remove';
 
 		removeButton.addEventListener('click', function(event) {
-			removeFileHandler();
+
+			//calls the callback of the DND Handler
+			removeFileHandlerCallback();
+
+			//remove fileViewElement
 			fileElement.remove();
+
+			untrackFile(fileObj.file);
 		});
 	};
 
+
+	/**
+	 * [addBase64ToDom description]
+	 * @param {[type]} fileObj [description]
+	 */
 	var addBase64ToDom = function(fileObj){
 		var input = document.createElement("input");
 		input.type = "hidden";
 		input.value = fileObj.data;
 		input.name = 'file: ' + fileObj.file.name;
 		fileUpload.appendChild(input);
-		addFileToView(fileObj, removeFileHandler);
+		addFileToView(fileObj, function(){
+			//remove hidden input
+			input.remove();
+		});
 	};
 
+	/**
+	 * [convertBase64FileHandler description]
+	 * @param  {[type]} err     [description]
+	 * @param  {[type]} fileObj [description]
+	 * @return {[type]}         [description]
+	 */
 	var convertBase64FileHandler = function(err, fileObj){
 		if (err) {
 			console.log(err);
 		}
 
-		if (fileObj) {
+		if (fileObj && validateFile(fileObj.file)) {
+			trackFile(fileObj.file);
 			addBase64ToDom(fileObj);
 		}
 	};
 
+	/**
+	 * [convertFilesToBase64 description]
+	 * @param  {[type]} files                    [description]
+	 * @param  {[type]} convertBase64FileHandler [description]
+	 * @return {[type]}                          [description]
+	 */
 	var convertFilesToBase64 = function(files, convertBase64FileHandler){
 		files.forEach(function(file) {
 			var reader = new FileReader();
@@ -200,6 +306,11 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		})
 	};
 
+	/**
+	 * [dndHandler description]
+	 * @param  {[type]} event [description]
+	 * @return {[type]}       [description]
+	 */
 	var dndHandler = function(event){
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);

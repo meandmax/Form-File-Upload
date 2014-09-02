@@ -15,6 +15,8 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	var fileInputs  = document.querySelector('.js_fileinputs');
 	var form        = document.querySelector('.js_form');
 	var fileInputId = 0;
+	var errorWrapper = document.createElement('div');
+
 
 	var fileNumber  = 0;
 	var requestSize = 0;
@@ -162,19 +164,23 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @return {[type]}       [description]
 	 */
 	showErrorMessage = function (error) {
+		removeErrors();
+
 		clearTimeout(errorTimeoutId);
 
 		errorTimeoutId = setTimeout(function () {
 			removeErrors();
+			console.log('hallo');
 		}, ERROR_MESSAGE_TIMEOUT);
 
 		var errorElement = document.createElement('li');
+
 		errorElement.className = 'error';
 
 		errorElement.innerHTML = error;
-		console.log(errorElement);
+		errorWrapper.appendChild(errorElement);
 
-		form.insertBefore(errorElement, fileView);
+		form.insertBefore(errorWrapper, fileView);
 	};
 
 	/**
@@ -184,7 +190,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 */
 	removeErrors = function () {
 		var errors = document.querySelectorAll('.error');
-		//errors.remove();
+		errorWrapper.innerHTML = '';
 	};
 
 	/**
@@ -296,8 +302,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 			console.log(err);
 		}
 
-		if (fileObj && validateFile(fileObj.file)) {
-			trackFile(fileObj.file);
+		if (fileObj) {
 			addBase64ToDom(fileObj);
 		}
 	};
@@ -309,7 +314,14 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @return {[type]}                          [description]
 	 */
 	var convertFilesToBase64 = function(files, convertBase64FileHandler){
-		files.forEach(function(file) {
+		files.every(function(file) {
+
+			trackFile(file);
+
+			if(!validateFile(file)){
+				return false;
+			}
+
 			var reader = new FileReader();
 			reader.onload = function (event) {
 				convertBase64FileHandler(null, {
@@ -323,6 +335,8 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 			};
 
 			reader.readAsDataURL(file);
+
+			return true;
 		})
 	};
 

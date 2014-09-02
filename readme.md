@@ -28,10 +28,9 @@ Even if you could use jQuery objects, you can also just pass normal DOM objects 
 <script src="/path/to/easyformfileupload.min.js"></script>  
 <script>
     var fileUpload = document.querySelector('.js_fileupload');
-    var fileSelect = document.querySelector('.js_selectfile');
     var dropBox    = document.querySelector('.js_dropbox');
 
-    new EasyFormFileUpload(fileUpload, fileSelect, dropBox, {
+    new EasyFormFileUpload(fileUpload, dropBox, {
         // your options are going here
     });
 </script>

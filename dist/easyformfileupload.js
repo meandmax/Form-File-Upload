@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.EasyFormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var helper = _dereq_('./helper.js');
 
-var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
+var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 
 	var ERROR_MESSAGE_TIMEOUT = 5000;
 	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
@@ -10,7 +10,6 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 
 	var self        = this;
 	var fileUpload  = helper.extractDOMNodes(fileUpload);
-	var fileSelect  = helper.extractDOMNodes(fileSelect);
 	var dropBox     = helper.extractDOMNodes(dropBox);
 	var fileView    = document.querySelector('.js_list');
 	var fileInputs  = document.querySelector('.js_fileinputs');
@@ -346,15 +345,14 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} event [description]
 	 * @return {[type]}       [description]
 	 */
-	var dndHandler = function(event){
+	this.dndHandler = function(event){
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);
 	};
 
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
-
-		dndHandler(event);
+		self.dndHandler(event);
 	});
 
 	dropBox.addEventListener('dragenter', function(event) {

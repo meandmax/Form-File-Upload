@@ -1,6 +1,6 @@
 var helper = require('./helper.js');
 
-var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
+var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 
 	var ERROR_MESSAGE_TIMEOUT = 5000;
 	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
@@ -9,7 +9,6 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 
 	var self        = this;
 	var fileUpload  = helper.extractDOMNodes(fileUpload);
-	var fileSelect  = helper.extractDOMNodes(fileSelect);
 	var dropBox     = helper.extractDOMNodes(dropBox);
 	var fileView    = document.querySelector('.js_list');
 	var fileInputs  = document.querySelector('.js_fileinputs');
@@ -345,15 +344,14 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	 * @param  {[type]} event [description]
 	 * @return {[type]}       [description]
 	 */
-	var dndHandler = function(event){
+	this.dndHandler = function(event){
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);
 	};
 
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
-
-		dndHandler(event);
+		self.dndHandler(event);
 	});
 
 	dropBox.addEventListener('dragenter', function(event) {

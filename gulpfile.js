@@ -54,13 +54,8 @@ gulp.task('lint', function() {
 		.pipe(jshint.reporter(jshintStylish));
 });
 
-gulp.task('test helper', function () {
-	return gulp.src('./test/helperTest.js', {read: false})
-		.pipe(mocha());
-});
-
-gulp.task('test EasyFormFileUpload', function () {
-	return gulp.src('./test/easyFormFileUploadTest.js', {read: false})
+gulp.task('test', function () {
+	return gulp.src('./test/*.js', {read: false})
 		.pipe(mocha());
 });
 
@@ -79,4 +74,3 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', ['scripts', 'less', 'lint', 'minify']);
-gulp.task('test', ['test helper', 'test EasyFormFileUpload']);

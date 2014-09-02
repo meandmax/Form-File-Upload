@@ -13,7 +13,6 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 	var dropBox     = helper.extractDOMNodes(dropBox);
 	var fileView    = document.querySelector('.js_list');
 	var fileInputs  = document.querySelector('.js_fileinputs');
-	var send        = document.querySelector('.js_send');
 	var form        = document.querySelector('.js_form');
 	var fileInputId = 0;
 
@@ -147,7 +146,6 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		requestSize += file.size;
 	};
 
-
 	/**
 	 * [untrackFile description]
 	 * @param  {[type]} file [description]
@@ -157,7 +155,6 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		fileNumber -= 1;
 		requestSize -= file.size;
 	};
-
 
 	/**
 	 * [showErrorMessage description]
@@ -177,7 +174,7 @@ var EasyFormFileUpload = function(fileUpload, fileSelect, dropBox, opts){
 		errorElement.innerHTML = error;
 		console.log(errorElement);
 
-		form.insertBefore(errorElement, send);
+		form.insertBefore(errorElement, fileView);
 	};
 
 	/**

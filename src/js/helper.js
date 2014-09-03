@@ -37,7 +37,8 @@ var noPropagation = function(e) {
 	if (e.preventDefault) {
 		return e.preventDefault();
 	} else {
-		return e.returnValue = false;
+		e.returnValue = false;
+		return false;
 	}
 };
 

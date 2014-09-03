@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.EasyFormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var helper = _dereq_('./helper.js');
 
-var EasyFormFileUpload = function(fileUpload, dropBox, opts){
+var EasyFormFileUpload = function(fileUpload_, dropBox_, opts){
 
 	var ERROR_MESSAGE_TIMEOUT = 5000;
 	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
@@ -9,14 +9,13 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 	var errorTimeoutId;
 
 	var self        = this;
-	var fileUpload  = helper.extractDOMNodes(fileUpload);
-	var dropBox     = helper.extractDOMNodes(dropBox);
+	var fileUpload  = helper.extractDOMNodes(fileUpload_);
+	var dropBox     = helper.extractDOMNodes(dropBox_);
 	var fileView    = document.querySelector('.js_list');
 	var fileInputs  = document.querySelector('.js_fileinputs');
 	var form        = document.querySelector('.js_form');
 	var fileInputId = 0;
 	var errorWrapper = document.createElement('div');
-
 
 	var fileNumber  = 0;
 	var requestSize = 0;
@@ -247,9 +246,14 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 
 		fileElement.className = 'file';
 
-		fileElement.innerHTML = '<span class="label js_name name">'
-		+ fileObj.file.name + '</span><span class="label size">'
-		+ fileSize + '</span><span class="label type">' + fileType + '</span>';
+		fileElement.innerHTML = [
+		'<span class="label js_name name">',
+		fileObj.file.name,
+		'</span><span class="label size">',
+		fileSize,
+		'</span><span class="label type">',
+		fileType,
+		'</span>'].join('');
 
 
 		if (helper.hasFileReader) {
@@ -315,19 +319,18 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 	 */
 	var convertFilesToBase64 = function(files, convertBase64FileHandler){
 		files.every(function(file) {
-
-			trackFile(file);
+			var reader = new FileReader();
 
 			if(!validateFile(file)){
 				return false;
 			}
 
-			var reader = new FileReader();
 			reader.onload = function (event) {
 				convertBase64FileHandler(null, {
 					data: event.target.result,
 					file: file
 				});
+				trackFile(file);
 			};
 
 			reader.onerror = function(){
@@ -353,10 +356,12 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
 		self.dndHandler(event);
+		this.classList.toggle('active');
 	});
 
 	dropBox.addEventListener('dragenter', function(event) {
 		helper.noPropagation(event);
+		this.classList.toggle('active');
 	});
 
 	dropBox.addEventListener('dragover', function(event) {
@@ -365,6 +370,7 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 
 	dropBox.addEventListener('dragleave', function(event) {
 		helper.noPropagation(event);
+		this.classList.toggle('active');
 	});
 
 	if (!helper.hasFileReader()) {
@@ -414,7 +420,8 @@ var noPropagation = function(e) {
 	if (e.preventDefault) {
 		return e.preventDefault();
 	} else {
-		return e.returnValue = false;
+		e.returnValue = false;
+		return false;
 	}
 };
 

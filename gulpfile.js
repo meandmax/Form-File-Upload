@@ -67,8 +67,7 @@ gulp.task('dist', ['scripts'], function() {
 gulp.task('watch', function() {
 	lvr = true;
 	// calls 'build-js' whenever anything changes
-	gulp.watch('./src/js/**/*.js', ['lint']);
-	gulp.watch('./src/js/**/*.js', ['scripts']);
+	gulp.watch('./src/js/**/*.js', ['scripts', 'test', 'lint']);
 	gulp.watch('./src/less/**/*.less', ['less']);
 	gulp.watch('./demo/js/easyformfileupload.js', ['minify']);
 });

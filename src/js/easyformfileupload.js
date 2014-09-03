@@ -336,7 +336,7 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 			reader.readAsDataURL(file);
 
 			return true;
-		})
+		});
 	};
 
 	/**

@@ -337,7 +337,7 @@ var EasyFormFileUpload = function(fileUpload, dropBox, opts){
 			reader.readAsDataURL(file);
 
 			return true;
-		})
+		});
 	};
 
 	/**
@@ -486,7 +486,7 @@ var getReadableFileSize = function(nativeFile) {
  * @param  {[type]}  file [description]
  * @return {Boolean}      [description]
  */
-isImage = function(file) {
+var isImage = function(file) {
 	return (/^image\//).test(getFileType(file));
 };
 

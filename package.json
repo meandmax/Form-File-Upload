@@ -29,6 +29,6 @@
   },
   "scripts": {
     "start": "node --harmony server.js",
-    "build": "node_modules/.bin/gulp"
+    "test": "node_modules/.bin/gulp"
   }
 }

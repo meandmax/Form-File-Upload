@@ -73,4 +73,4 @@ gulp.task('watch', function() {
 	gulp.watch('./demo/js/easyformfileupload.js', ['minify']);
 });
 
-gulp.task('default', ['scripts', 'less', 'lint', 'minify']);
+gulp.task('default', ['scripts', 'less', 'lint', 'test', 'minify']);

@@ -1,7 +1,7 @@
 # easy-FormFileUpload
 
 [![Version](http://img.shields.io/badge/version-0.0.1-green.svg)]()
-[![Build Status](https://magnum.travis-ci.com/meandmax/easy-FormFileUpload.svg?token=apnBwHLjZ974yJCoHTh7&branch=master)](https://magnum.travis-ci.com/meandmax/easy-FormFileUpload)
+[![Build Status](https://travis-ci.org/meandmax/easy-FormFileUpload.svg?branch=master)](https://travis-ci.org/meandmax/easy-FormFileUpload)
 [![devDependency Status](https://david-dm.org/meandmax/easy-FormFileUpload/dev-status.svg)](https://david-dm.org/meandmax/easy-FormFileUpload#info=devDependencies)
 [![Dependency Status](https://david-dm.org/meandmax/easy-FormFileUpload.svg)](https://david-dm.org/meandmax/easy-FormFileUpload.svg)
 

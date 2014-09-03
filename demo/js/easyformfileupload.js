@@ -169,7 +169,6 @@ var EasyFormFileUpload = function(fileUpload_, dropBox_, opts){
 
 		errorTimeoutId = setTimeout(function () {
 			removeErrors();
-			console.log('hallo');
 		}, ERROR_MESSAGE_TIMEOUT);
 
 		var errorElement = document.createElement('li');
@@ -254,7 +253,6 @@ var EasyFormFileUpload = function(fileUpload_, dropBox_, opts){
 		'</span><span class="label type">',
 		fileType,
 		'</span>'].join('');
-
 
 		if (helper.hasFileReader) {
 			addThumbnail(fileObj.file, fileElement);

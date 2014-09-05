@@ -2,87 +2,85 @@ var helper = require('./helper.js');
 
 var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
-	var ERROR_MESSAGE_TIMEOUT = 5000;
-	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
 	var errorTimeoutId;
-
-	var self        = this;
-	var fileUpload  = helper.extractDOMNodes(fileUpload_);
-	var dropBox     = helper.extractDOMNodes(dropBox_);
-	var fileView    = document.querySelector('.js_list');
-	var fileInputs  = document.querySelector('.js_fileinputs');
-	var form        = document.querySelector('.js_form');
 	var fileInputId = 0;
-	var errorWrapper = document.createElement('div');
-
 	var fileNumber  = 0;
 	var requestSize = 0;
+
+	var self         = this;
+	var fileUpload   = helper.extractDOMNodes(fileUpload_);
+	var dropBox      = helper.extractDOMNodes(dropBox_);
+	var fileView     = document.querySelector('.js_list');
+	var fileInputs   = document.querySelector('.js_fileinputs');
+	var form         = document.querySelector('.js_form');
+	var errorWrapper = document.createElement('div');
 
 	var defaultOptions = {
 
 		/**
-		 * [errorMessageTimeout description]
+		 * [timeout specifies how long the error messages are displayed]
 		 * @type {Number}
 		 */
 		errorMessageTimeout: 5000,
 
 		/**
-		 * [maxFileSize description]
+		 * [the maximum filesize of each file in bytes]
 		 * @type {Number}
 		 */
 		maxFileSize: 3145728,
 
 		/**
-		 * [maxFileNumber description]
+		 * [maxFileNumber defines how many files are allowed to upload with each request]
 		 * @type {Number}
 		 */
 		maxFileNumber: 3,
 
 		/**
-		 * [roundedThumbnail description]
+		 * [defines if the thumbails are displayed in circles, otherwise rectangles]
 		 * @type {Boolean}
 		 */
 		circleThumbnail: false,
 
 		/**
-		 * [maxRequestSize description]
+		 * [defines the maximum size of each request in bytes]
 		 * @type {Number}
 		 */
 		maxRequestSize: 9437184,
 
 		/**
-		 * [invalidFileNameError description]
+		 * [errormessage displayed when the file has characters which are not allowed]
 		 * @type {String}
 		 */
 		invalidFileNameError: 'Der Dateiname enthält ungültige Zeichen.',
 
 		/**
-		 * [invalidFileTypeError description]
+		 * [errormessage displayed when the filetype is not allowed]
 		 * @type {String}
 		 */
 		invalidFileTypeError: 'Ein Dateiformat ist nicht zugelassen. Bitte wählen sie ein anderes Dateiformat.',
 
 		/**
-		 * [maxRequestSizeError description]
+		 * [errormessage displayed when the max. requestsize is reached]
 		 * @type {String}
 		 */
 		maxRequestSizeError: 'Das Datenlimit für den Upload von Dateien ist überschritten.',
 
 		/**
-		 * [maxFileNumberError description]
+		 * [errormessage displayed when the max. filenumber is reached]
 		 * @type {String}
 		 */
 		maxFileNumberError: 'Sie können nur maximal 3 Dateien anhängen.',
 
 		/**
-		 * [maxFileSizeError description]
+		 * [errormessage displayed when the max. filensize is reached]
 		 * @type {String}
 		 */
 		maxFileSizeError: 'Eine Datei ist zu groß. Maximal 3 MB pro Datei sind zugelassen.',
 
 		/**
-		 * [acceptedTypes description]
+		 * [Objects contains all allowed mimetypes as keys & the prettified filenames as values]
 		 * @type {Object}
 		 */
 		acceptedTypes: {
@@ -98,12 +96,16 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 		}
 	};
 
+	/**
+	 * Merging the default options with the user passed options together
+	 * @type {[object]}
+	 */
 	var options = helper.mergeOptions(opts, defaultOptions, self);
 
 	/**
 	 * [validateFile description]
-	 * @param  {[type]} file [description]
-	 * @return {[type]}      [description]
+	 * @param  {[object]}  file
+	 * @return {[boolean]} [is true if the file is valid and the request is also valid]
 	 */
 	var validateFile = function(file) {
 		var hasErrors = false;
@@ -137,9 +139,8 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [trackFile description]
-	 * @param  {[type]} file [description]
-	 * @return {[type]}      [description]
+	 * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]
+	 * @param {[object]} file
 	 */
 	var trackFile = function (file) {
 		fileNumber += 1;
@@ -147,9 +148,8 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [untrackFile description]
-	 * @param  {[type]} file [description]
-	 * @return {[type]}      [description]
+	 * [decrement the filenumber for each deleted file by one & decrement the requestsize by the current filesize]
+	 * @param  {[type]} file
 	 */
 	var untrackFile = function (file) {
 		fileNumber -= 1;
@@ -157,18 +157,16 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [showErrorMessage description]
-	 * @param  {[type]} error [description]
-	 * @return {[type]}       [description]
+	 * [displays the Error message & removes it also after the specified timeout]
+	 * @param  {[string]} error [error message which has to be displayed]
 	 */
 	var showErrorMessage = function (error) {
-		removeErrors();
 
 		clearTimeout(errorTimeoutId);
 
 		errorTimeoutId = setTimeout(function () {
 			removeErrors();
-		}, ERROR_MESSAGE_TIMEOUT);
+		}, errorMessageTimeout);
 
 		var errorElement = document.createElement('li');
 
@@ -181,9 +179,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [removeErrors description]
-	 * @param  {[type]} fadeOut [description]
-	 * @return {[type]}         [description]
+	 * [removes all errors]
 	 */
 	var removeErrors = function () {
 		var errors = document.querySelectorAll('.error');
@@ -191,18 +187,18 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [getReadableFileType description]
-	 * @param  {[type]} file [description]
-	 * @return {[type]}      [description]
+	 * [returns the prettified filestype string based on the specified options]
+	 * @param  {[object]} file [fileobject with mimetye]
+	 * @return {[string]}      [prettified typestring]
 	 */
 	var getReadableFileType = function (file) {
 		return options.acceptedTypes[helper.getFileType(file)] || 'Unbekannt';
 	};
 
 	/**
-	 * [addThumbnail description]
-	 * @param {[type]} file    [description]
-	 * @param {[type]} element [description]
+	 * [if possible adds a thumbnail of the given file to the DOM]
+	 * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
+	 * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
 	 */
 	var addThumbnail = function(file, element){
 		var reader = new FileReader();
@@ -232,9 +228,9 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [addFileToView description]
-	 * @param {[type]} fileObj           [description]
-	 * @param {[type]} removeFileHandler [description]
+	 * [Creates a list item which gets injected to the DOM]
+	 * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
+	 * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
 	 */
 	var addFileToView = function(fileObj, removeFileHandlerCallback){
 		var fileSize = helper.getReadableFileSize(fileObj.file);
@@ -257,18 +253,19 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 			addThumbnail(fileObj.file, fileElement);
 		}
 
-		fileView.appendChild(fileElement);
-
 		// Add remove Element & register remove Handler
 		var removeButton = document.createElement('span');
 		removeButton.className = 'remove';
+		fileElement.appendChild(removeButton);
+
+		fileView.appendChild(fileElement);
 
 		removeButton.addEventListener('click', function(event) {
 
-			//calls the callback of the DND Handler
+			// calls the callback of the DND Handler
 			removeFileHandlerCallback();
 
-			//remove fileViewElement
+			// remove fileViewElement
 			fileElement.remove();
 
 			untrackFile(fileObj.file);
@@ -277,8 +274,8 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 
 	/**
-	 * [addBase64ToDom description]
-	 * @param {[type]} fileObj [description]
+	 * [Creates a hidden input field where the base64 data is stored]
+	 * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
 	 */
 	var addBase64ToDom = function(fileObj){
 		var input = document.createElement("input");
@@ -293,10 +290,9 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [convertBase64FileHandler description]
-	 * @param  {[type]} err     [description]
-	 * @param  {[type]} fileObj [description]
-	 * @return {[type]}         [description]
+	 * Callback function for handling the async filereader response
+	 * @param  {[string]} err     [the errormessage which gets thrown when the filereader errored]
+	 * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
 	 */
 	var convertBase64FileHandler = function(err, fileObj){
 		if (err) {
@@ -309,10 +305,9 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [convertFilesToBase64 description]
-	 * @param  {[type]} files                    [description]
-	 * @param  {[type]} convertBase64FileHandler [description]
-	 * @return {[type]}                          [description]
+	 * [converts the filedata into a base64 string and validates the filedata]
+	 * @param  {[array]}    files                    [the converted fileListObject]
+	 * @param  {[function]} convertBase64FileHandler [gets called when the reader had converted the filedata successfully]
 	 */
 	var convertFilesToBase64 = function(files, convertBase64FileHandler){
 		files.every(function(file) {
@@ -341,35 +336,54 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	};
 
 	/**
-	 * [dndHandler description]
-	 * @param  {[type]} event [description]
-	 * @return {[type]}       [description]
+	 * The dndHandler function is the only function which is publicly exposed
+	 * @param {[object]} event [dropEvent where the filelist is binded]
 	 */
 	this.dndHandler = function(event){
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);
 	};
 
+	/**
+	 * drophandler calls the dndHandler always whenn a file gets dropped
+	 * @param {[object]} event [dropEvent where the filelist is binded]
+	 */
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
 		self.dndHandler(event);
 		this.classList.toggle('active');
 	});
 
+	/**
+	 * The other events are also handled cause they have to be
+	 * @param {[object]} event [dropEvent where the filelist is binded]
+	 */
 	dropBox.addEventListener('dragenter', function(event) {
 		helper.noPropagation(event);
 		this.classList.toggle('active');
 	});
 
+	/**
+	 * The other events are also handled cause they have to be
+	 * @param {[object]} event [dropEvent where the filelist is binded]
+	 */
 	dropBox.addEventListener('dragover', function(event) {
 		helper.noPropagation(event);
 	});
+
+	/**
+	 * The other events are also handled cause they have to be
+	 * @param {[object]} event [dropEvent where the filelist is binded]
+	 */
 
 	dropBox.addEventListener('dragleave', function(event) {
 		helper.noPropagation(event);
 		this.classList.toggle('active');
 	});
 
+	/**
+	 * If there is no filereader available, then the dropzone should not be displayed
+	 */
 	if (!helper.hasFileReader()) {
 		dropBox.hide();
 	}

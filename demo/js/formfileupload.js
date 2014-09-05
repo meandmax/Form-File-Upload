@@ -163,7 +163,6 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	 * @return {[type]}       [description]
 	 */
 	var showErrorMessage = function (error) {
-		removeErrors();
 
 		clearTimeout(errorTimeoutId);
 
@@ -258,11 +257,12 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 			addThumbnail(fileObj.file, fileElement);
 		}
 
-		fileView.appendChild(fileElement);
-
 		// Add remove Element & register remove Handler
 		var removeButton = document.createElement('span');
 		removeButton.className = 'remove';
+		fileElement.appendChild(removeButton);
+
+		fileView.appendChild(fileElement);
 
 		removeButton.addEventListener('click', function(event) {
 
@@ -347,6 +347,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	 * @return {[type]}       [description]
 	 */
 	this.dndHandler = function(event){
+		console.log(fileUpload_);
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);
 	};

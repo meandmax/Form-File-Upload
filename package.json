@@ -1,9 +1,8 @@
 {
-  "name": "EasyFormFileUpload",
+  "name": "Form File Upload",
   "version": "0.0.1",
-  "description": "Easy Form File Upload",
+  "description": "Form File Upload",
   "author": "Maximilian Heinz",
-  "private": true,
   "devDependencies": {
     "co-busboy": "1.0.2",
     "expect.js": "0.3.1",

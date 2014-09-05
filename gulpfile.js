@@ -25,21 +25,21 @@ gulp.task('less', function() {
 
 gulp.task('scripts', function() {
 	// Single entry point to browserify
-	var stream = gulp.src('./src/js/easyformfileupload.js')
-		.pipe(browserify({standalone: 'EasyFormFileUpload'}))
+	var stream = gulp.src('./src/js/formfileupload.js')
+		.pipe(browserify({standalone: 'FormFileUpload'}))
 		.pipe(gulp.dest('./dist'))
 		.pipe(gulp.dest('./demo/js'));
 	lvr && stream.pipe(livereload());
 });
 
 gulp.task('umd', function() {
-	var stream = gulp.src('./src/js/easyformfileupload.js')
-		.pipe(browserify({standalone: 'EasyFormFileUpload'}))
+	var stream = gulp.src('./src/js/formfileupload.js')
+		.pipe(browserify({standalone: 'FormFileUpload'}))
 		.pipe(gulp.dest('./dist'))
 });
 
 gulp.task('minify', function() {
-	var stream = gulp.src('./demo/js/easyformfileupload.js')
+	var stream = gulp.src('./demo/js/formfileupload.js')
 		.pipe(rename(function (path) {
 			path.basename += ".min";
 		}))
@@ -69,7 +69,7 @@ gulp.task('watch', function() {
 	// calls 'build-js' whenever anything changes
 	gulp.watch('./src/js/**/*.js', ['scripts', 'test', 'lint']);
 	gulp.watch('./src/less/**/*.less', ['less']);
-	gulp.watch('./demo/js/easyformfileupload.js', ['minify']);
+	gulp.watch('./demo/js/formfileupload.js', ['minify']);
 });
 
 gulp.task('default', ['scripts', 'less', 'lint', 'test', 'minify']);

@@ -1,6 +1,6 @@
 var helper = require('./helper.js');
 
-var EasyFormFileUpload = function(fileUpload_, dropBox_, opts){
+var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 	var ERROR_MESSAGE_TIMEOUT = 5000;
 	var EMPTY_IMAGE           = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
@@ -375,4 +375,4 @@ var EasyFormFileUpload = function(fileUpload_, dropBox_, opts){
 	}
 };
 
-module.exports = EasyFormFileUpload;
+module.exports = FormFileUpload;

@@ -1,7 +1,7 @@
 {
-  "name": "Form File Upload",
+  "name": "Form-File-Upload",
   "version": "0.0.1",
-  "description": "Form File Upload",
+  "description": "Form-File-Upload",
   "author": "Maximilian Heinz",
   "devDependencies": {
     "co-busboy": "1.0.2",

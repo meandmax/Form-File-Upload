@@ -1,11 +1,11 @@
 # Form File Upload
 
 [![Version](http://img.shields.io/badge/version-0.0.1-green.svg)]()
-[![Build Status](https://travis-ci.org/meandmax/Easy-FormFileUpload.svg?branch=master)](https://travis-ci.org/meandmax/Easy-FormFileUpload)
-[![devDependency Status](https://david-dm.org/meandmax/Easy-FormFileUpload/dev-status.svg)](https://david-dm.org/meandmax/Easy-FormFileUpload#info=devDependencies)
-[![Dependency Status](https://david-dm.org/meandmax/Easy-FormFileUpload.svg)](https://david-dm.org/meandmax/Easy-FormFileUpload.svg)
+[![Build Status](https://travis-ci.org/meandmax/Form-File-Upload.svg?branch=master)](https://travis-ci.org/meandmax/Form-File-Upload)
+[![devDependency Status](https://david-dm.org/meandmax/Form-File-Upload/dev-status.svg)](https://david-dm.org/meandmax/Form-File-Upload#info=devDependencies)
+[![Dependency Status](https://david-dm.org/meandmax/Form-File-Upload.svg)](https://david-dm.org/meandmax/Form-File-Upload.svg)
 
-Easy-FormFileUpload is a very lightweight module to implement a Drag\`n Drop Fileupload in your forms. It is as lightweight as possible, so no jQuery ( the module could still handle jQuery Objects if you want) and no other dependencies. It supports not even uploading files async via Ajax. It is simply just for that one usecase: To have a smart little module with datavalidation, filepreview and Drag\`n Drop support to upload base64 converted files to your server. Nothing special, but very helpful if you need exactly this.
+Form-File-Upload is a very lightweight module to implement a Drag\`n Drop Fileupload in your forms. It is as lightweight as possible, so no jQuery ( the module could still handle jQuery Objects if you want) and no other dependencies. It supports not even uploading files async via Ajax. It is simply just for that one usecase: To have a smart little module with datavalidation, filepreview and Drag\`n Drop support to upload base64 converted files to your server. Nothing special, but very helpful if you need exactly this.
 
 ## Features
 

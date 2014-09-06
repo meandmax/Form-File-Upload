@@ -16,6 +16,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	var fileInputs   = document.querySelector('.js_fileinputs');
 	var form         = document.querySelector('.js_form');
 	var errorWrapper = document.createElement('div');
+	var selectButton = document.createElement('div');
 
 	var defaultOptions = {
 
@@ -336,6 +337,42 @@ var FormFileUpload = function(fileUpload_, opts){
 		});
 	};
 
+	var addNewFileInput = function () {
+		var fileInput = document.createElement('input');
+
+		fileInput.type = 'file';
+		fileInput.className = 'fileinput';
+		fileInputId += 1;
+
+		fileInput.name = 'fileInput ' + fileInputId;
+
+		form.insertBefore(selectButton, dropBox);
+		selectButton.appendChild(fileInput);
+
+		fileInput.addEventListener('change', function () {
+			self.removeErrors();
+
+			var nativeFile = fileInput.files[0];
+			var fileObj = { file: nativeFile };
+
+
+			if (self.validateFile(nativeFile)) {
+				fileInput.parentNode.removeChild(fileInput);
+			} else {
+				trackFile(nativeFile);
+
+				fileInputs.appendChild(fileInput);
+
+				addFileToView(fileObj, function () {
+					untrackFile(nativeFile);
+					fileInput.parentNode.removeChild(fileInput);
+				});
+			}
+
+			addNewFileInput();
+		});
+	};
+
 	/**
 	 * The dndHandler function is the only function which is publicly exposed
 	 * @param {[object]} event [dropEvent where the filelist is binded]
@@ -383,9 +420,15 @@ var FormFileUpload = function(fileUpload_, opts){
 	});
 
 	/**
-	 * If there is no filereader available, then the dropzone should not be displayed
+	 * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
 	 */
 	if (!helper.hasFileReader()) {
+		selectButton.className = 'selectbutton js_selectbutton';
+		var span = document.createElement('span');
+		span.innerHTML = 'Select File';
+		selectButton.appendChild(span);
+
+		// addNewFileInput();
 		dropBox.style.display = "none";
 	}
 };

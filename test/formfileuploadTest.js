@@ -44,7 +44,7 @@ var nativeFileJpg = {
 var nativeFileXls = {
 	name: 'Testfile.xls',
 	type: '',
-	size: '293002'
+	size: '29300'
 };
 
 var evtMock = {

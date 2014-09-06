@@ -24,6 +24,7 @@ body {
 }
 
 .btn {
+	font: @small-fontsize / @small-lineheight 'Source Sans Pro', Helvetica, sans-serif;
 	display: block;
 	padding: 16px 0;
 	font-size: @small-fontsize;
@@ -89,12 +90,15 @@ input[type="text"] {
 		height: 100px;
 	}
 
-	.selectfile {
-		cursor: pointer;
-		display: inline-block;
+	.selectbutton {
+		display: block;
+		background: #16a085;
 		overflow: hidden;
 		position: relative;
-		margin: 10px 0 20px 0;
+		text-align: center;
+		margin: 10px 0;
+		padding: 15px 40px;
+		cursor: pointer;
 
 		input {
 			position: absolute;
@@ -116,6 +120,10 @@ input[type="text"] {
 			font-weight: bold;
 			text-transform: uppercase;
 			cursor: pointer;
+		}
+
+		&:hover {
+			background: darken(#16a085, 10%);
 		}
 	}
 
@@ -184,7 +192,7 @@ input[type="text"] {
 		}
 	}
 
-	.fileInputs {
+	.fileinputs {
 		display: none;
 	}
 

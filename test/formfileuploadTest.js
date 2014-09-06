@@ -4,28 +4,13 @@ var assert         = require('assert');
 var sinon          = require('sinon');
 var expect         = require('expect.js');
 var mocha          = require('mocha');
+var jsdom          = require("jsdom").jsdom;
 
-global.document = {
-	querySelector: sinon.spy(),
-	createElement: function(el) {
-		if(el === 'li') {
-			return '<li></li>';
-		}
-		if(el === 'span') {
-			return '<span></span>';
-		}
-		if(el === 'div') {
-			return '<div></div>';
-		}
-	},
-	querySelectorAll: sinon.spy()
-};
+global.document = jsdom("<section class='js_fileupload fileupload'><div class='js_form'></div><div class='js_dropbox'>bla</div><ul class='js_list'></ul></section>");
+global.window   = document.parentWindow;
 
-global.window = {
-	File: true,
-	FileReader: true,
-	FileList: true
-}
+var optionsMock      = sinon.spy();
+var fileUploadElMock = window.document.querySelector('.js_fileupload');
 
 global.FileReader = function(){
 	this.onload = sinon.spy();
@@ -42,18 +27,18 @@ var nativeFilePng = {
 var nativeFileTiff = {
 	name: 'Testfile.tiff',
 	type: 'image/tiff',
-	size: '12ß039ß'
+	size: '123094'
 };
 
 var nativeFileGif = {
 	name: 'Testfile.gif',
 	type: 'image/gif',
-	size: '12ß039ß'
+	size: '1208'
 };
 var nativeFileJpg = {
 	name: 'Testfile.jpg',
 	type: 'image/jpeg',
-	size: '92838478'
+	size: '92838'
 };
 
 var nativeFileXls = {
@@ -68,17 +53,9 @@ var evtMock = {
 	}
 };
 
-var optionsMock        = sinon.spy();
-var fileUploadElMock   = '<section class="js_fileupload fileupload"></section>';
-
-var dropBoxElMock = {
-	node: '<div class="dropbox"></div>',
-	addEventListener: sinon.spy()
-};
-
 describe('easyformfileupload', function() {
 	describe('the public api', function(){
-		var formfileupload = new FormFileUpload(fileUploadElMock, dropBoxElMock, optionsMock);
+		var formfileupload = new FormFileUpload(fileUploadElMock, optionsMock);
 
 		it('should expose the function dndHandler', function() {
 			expect(formfileupload.dndHandler).to.be.a('function');
@@ -86,12 +63,11 @@ describe('easyformfileupload', function() {
 	})
 
 	describe('drop file to dropzone', function(){
-		var formfileupload = new FormFileUpload(fileUploadElMock, dropBoxElMock, optionsMock);
+		var formfileupload = new FormFileUpload(fileUploadElMock, optionsMock);
 		formfileupload.dndHandler(evtMock);
 
 		it('should add an element to the DOM', function(){
-			//expect(fileUploadElMock).toContain('li');
-			console.log(fileUploadElMock);
+			// expect(fileUploadElMock).toContain('li');
 			it('elements should have the correct data', function(){
 
 			})

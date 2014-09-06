@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.FormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var helper = _dereq_('./helper.js');
 
-var FormFileUpload = function(fileUpload_, dropBox_, opts){
+var FormFileUpload = function(fileUpload_, opts){
 
 	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
@@ -12,7 +12,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 	var self         = this;
 	var fileUpload   = helper.extractDOMNodes(fileUpload_);
-	var dropBox      = helper.extractDOMNodes(dropBox_);
+	var dropBox      = document.querySelector('.js_dropbox');
 	var fileView     = document.querySelector('.js_list');
 	var fileInputs   = document.querySelector('.js_fileinputs');
 	var form         = document.querySelector('.js_form');
@@ -136,7 +136,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 			showErrorMessage(invalidFileNameError);
 		}
 
-		return !hasErrors;
+		return hasErrors;
 	};
 
 	/**
@@ -167,7 +167,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 		errorTimeoutId = setTimeout(function () {
 			removeErrors();
-		}, errorMessageTimeout);
+		}, options.errorMessageTimeout);
 
 		var errorElement = document.createElement('li');
 
@@ -314,7 +314,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 		files.every(function(file) {
 			var reader = new FileReader();
 
-			if(!validateFile(file)){
+			if( validateFile(file) ) {
 				return false;
 			}
 
@@ -386,7 +386,6 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	 * If there is no filereader available, then the dropzone should not be displayed
 	 */
 	if (!helper.hasFileReader()) {
-		dropBox.hide();
 	}
 };
 

@@ -1,6 +1,6 @@
 var helper = require('./helper.js');
 
-var FormFileUpload = function(fileUpload_, dropBox_, opts){
+var FormFileUpload = function(fileUpload_, opts){
 
 	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
@@ -11,7 +11,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 	var self         = this;
 	var fileUpload   = helper.extractDOMNodes(fileUpload_);
-	var dropBox      = helper.extractDOMNodes(dropBox_);
+	var dropBox      = document.querySelector('.js_dropbox');
 	var fileView     = document.querySelector('.js_list');
 	var fileInputs   = document.querySelector('.js_fileinputs');
 	var form         = document.querySelector('.js_form');
@@ -135,7 +135,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 			showErrorMessage(invalidFileNameError);
 		}
 
-		return !hasErrors;
+		return hasErrors;
 	};
 
 	/**
@@ -166,7 +166,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 
 		errorTimeoutId = setTimeout(function () {
 			removeErrors();
-		}, errorMessageTimeout);
+		}, options.errorMessageTimeout);
 
 		var errorElement = document.createElement('li');
 
@@ -313,7 +313,7 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 		files.every(function(file) {
 			var reader = new FileReader();
 
-			if(!validateFile(file)){
+			if( validateFile(file) ) {
 				return false;
 			}
 
@@ -385,7 +385,6 @@ var FormFileUpload = function(fileUpload_, dropBox_, opts){
 	 * If there is no filereader available, then the dropzone should not be displayed
 	 */
 	if (!helper.hasFileReader()) {
-		dropBox.hide();
 	}
 };
 

@@ -1,8 +1,7 @@
 var initializeFileUpload = function() {
 	var fileUpload = document.querySelector('.js_fileupload');
-	var dropBox    = document.querySelector('.js_dropbox');
 
-	new FormFileUpload(fileUpload, dropBox, {
+	new FormFileUpload(fileUpload, {
 		// your options are going here
 	});
 };

@@ -103,42 +103,6 @@ var FormFileUpload = function(fileUpload_, opts){
 	var options = helper.mergeOptions(opts, defaultOptions, self);
 
 	/**
-	 * [validateFile description]
-	 * @param  {[object]}  file
-	 * @return {[boolean]} [is true if the file is valid and the request is also valid]
-	 */
-	var validateFile = function(file) {
-		var hasErrors = false;
-
-		if (fileNumber >= options.maxFileNumber) {
-			hasErrors = true;
-			showErrorMessage(options.maxFileNumberError);
-		}
-
-		if (requestSize >= options.maxRequestSize) {
-			hasErrors = true;
-			showErrorMessage(options.maxRequestSizeError);
-		}
-
-		if (!options.acceptedTypes[helper.getFileType(file)]) {
-			hasErrors = true;
-			showErrorMessage(options.invalidFileTypeError);
-		}
-
-		if (file.size > options.maxFileSize) {
-			hasErrors = true;
-			showErrorMessage(options.maxFileSizeError);
-		}
-
-		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(file.name)) {
-			hasErrors = true;
-			showErrorMessage(invalidFileNameError);
-		}
-
-		return hasErrors;
-	};
-
-	/**
 	 * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]
 	 * @param {[object]} file
 	 */
@@ -157,15 +121,60 @@ var FormFileUpload = function(fileUpload_, opts){
 	};
 
 	/**
+	 * [returns the prettified filestype string based on the specified options]
+	 * @param  {[object]} file [fileobject with mimetye]
+	 * @return {[string]}      [prettified typestring]
+	 */
+	var getReadableFileType = function (file) {
+		return options.acceptedTypes[helper.getFileType(file)] || 'Unbekannt';
+	};
+
+	/**
+	 * [validateFile description]
+	 * @param  {[object]}  file
+	 * @return {[boolean]} [is true if the file is valid and the request is also valid]
+	 */
+	this.validateFile = function(file) {
+		var hasErrors = false;
+
+		if (fileNumber >= options.maxFileNumber) {
+			hasErrors = true;
+			self.showErrorMessage(options.maxFileNumberError);
+		}
+
+		if (requestSize >= options.maxRequestSize) {
+			hasErrors = true;
+			self.showErrorMessage(options.maxRequestSizeError);
+		}
+
+		if (!options.acceptedTypes[helper.getFileType(file)]) {
+			hasErrors = true;
+			self.showErrorMessage(options.invalidFileTypeError);
+		}
+
+		if (file.size > options.maxFileSize) {
+			hasErrors = true;
+			self.showErrorMessage(options.maxFileSizeError);
+		}
+
+		if (!(/^[A-Za-z0-9.\-_ ]+$/).test(file.name)) {
+			hasErrors = true;
+			self.showErrorMessage(invalidFileNameError);
+		}
+
+		return hasErrors;
+	};
+
+	/**
 	 * [displays the Error message & removes it also after the specified timeout]
 	 * @param  {[string]} error [error message which has to be displayed]
 	 */
-	var showErrorMessage = function (error) {
+	this.showErrorMessage = function (error) {
 
 		clearTimeout(errorTimeoutId);
 
 		errorTimeoutId = setTimeout(function () {
-			removeErrors();
+			self.removeErrors();
 		}, options.errorMessageTimeout);
 
 		var errorElement = document.createElement('li');
@@ -181,18 +190,9 @@ var FormFileUpload = function(fileUpload_, opts){
 	/**
 	 * [removes all errors]
 	 */
-	var removeErrors = function () {
+	this.removeErrors = function () {
 		var errors = document.querySelectorAll('.error');
 		errorWrapper.innerHTML = '';
-	};
-
-	/**
-	 * [returns the prettified filestype string based on the specified options]
-	 * @param  {[object]} file [fileobject with mimetye]
-	 * @return {[string]}      [prettified typestring]
-	 */
-	var getReadableFileType = function (file) {
-		return options.acceptedTypes[helper.getFileType(file)] || 'Unbekannt';
 	};
 
 	/**
@@ -224,7 +224,6 @@ var FormFileUpload = function(fileUpload_, opts){
 		};
 
 		reader.readAsDataURL(file);
-
 	};
 
 	/**
@@ -237,6 +236,8 @@ var FormFileUpload = function(fileUpload_, opts){
 		var fileType = getReadableFileType(fileObj.file);
 
 		var fileElement = document.createElement('li');
+
+		console.log('Hello: addFileToView');
 
 		fileElement.className = 'file';
 
@@ -313,7 +314,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		files.every(function(file) {
 			var reader = new FileReader();
 
-			if( validateFile(file) ) {
+			if( self.validateFile(file) ) {
 				return false;
 			}
 
@@ -339,7 +340,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	 * The dndHandler function is the only function which is publicly exposed
 	 * @param {[object]} event [dropEvent where the filelist is binded]
 	 */
-	this.dndHandler = function(event){
+	this.addDroppedFiles = function(event){
 		var files = helper.toArray(event.dataTransfer.files);
 		convertFilesToBase64(files, convertBase64FileHandler);
 	};
@@ -350,7 +351,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	 */
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
-		self.dndHandler(event);
+		self.addDroppedFiles(event);
 		this.classList.toggle('active');
 	});
 
@@ -385,6 +386,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	 * If there is no filereader available, then the dropzone should not be displayed
 	 */
 	if (!helper.hasFileReader()) {
+		dropBox.style.display = "none";
 	}
 };
 

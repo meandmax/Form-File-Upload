@@ -57,24 +57,16 @@ describe('easyformfileupload', function() {
 	describe('the public api', function(){
 		var formfileupload = new FormFileUpload(fileUploadElMock, optionsMock);
 
-		it('should expose the function dndHandler', function() {
-			expect(formfileupload.dndHandler).to.be.a('function');
+		it('should expose the public api', function() {
+			expect(formfileupload.addDroppedFiles).to.be.a('function');
+			expect(formfileupload.validateFile).to.be.a('function');
+			expect(formfileupload.showErrorMessage).to.be.a('function');
+			expect(formfileupload.removeErrors).to.be.a('function');
 		})
 	})
 
 	describe('drop file to dropzone', function(){
 		var formfileupload = new FormFileUpload(fileUploadElMock, optionsMock);
-		formfileupload.dndHandler(evtMock);
-
-		it('should add an element to the DOM', function(){
-			// expect(fileUploadElMock).toContain('li');
-			it('elements should have the correct data', function(){
-
-			})
-		})
-	})
-
-	describe('form submitted files are sent to the server', function(){
-		// server tests
+		formfileupload.addDroppedFiles(evtMock);
 	})
 })

@@ -9,31 +9,58 @@ let app   = koa();
 
 const PORT = 8000;
 
+var decodeBase64Image = function(dataString) {
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    response = {};
+
+  if (matches.length !== 3) {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+
+  return response;
+}
+
 // process file uploads
 app.use(route.post('/process', function *() {
-    if (this.request.is('multipart/*')) {
-        let parts = parse(this);
+	if (this.request.is('multipart/*')) {
+		let parts = parse(this);
 
-        let part;
+		let part;
 
-        while (part = yield parts) {
-            if (part.length) {
-                var key = part[0];
-                var value = part[1];
+		while (part = yield parts) {
+			if (part.length) {
+				let type, name, value;
 
-                console.log(key + ': ' + value);
-            } else {
-                part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
-            }
-        }
-    }
+				let partsOfStr = part[0].split(':');
 
-    this.redirect('/');
+				if (partsOfStr[0] === 'file') {
+					console.log(partsOfStr[0]);
+					type = partsOfStr[0];
+					name = partsOfStr[1];
+
+					value = decodeBase64Image(part[1]);
+					console.log(value);
+
+				} else {
+					key = part[0];
+					value = part[1];
+				}
+
+				// console.log(key + ': ' + value);
+			} else {
+				part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
+			}
+		}
+	}
+
+	this.redirect('/');
 }));
 
 // static files
 app.use(serve('demo'));
-app.use(serve('vendor'));
 
 app.listen(PORT);
 

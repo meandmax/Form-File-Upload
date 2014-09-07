@@ -268,7 +268,7 @@ var FormFileUpload = function(fileUpload_, opts){
 			removeFileHandlerCallback();
 
 			// remove fileViewElement
-			fileElement.remove();
+			fileElement.parentNode.removeChild(fileElement);
 
 			untrackFile(fileObj.file);
 		});
@@ -283,8 +283,8 @@ var FormFileUpload = function(fileUpload_, opts){
 		var input = document.createElement("input");
 		input.type = "hidden";
 		input.value = fileObj.data;
-		input.name = 'file: ' + fileObj.file.name;
-		fileUpload.appendChild(input);
+		input.name = 'file:' + fileObj.file.name;
+		form.appendChild(input);
 		addFileToView(fileObj, function(){
 			//remove hidden input
 			input.remove();

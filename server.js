@@ -32,7 +32,7 @@ app.use(route.post('/process', function *() {
 
 		while (part = yield parts) {
 			if (part.length) {
-				let type, name, value;
+				let type, name, value, key;
 
 				let partsOfStr = part[0].split(':');
 
@@ -42,14 +42,17 @@ app.use(route.post('/process', function *() {
 					name = partsOfStr[1];
 
 					value = decodeBase64Image(part[1]);
-					console.log(value);
+
+					fs.writeFile('files/' + name, value.data, function(err) {
+						console.log('Worked');
+					});
 
 				} else {
 					key = part[0];
 					value = part[1];
+					console.log(key + ': ' + value);
 				}
 
-				// console.log(key + ': ' + value);
 			} else {
 				part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
 			}

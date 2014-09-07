@@ -11,7 +11,7 @@ Form-File-Upload is a very lightweight module to implement a Drag\`n Drop Fileup
 
 * Super easy to implement
 * Lightweight, no dependencies (written vanilla)
-* Fallback for uploading files even with IE8 coming soon
+* Fallback for uploading files even with IE8 (normal file input fallback)
 * Development Server written in KOA.
 
 ## Get Started
@@ -58,7 +58,7 @@ Just run in your terminal  ``gulp test`` to run the tests.
 
 ## Credits
 
-Thanks to SinnerSchrader for inspiring me at first to build this plugin.
+Thanks to [SinnerSchrader](http://sinnerschrader.com/ "SinnerSchrader") for inspiring me at first to build this plugin.
 
 ## Copyright
 

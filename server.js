@@ -9,18 +9,18 @@ let app   = koa();
 
 const PORT = 8000;
 
-var decodeBase64Image = function(dataString) {
-  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-    response = {};
+var decodeBase64Image = function(base64FileString) {
+	let matches = base64FileString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+	response = {};
 
-  if (matches.length !== 3) {
-    return new Error('Invalid input string');
-  }
+	if (matches.length !== 3) {
+		return new Error('Invalid input string');
+	}
 
-  response.type = matches[1];
-  response.data = new Buffer(matches[2], 'base64');
+	response.type = matches[1];
+	response.data = new Buffer(matches[2], 'base64');
 
-  return response;
+	return response;
 }
 
 // process file uploads
@@ -52,9 +52,9 @@ app.use(route.post('/process', function *() {
 					value = part[1];
 					console.log(key + ': ' + value);
 				}
-
 			} else {
-				part.pipe(fs.createWriteStream('uploads/' + (part.filename || 'nofile')));
+				// For files if there is no drag & drop support
+				part.pipe(fs.createWriteStream('files/' + (part.filename || 'nofile')));
 			}
 		}
 	}
@@ -64,7 +64,6 @@ app.use(route.post('/process', function *() {
 
 // static files
 app.use(serve('demo'));
-
 app.listen(PORT);
 
 console.log('Listening on port %d', PORT);

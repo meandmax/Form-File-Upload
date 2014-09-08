@@ -51,34 +51,46 @@ var FormFileUpload = function(fileUpload_, opts){
 		maxRequestSize: 9437184,
 
 		/**
+		 * [If true the fallback for IE8 is activated]
+		 * @type {Boolean}
+		 */
+		fallbackForIE8: true,
+
+		/**
 		 * [errormessage displayed when the file has characters which are not allowed]
 		 * @type {String}
 		 */
-		invalidFileNameError: 'Der Dateiname enthält ungültige Zeichen.',
+		invalidFileNameError: 'The name of the file has forbidden characters',
 
 		/**
 		 * [errormessage displayed when the filetype is not allowed]
 		 * @type {String}
 		 */
-		invalidFileTypeError: 'Ein Dateiformat ist nicht zugelassen. Bitte wählen sie ein anderes Dateiformat.',
+		invalidFileTypeError: 'The fileformat is not allowed',
 
 		/**
 		 * [errormessage displayed when the max. requestsize is reached]
 		 * @type {String}
 		 */
-		maxRequestSizeError: 'Das Datenlimit für den Upload von Dateien ist überschritten.',
+		maxRequestSizeError: 'The requestsize of the files you want to upload is exceeded.',
 
 		/**
 		 * [errormessage displayed when the max. filenumber is reached]
 		 * @type {String}
 		 */
-		maxFileNumberError: 'Sie können nur maximal 3 Dateien anhängen.',
+		maxFileNumberError: 'You can upload 3 files, not more!',
 
 		/**
 		 * [errormessage displayed when the max. filensize is reached]
 		 * @type {String}
 		 */
-		maxFileSizeError: 'Eine Datei ist zu groß. Maximal 3 MB pro Datei sind zugelassen.',
+		maxFileSizeError: 'One of the files is too large. the maximum filesize is 3 MB.',
+
+		/**
+		 * [If something during the filereading process went wrong, then this message is displayed]
+		 * @type {String}
+		 */
+		unknownFileReaderError: 'Unknown Error while loading the file.',
 
 		/**
 		 * [Objects contains all allowed mimetypes as keys & the prettified filenames as values]
@@ -131,7 +143,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	};
 
 	/**
-	 * [validateFile description]
+	 * [Validates the filesize, filenumber, requestsize & filename]
 	 * @param  {[object]}  file
 	 * @return {[boolean]} [is true if the file is valid and the request is also valid]
 	 */
@@ -228,17 +240,15 @@ var FormFileUpload = function(fileUpload_, opts){
 	};
 
 	/**
-	 * [Creates a list item which gets injected to the DOM]
-	 * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
-	 * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
+	 * [Creates a listElement with the data of the passed object]
+	 * @param  {[type]} fileObj [used to put the information of the file in the listElememt]
+	 * @return {[object]}       [the listElement which gets injected in the DOM]
 	 */
-	var addFileToView = function(fileObj, removeFileHandlerCallback){
+	var createListElement = function(fileObj){
 		var fileSize = helper.getReadableFileSize(fileObj.file);
 		var fileType = getReadableFileType(fileObj.file);
 
 		var fileElement = document.createElement('li');
-
-		console.log('Hello: addFileToView');
 
 		fileElement.className = 'file';
 
@@ -250,6 +260,18 @@ var FormFileUpload = function(fileUpload_, opts){
 		'</span><span class="label type">',
 		fileType,
 		'</span>'].join('');
+
+		return fileElement;
+	};
+
+	/**
+	 * [Creates a list item which gets injected to the DOM]
+	 * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
+	 * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
+	 */
+	var addFileToView = function(fileObj, removeFileHandlerCallback){
+
+		var fileElement = createListElement(fileObj);
 
 		if (helper.hasFileReader) {
 			addThumbnail(fileObj.file, fileElement);
@@ -274,7 +296,6 @@ var FormFileUpload = function(fileUpload_, opts){
 		});
 	};
 
-
 	/**
 	 * [Creates a hidden input field where the base64 data is stored]
 	 * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
@@ -287,7 +308,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		form.appendChild(input);
 		addFileToView(fileObj, function(){
 			//remove hidden input
-			input.remove();
+			input.parentNode.removeChild(input);
 		});
 	};
 
@@ -328,7 +349,7 @@ var FormFileUpload = function(fileUpload_, opts){
 			};
 
 			reader.onerror = function(){
-				convertBase64FileHandler('Error while loading the file');
+				convertBase64FileHandler(options.unknownFileReaderError);
 			};
 
 			reader.readAsDataURL(file);
@@ -337,7 +358,11 @@ var FormFileUpload = function(fileUpload_, opts){
 		});
 	};
 
-	var addNewFileInput = function () {
+	/**
+	 * [createInputElement description]
+	 * @return {[type]} [description]
+	 */
+	var createInputElement = function(){
 		var fileInput = document.createElement('input');
 
 		fileInput.type = 'file';
@@ -346,15 +371,24 @@ var FormFileUpload = function(fileUpload_, opts){
 
 		fileInput.name = 'fileInput ' + fileInputId;
 
+		return fileInput;
+	};
+
+	/**
+	 * [Add a fileInput with the selected file]
+	 */
+	var addSelectedFile = function () {
+
+		var fileInput = createInputElement();
+
 		form.insertBefore(selectButton, dropBox);
 		selectButton.appendChild(fileInput);
 
 		fileInput.addEventListener('change', function () {
 			self.removeErrors();
 
-			var nativeFile = fileInput.files[0];
+			var nativeFile = this.files[0];
 			var fileObj = { file: nativeFile };
-
 
 			if (self.validateFile(nativeFile)) {
 				fileInput.parentNode.removeChild(fileInput);
@@ -422,13 +456,15 @@ var FormFileUpload = function(fileUpload_, opts){
 	/**
 	 * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
 	 */
-	if (!helper.hasFileReader()) {
+	if (!helper.hasFileReader() && options.fallbackForIE8) {
 		selectButton.className = 'selectbutton js_selectbutton';
+
 		var span = document.createElement('span');
 		span.innerHTML = 'Select File';
+
 		selectButton.appendChild(span);
 
-		// addNewFileInput();
+		self.addSelectedFile();
 		dropBox.style.display = "none";
 	}
 };

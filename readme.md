@@ -42,58 +42,58 @@ Chrome, Safari, FireFox, Internet Explorer 9+ & Fallback for IE8
 
 ## Options
 
-**errorMessageTimeout** (number)
-**default:** 5000 (ms)
-**description:** timeout specifies how long the error messages are displayed
+**errorMessageTimeout** (number)  
+**default:** 5000 (ms)  
+**description:** timeout specifies how long the error messages are displayed  
 
-**maxFileSize** (number)
-**default:** 3145728 (3MB)
-**description:** the maximum filesize of each file in bytes
+**maxFileSize** (number)  
+**default:** 3145728 (3MB)  
+**description:** the maximum filesize of each file in bytes  
 
-**maxFileNumber** (number)
-**default:** 3
-**description:** the maximum filesize of each file in bytes
+**maxFileNumber** (number)  
+**default:** 3  
+**description:** the maximum filesize of each file in bytes  
 
-**circleThumbnail** (boolean)
-**default:** false
-**description:** defines if the thumbails are displayed in circles, otherwise rectangles
+**circleThumbnail** (boolean)  
+**default:** false  
+**description:** defines if the thumbails are displayed in circles, otherwise rectangles  
 
-**maxRequestSize** (number)
-**default:** 9437184 (9MB)
-**description:** defines the maximum size of each request in bytes
+**maxRequestSize** (number)  
+**default:** 9437184 (9MB)  
+**description:** defines the maximum size of each request in bytes  
 
-**fallbackForIE8** (boolean)
-**default:** true 
-**description:** If true the fallback for IE8 is activated
+**fallbackForIE8** (boolean)  
+**default:** true  
+**description:** If true the fallback for IE8 is activated  
 
-**invalidFileNameError** (string)
-**default:** The name of the file has forbidden characters
-**description:** errormessage displayed when the file has characters which are not allowed
+**invalidFileNameError** (string)  
+**default:** The name of the file has forbidden characters  
+**description:** errormessage displayed when the file has characters which are not allowed  
 
-**invalidFileTypeError** (string)
-**default:** The fileformat is not allowed
-**description:** errormessage displayed when the filetype is not allowed
+**invalidFileTypeError** (string)  
+**default:** The fileformat is not allowed  
+**description:** errormessage displayed when the filetype is not allowed  
 
-**maxRequestSizeError** (string)
-**default:** The requestsize of the files you want to upload is exceeded.
-**description:** errormessage displayed when the max. requestsize is reached
+**maxRequestSizeError** (string)  
+**default:** The requestsize of the files you want to upload is exceeded.  
+**description:** errormessage displayed when the max. requestsize is reached  
 
-**maxFileNumberError** (string)
-**default:** You can upload 3 files, not more!
-**description:** errormessage displayed when the max. filenumber is reached
+**maxFileNumberError** (string)  
+**default:** You can upload 3 files, not more!  
+**description:** errormessage displayed when the max. filenumber is reached  
 
-**maxFileSizeError** (string)
-**default:** One of the files is too large. the maximum filesize is 3 MB.
-**description:** errormessage displayed when the max. filensize is reached
+**maxFileSizeError** (string)  
+**default:** One of the files is too large. the maximum filesize is 3 MB.  
+**description:** errormessage displayed when the max. filensize is reached  
 
-**unknownFileReaderError** (string)
-**default:** Unknown Error while loading the file.
-**description:** If something during the filereading process went wrong, then this message is displayed
+**unknownFileReaderError** (string)  
+**default:** Unknown Error while loading the file.  
+**description:** If something during the filereading process went wrong, then this message is displayed  
 
-**acceptedTypes** (object)
-**default:** PNG, JPEG, GIF, TIFF, PDF, Excel & Word
-**objectstructur:** {'image/png': 'PNG-Bild', 'image/jpeg': 'JPEG-Bild'}
-**description:** objects contains all allowed mimetypes as keys & the prettified filenames as values
+**acceptedTypes** (object)  
+**default:** PNG, JPEG, GIF, TIFF, PDF, Excel & Word  
+**objectstructur:** {'image/png': 'PNG-Bild', 'image/jpeg': 'JPEG-Bild'}  
+**description:** objects contains all allowed mimetypes as keys & the prettified filenames as values  
 
 ## Development Server
 

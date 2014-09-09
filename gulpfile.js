@@ -11,8 +11,6 @@ var jshintStylish = require('jshint-stylish');
 var rename        = require('gulp-rename');
 var mocha         = require('gulp-mocha');
 
-var lvr = false;
-
 gulp.task('less', function() {
 	var stream = gulp.src('./src/less/app.less')
 		.pipe(less())
@@ -20,7 +18,6 @@ gulp.task('less', function() {
 			.pipe(csso())
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest('./demo'));
-	lvr && stream.pipe(livereload());
 });
 
 gulp.task('scripts', function() {
@@ -29,13 +26,6 @@ gulp.task('scripts', function() {
 		.pipe(browserify({standalone: 'FormFileUpload'}))
 		.pipe(gulp.dest('./dist'))
 		.pipe(gulp.dest('./demo/js'));
-	lvr && stream.pipe(livereload());
-});
-
-gulp.task('umd', function() {
-	var stream = gulp.src('./src/js/formfileupload.js')
-		.pipe(browserify({standalone: 'FormFileUpload'}))
-		.pipe(gulp.dest('./dist'))
 });
 
 gulp.task('minify', function() {
@@ -65,7 +55,6 @@ gulp.task('dist', ['scripts'], function() {
 });
 
 gulp.task('watch', function() {
-	lvr = true;
 	// calls 'build-js' whenever anything changes
 	gulp.watch('./src/js/**/*.js', ['scripts', 'test', 'lint']);
 	gulp.watch('./src/less/**/*.less', ['less']);

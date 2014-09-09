@@ -223,7 +223,7 @@ var FormFileUpload = function(fileUpload_, opts){
 			imgWrapper.className += ' circle';
 		}
 
-		reader.onload = function (event) {
+		reader.addEventListener('load', function(event){
 			var image = new Image();
 
 			if (helper.isImage(file)) {
@@ -234,7 +234,7 @@ var FormFileUpload = function(fileUpload_, opts){
 
 			imgWrapper.appendChild(image);
 			element.insertBefore(imgWrapper, fileName);
-		};
+		});
 
 		reader.readAsDataURL(file);
 	};
@@ -329,10 +329,9 @@ var FormFileUpload = function(fileUpload_, opts){
 
 	/**
 	 * [converts the filedata into a base64 string and validates the filedata]
-	 * @param  {[array]}    files                    [the converted fileListObject]
-	 * @param  {[function]} convertBase64FileHandler [gets called when the reader had converted the filedata successfully]
+	 * @param  {[array]}  files  [the converted fileListObject]
 	 */
-	var convertFilesToBase64 = function(files, convertBase64FileHandler){
+	this.convertFilesToBase64 = function(files){
 		files.every(function(file) {
 			var reader = new FileReader();
 
@@ -340,17 +339,17 @@ var FormFileUpload = function(fileUpload_, opts){
 				return false;
 			}
 
-			reader.onload = function (event) {
+			reader.addEventListener('load', function(event){
 				convertBase64FileHandler(null, {
 					data: event.target.result,
 					file: file
 				});
 				trackFile(file);
-			};
+			});
 
-			reader.onerror = function(){
+			reader.addEventListener('error', function(event){
 				convertBase64FileHandler(options.unknownFileReaderError);
-			};
+			});
 
 			reader.readAsDataURL(file);
 
@@ -377,7 +376,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	/**
 	 * [Add a fileInput with the selected file]
 	 */
-	var addSelectedFile = function () {
+	this.addSelectedFile = function () {
 
 		var fileInput = createInputElement();
 
@@ -403,17 +402,8 @@ var FormFileUpload = function(fileUpload_, opts){
 				});
 			}
 
-			addNewFileInput();
+			self.addSelectedFile();
 		});
-	};
-
-	/**
-	 * The dndHandler function is the only function which is publicly exposed
-	 * @param {[object]} event [dropEvent where the filelist is binded]
-	 */
-	this.addDroppedFiles = function(event){
-		var files = helper.toArray(event.dataTransfer.files);
-		convertFilesToBase64(files, convertBase64FileHandler);
 	};
 
 	/**
@@ -422,7 +412,8 @@ var FormFileUpload = function(fileUpload_, opts){
 	 */
 	dropBox.addEventListener('drop', function(event) {
 		helper.noPropagation(event);
-		self.addDroppedFiles(event);
+		var files = helper.toArray(event.dataTransfer.files);
+		self.convertFilesToBase64(files);
 		this.classList.toggle('active');
 	});
 
@@ -456,7 +447,7 @@ var FormFileUpload = function(fileUpload_, opts){
 	/**
 	 * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
 	 */
-	if (!helper.hasFileReader() && options.fallbackForIE8) {
+	if ( !helper.hasFileReader() && options.fallbackForIE8 ) {
 		selectButton.className = 'selectbutton js_selectbutton';
 
 		var span = document.createElement('span');

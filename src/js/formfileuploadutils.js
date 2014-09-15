@@ -78,11 +78,11 @@ var getFileType = function (file) {
 
 /**
  * Takes the native filesize in bytes and returns the prettified filesize
- * @param  {[type]} nativeFile [description]
- * @return {[type]}            [description]
+ * @param  {[object]} file [contains the size of the file]
+ * @return {[string]}      [prettified filesize]
  */
-var getReadableFileSize = function(nativeFile) {
-	var size = nativeFile.size;
+var getReadableFileSize = function(file) {
+	var size = file.size;
 	var string;
 
 	if (size >= 1024 * 1024 * 1024 * 1024 ) {

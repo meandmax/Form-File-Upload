@@ -17,8 +17,8 @@ global.FileReader = function() {
 	this.readAsDataURL = sinon.spy();
 };
 
-var fileMockA = { name: 'Testfile.png', type: 'image/png', size: 219308};
-var fileMockB = { name: 'Testfile::$$__=**.tiff', type: 'image/tiff', size: 123094000};
+var fileMockA = { name: 'Testfile.png', type: 'image/png', size: 1024};
+var fileMockB = { name: 'Testfile::$$__=**.tiff', type: 'image/tiff', size: 1073741824};
 var fileMockC = { name: 'Testfile.gif', type: 'image/gif', size: 1208};
 var fileMockD = { name: 'Testfile.jpg', type: 'image/jpeg', size: 92838};
 var fileMockE = { name: 'Testfile.xls', type: '', size: 29300};
@@ -63,8 +63,8 @@ describe('easyformfileuploadutils', function() {
 
 			var jqueryMock = new JqueryMock();
 
-			it('should return the value of the JqueryMock', function() {
-				assert.equal('jqueryElement', utils.extractDOMNodes(jqueryMock)[0]);
+			it('returns the value of the JqueryMock', function() {
+				expect(utils.extractDOMNodes(utils.extractDOMNodes(jqueryMock)[0])).to.be('jqueryElement');
 			})
 		})
 
@@ -72,8 +72,8 @@ describe('easyformfileuploadutils', function() {
 
 			var DOMNodeMock = 'domElement';
 
-			it('should return the value of the DOMNodeMock', function() {
-				assert.equal('domElement', utils.extractDOMNodes(DOMNodeMock));
+			it('returns the value of the DOMNodeMock', function() {
+				expect(utils.extractDOMNodes(DOMNodeMock)).to.be('domElement');
 			});
 		});
 	});
@@ -95,11 +95,12 @@ describe('easyformfileuploadutils', function() {
 
 		utils.noPropagation(evtMock);
 
-		it('should call stopPropagation once', function() {
+		it('call stopPropagation once and before preventDefault', function() {
 			assert(evtMock.stopPropagation.calledOnce);
+			assert(evtMock.stopPropagation.calledBefore(evtMock.preventDefault));
 		})
 
-		it('should call preventDefault once if the method is available', function() {
+		it('call preventDefault once if the method is available', function() {
 			assert(evtMock.preventDefault.calledOnce);
 		})
 
@@ -131,37 +132,43 @@ describe('easyformfileuploadutils', function() {
 		var mockOptionsB = { maxFileSize: 12312313,maxFileNumber: 23};
 		var options = utils.mergeOptions(mockOptionsB, mockOptionsA, self);
 
-		it('should return the merged options from default options', function() {
-			assert.equal(options.hasOwnProperty('errorMessageTimeout'), true);
-			assert.equal(options.hasOwnProperty('maxFileSize'), true);
-			assert.equal(options.hasOwnProperty('maxFileNumber'), true);
-			assert.equal(options.errorMessageTimeout, 5000);
-			assert.equal(options.maxFileSize, 12312313);
-			assert.equal(options.maxFileNumber, 23);
+		it('returns the merged options from default options and the user options', function() {
+			expect(options.hasOwnProperty('errorMessageTimeout')).to.be(true);
+			expect(options.hasOwnProperty('maxFileSize')).to.be(true);
+			expect(options.hasOwnProperty('maxFileNumber')).to.be(true);
+			expect(options.errorMessageTimeout).to.be(5000);
+			expect(options.maxFileSize).to.be(12312313);
+			expect(options.maxFileNumber).to.be(23);
 		});
 	});
 
 	describe('getFileType', function() {
-		describe('should return the filetype based on the native file', function() {
-			it('should return the right filetype for an excel file', function(){
-				var filetype = utils.getFileType(fileMockA);
-				assert(filetype, 'application/vnd.ms-excel');
+		describe('return the filetype based on the passed file object', function() {
+			it('returns the right filetype for an png image', function(){
+				expect(utils.getFileType(fileMockA)).to.be('image/png');
 			});
 
-			it('should return the right filetype for an jpeg image', function(){
-				var filetype= utils.getFileType(fileMockB);
-				assert(filetype, 'image/jpeg');
+			it('returns the right filetype for an excel file', function(){
+				expect(utils.getFileType(fileMockE)).to.be('application/vnd.ms-excel');
 			});
 		});
 	});
 
 	describe('trackFile', function() {
 		var trackData = { fileNumber: 0, requestSize: 0 };
-		utils.trackFile(fileMockD, trackData);
 
-		it('update the filetrackdata', function() {
+		beforeEach(function(){
+			utils.trackFile(fileMockD, trackData);
+		});
+
+		it('update the filetrackdata, first file', function() {
 			assert.equal(trackData.fileNumber, 1);
 			assert.equal(trackData.requestSize, fileMockD.size);
+		});
+
+		it('update the filetrackdata, second file', function() {
+			assert.equal(trackData.fileNumber, 2);
+			assert.equal(trackData.requestSize, fileMockD.size*2);
 		});
 	});
 
@@ -176,13 +183,13 @@ describe('easyformfileuploadutils', function() {
 	});
 
 	describe('getReadableFileSize', function() {
-		describe('depending how large the file is in bytes, should return the best unit for it', function() {
-			it('should return the the size 92838478 and return the proper size 88.5 with the right unitsize KB', function(){
-				assert(utils.getReadableFileSize(fileMockB), '120.2 KB');
+		describe('depending how large the file is in bytes, should return the correct size unit and the converted size for it', function() {
+			it('the the size of 1073741824 bytes is converted to 1 with the right unitsize, in this case giga bytes', function(){
+				expect(utils.getReadableFileSize(fileMockB)).to.be('1 GB');
 			});
 
-			it('should return the the size 293002 and return the proper size 286.1 with the right unitsize MB', function(){
-				assert(utils.getReadableFileSize(fileMockA), '214.2 KB');
+			it('the the size of 1024 bytes is converted to 1 with the right unitsize, in this case kilo bytes', function(){
+				expect(utils.getReadableFileSize(fileMockA)).to.be('1 KB');
 			});
 		});
 	});
@@ -192,12 +199,12 @@ describe('easyformfileuploadutils', function() {
 			acceptedTypes: {'image/png': 'PNG-Bild'}
 		}
 
-		it('has to return the prettified filetype', function(){
-			assert(utils.getReadableFileType(fileMockA, options), options.acceptedTypes['image/png']);
+		it('return the prettified filetype', function(){
+			expect(utils.getReadableFileType(fileMockA.type, options)).to.be(options.acceptedTypes['image/png']);
 		});
 
-		it('has to return unknown', function(){
-			assert(utils.getReadableFileType(fileMockB, options), 'Unbekannt');
+		it('return the string for unknown filetypes', function(){
+			expect(utils.getReadableFileType(fileMockB.type, options)).to.be('Unbekannt');
 		});
 	});
 

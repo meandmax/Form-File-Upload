@@ -123,7 +123,7 @@ describe('easyformfileuploadutils', function() {
 
 		it('takes an array in an object and converts it to an array', function() {
 			expect(hasToBeAnArray).to.be.an(Array);
-			assert.equal(hasToBeAnArray.indexOf(0), 0);
+			assert.equal(hasToBeAnArray[0], 0);
 		});
 	});
 
@@ -199,12 +199,12 @@ describe('easyformfileuploadutils', function() {
 			acceptedTypes: {'image/png': 'PNG-Bild'}
 		}
 
-		it('return the prettified filetype', function(){
+		it('return the prettified filetype if the filetype is defined in acceptedTypes', function(){
 			expect(utils.getReadableFileType(fileMockA.type, options)).to.be(options.acceptedTypes['image/png']);
 		});
 
-		it('return the string for unknown filetypes', function(){
-			expect(utils.getReadableFileType(fileMockB.type, options)).to.be('Unbekannt');
+		it('return unknown filetype if the filetype is not in acceptedTypes', function(){
+			expect(utils.getReadableFileType(fileMockB.type, options)).to.be('unknown filetype');
 		});
 	});
 
@@ -225,11 +225,11 @@ describe('easyformfileuploadutils', function() {
 				trackData.fileNumber += 1;
 			});
 
-			it('has to return true with a filenumber of 2', function(){
+			it('return true with a filenumber of 2', function(){
 				expect(utils.validateFileNumber(trackData, options)).to.be(true);
 			});
 
-			it('has to return the error message with a filenumber of 4', function(){
+			it('return false with a filenumber of 4', function(){
 				expect(utils.validateFileNumber(trackData, options)).to.be(false);
 			});
 		});
@@ -244,12 +244,12 @@ describe('easyformfileuploadutils', function() {
 				trackData.requestSize += 9437183;
 			});
 
-			it('has to return true with a requestSize of zero', function(){
+			it('return true with a requestSize of zero', function(){
 				expect(utils.validateRequestSize(trackData.requestSize, options)).to.be(true);
 			});
 
 
-			it('has to return the error message with a requestSize larger then 9 MB', function(){
+			it('return false with a requestSize larger then 9 MB', function(){
 				expect(utils.validateRequestSize(trackData.requestSize, options)).to.be(false);
 			});
 		});
@@ -259,11 +259,11 @@ describe('easyformfileuploadutils', function() {
 				options.acceptedTypes = {'image/png': 'PNG-Bild'};
 			});
 
-			it('has to return the error message as tiff is not in acceptedTypes', function(){
+			it('return true if the filetype is defined in acceptedTypes', function(){
 				expect(utils.validateFileType(utils.getFileType(fileMockA), options)).to.be(true);
 			});
 
-			it('has to return the error message as tiff is not in acceptedTypes', function(){
+			it('return false if filetpe is not defined in acceptedTypes', function(){
 				expect(utils.validateFileType(utils.getFileType(fileMockB), options)).to.be(false);
 			});
 		});
@@ -274,11 +274,11 @@ describe('easyformfileuploadutils', function() {
 				options.maxFileSize = 3145728;
 			});
 
-			it('has to return true if the filename is allowed', function(){
+			it('return true if the filename is allowed', function(){
 				expect(utils.validateFileSize(fileMockA, options)).to.be(true);
 			});
 
-			it('has to return the error message if the filename is not allowed', function(){
+			it('return the error message if the filename is not allowed', function(){
 				expect(utils.validateFileSize(fileMockB, options)).to.be(false);
 			});
 		});
@@ -289,11 +289,11 @@ describe('easyformfileuploadutils', function() {
 				options.fileNameRe = /^[A-Za-z0-9.-_ ]+$/;
 			});
 
-			it('has to return true if the name has no forbidden characters', function(){
+			it('return true if the name has no forbidden characters', function(){
 				expect(utils.validateFileName(fileMockA, options)).to.be(true);
 			});
 
-			it('has to return the error message if filename has forbidden characters', function(){
+			it('return false if filename has forbidden characters', function(){
 				expect(utils.validateFileName(fileMockB, options)).to.be(false);
 			});
 		});

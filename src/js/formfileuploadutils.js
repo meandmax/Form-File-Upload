@@ -140,7 +140,7 @@ var untrackFile = function (file, trackData) {
  * @return {[string]}      [prettified typestring]
  */
 var getReadableFileType = function (fileType, options) {
-	return options.acceptedTypes[fileType] || 'Unbekannt';
+	return options.acceptedTypes[fileType] || 'unknown filetype';
 };
 
 var validateFileNumber = function(trackData, options) {

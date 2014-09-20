@@ -123,7 +123,7 @@ describe('easyformfileuploadutils', function() {
 
 		it('takes an array in an object and converts it to an array', function() {
 			expect(hasToBeAnArray).to.be.an(Array);
-			assert.equal(hasToBeAnArray[0], 0);
+			expect(hasToBeAnArray[0]).to.be(0);
 		});
 	});
 
@@ -162,13 +162,13 @@ describe('easyformfileuploadutils', function() {
 		});
 
 		it('update the filetrackdata, first file', function() {
-			assert.equal(trackData.fileNumber, 1);
-			assert.equal(trackData.requestSize, fileMockD.size);
+			expect(trackData.fileNumber).to.be(1);
+			expect(trackData.requestSize).to.be(fileMockD.size);
 		});
 
 		it('update the filetrackdata, second file', function() {
-			assert.equal(trackData.fileNumber, 2);
-			assert.equal(trackData.requestSize, fileMockD.size*2);
+			expect(trackData.fileNumber).to.be(2);
+			expect(trackData.requestSize).to.be(fileMockD.size*2);
 		});
 	});
 
@@ -177,8 +177,8 @@ describe('easyformfileuploadutils', function() {
 		utils.untrackFile(fileMockB, trackData);
 
 		it('decrement the fileNumber by one and the requestsize by the filesize', function(){
-			assert.equal(trackData.fileNumber, 0);
-			assert.equal(trackData.requestSize, 0);
+			expect(trackData.fileNumber).to.be(0);
+			expect(trackData.requestSize).to.be(0);
 		});
 	});
 

@@ -36,6 +36,22 @@ Even if you could use jQuery objects, you can also just pass normal DOM objects 
 </script>
 ```
 
+### jQuery
+
+To use the Form-File-Upload as a jQuery Plugin you need to load the a version of jQuery and the jQuery source of the plugin (jquery.formfileupload.min.js).
+
+```html
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="js/jquery.formfileupload.min.js"></script>
+<script>
+        $(function() {
+            $('.js_fileupload').formFileUpload({
+                // your options goes here
+            });
+        });
+</script>
+```
+
 ## Browser Support
 
 Chrome, Safari, FireFox, Internet Explorer 9+ & Fallback for IE8

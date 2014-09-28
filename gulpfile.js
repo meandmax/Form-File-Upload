@@ -10,6 +10,7 @@ var jshint        = require('gulp-jshint');
 var jshintStylish = require('jshint-stylish');
 var rename        = require('gulp-rename');
 var mocha         = require('gulp-mocha');
+var concat        = require('gulp-concat');
 
 gulp.task('less', function() {
 	var stream = gulp.src('./src/less/app.less')
@@ -44,9 +45,23 @@ gulp.task('lint', function() {
 		.pipe(jshint.reporter(jshintStylish));
 });
 
-gulp.task('test', function () {
+gulp.task('test', function() {
 	return gulp.src('./test/*.js')
-		.pipe(mocha());
+		.pipe(mocha({reporter: 'nyan'}));
+});
+
+gulp.task('jquery', function() {
+	return gulp.src(['./src/js/formfileupload.js', './src/js/jquery.plugin.js'])
+		.pipe(concat('jquery.formfileupload.js'))
+		.pipe(browserify())
+		.pipe(gulp.dest('./dist'))
+		.pipe(gulp.dest('./demo/js'))
+		.pipe(uglify())
+		.pipe(rename(function(path){
+			path.basename += '.min';
+		}))
+		.pipe(gulp.dest('./dist'))
+		.pipe(gulp.dest('./demo/js'));
 });
 
 gulp.task('dist', ['scripts'], function() {

@@ -63,7 +63,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		 * [Regular Expression for filename matching]
 		 * @type {String}
 		 */
-		fileNameRe: /^[A-Za-z0-9.-_ ]+$/,
+		fileNameRe: /^[A-Za-z0-9.\-_ ]+$/,
 
 		/**
 		 * [errormessage displayed when the file has characters which are not allowed]

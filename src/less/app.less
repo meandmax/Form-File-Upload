@@ -49,6 +49,7 @@ body {
 
 .formrow {
 	width: 100%;
+	font-size: 0;
 }
 
 .label {
@@ -87,7 +88,7 @@ input[type="text"] {
 
 	canvas {
 		width: 100px;
-		height: 100px;
+		height: auto;
 	}
 
 	.selectbutton {
@@ -128,38 +129,25 @@ input[type="text"] {
 	}
 
 	.file {
+		display: block;
 		width: 500px;
-		display: table;
 		margin-bottom: 10px;
 		font-size: @fontsize;
-		color: #fff;
-		width: 100%;
+		line-height: @fontsize;
+		color: @white;
 
 		.thumbnail {
-			display: table-cell;
+			display: inline-block;
 			vertical-align: middle;
-
-			img {
-				width: 100px;
-				height: 100px;
-				margin-right: 20px;
-			}
-
-			&.circle {
-				img {
-					width: 100px;
-					height: 100px;
-					border-radius: 100px;
-				}
-			}
+			max-width: 100px;
 		}
 
 		.label {
-			width: auto;
+			margin-left: 20px;
 		}
 
 		.name {
-			display: table-cell;
+			display: inline-block;
 			width: 150px;
 			max-width: 150px;
 			vertical-align: middle;
@@ -169,25 +157,26 @@ input[type="text"] {
 		}
 
 		.size {
-			display: table-cell;
+			display: inline-block;
+			width: 75px;
 			vertical-align: middle;
-			text-align: center;
 		}
 
 		.type {
-			display: table-cell;
+			display: inline-block;
+			width: 75px;
 			vertical-align: middle;
-			text-align: right;
 		}
 
 		.remove {
-			display: table-cell;
+			display: inline-block;
 			vertical-align: middle;
-			width: 60px;
-			text-align: right;
+			width: 20px;
+			height: 20px;
+			margin-left: 20px;
+			margin-top: -5px;
 			cursor: pointer;
 			background: url('./assets/cross.png') no-repeat;
-			background-position: 100% 49%;
 			background-size: 20px;
 		}
 	}

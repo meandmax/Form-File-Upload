@@ -43,10 +43,10 @@ var FormFileUpload = function(fileUpload_, opts){
 		maxFileNumber: 3,
 
 		/**
-		 * [defines if the thumbails are displayed in circles, otherwise rectangles]
-		 * @type {Boolean}
+		 * [Size of thumbnails displayed in the browser for preview the images]
+		 * @type {Number}
 		 */
-		circleThumbnail: false,
+		thumbnailSize: 100,
 
 		/**
 		 * [defines the maximum size of each request in bytes]
@@ -139,7 +139,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		if (fileObj) {
 			var removeHandler = utils.addBase64ToDom(fileObj, form);
 			var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
-			var listElement = utils.createListElement(fileObj.file.name, fileType, utils.getReadableFileSize(fileObj.file));
+			var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
 			utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
 			if (utils.hasFileReader) {
@@ -511,7 +511,6 @@ var removeErrors = function(errorWrapper) {
 	errorWrapper.innerHTML = '';
 };
 
-
 /**
  * [if possible adds a thumbnail of the given file to the DOM]
  * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
@@ -519,24 +518,39 @@ var removeErrors = function(errorWrapper) {
  */
 var addThumbnail = function(file, element, options){
 	var reader = new FileReader();
+	var factor = window.devicePixelRatio;
 	var imgWrapper = document.createElement('span');
-	var fileName = element.querySelector('.js_name');
-	imgWrapper.className = 'thumbnail';
 
-	if(!!options.circleThumbnail){
-		imgWrapper.className += ' circle';
+	var canvas = document.createElement('canvas');
+	canvas.width  = options.thumbnailSize * factor;
+	canvas.height = options.thumbnailSize * factor;
+
+	var ctx = canvas.getContext("2d");
+
+	if(factor > 1){
+		ctx.webkitBackingStorePixelRatio = factor;
+		ctx.scale(factor, factor);
 	}
 
-	reader.addEventListener('load', function(event){
-		var image = new Image();
+	var fileName = element.querySelector('.js_name');
+	var image = new Image();
+	imgWrapper.className = 'thumbnail';
 
+	image.addEventListener('load', function(event){
+		var ratio = this.height / this.width;
+
+		canvas.height = canvas.width * ratio;
+		ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
+	});
+
+	reader.addEventListener('load', function(event){
 		if (isImage(file)) {
 			image.src = event.target.result;
 		} else {
 			image.src = EMPTY_IMAGE;
 		}
 
-		imgWrapper.appendChild(image);
+		imgWrapper.appendChild(canvas);
 		element.insertBefore(imgWrapper, fileName);
 	});
 

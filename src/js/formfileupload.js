@@ -42,10 +42,10 @@ var FormFileUpload = function(fileUpload_, opts){
 		maxFileNumber: 3,
 
 		/**
-		 * [defines if the thumbails are displayed in circles, otherwise rectangles]
-		 * @type {Boolean}
+		 * [Size of thumbnails displayed in the browser for preview the images]
+		 * @type {Number}
 		 */
-		circleThumbnail: false,
+		thumbnailSize: 100,
 
 		/**
 		 * [defines the maximum size of each request in bytes]
@@ -138,7 +138,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		if (fileObj) {
 			var removeHandler = utils.addBase64ToDom(fileObj, form);
 			var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
-			var listElement = utils.createListElement(fileObj.file.name, fileType, utils.getReadableFileSize(fileObj.file));
+			var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
 			utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
 			if (utils.hasFileReader) {

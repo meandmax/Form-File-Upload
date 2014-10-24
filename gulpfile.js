@@ -73,4 +73,4 @@ gulp.task('dev', function() {
 	gulp.watch('./src/less/**/*.less', ['less']);
 });
 
-gulp.task('build', ['scripts', 'less']);
+gulp.task('default', ['scripts', 'less']);

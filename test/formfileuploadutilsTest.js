@@ -3,10 +3,6 @@ var assert = require('assert');
 var sinon  = require('sinon');
 var expect = require('expect.js');
 var mocha  = require('mocha');
-var jsdom  = require("jsdom").jsdom;
-
-global.document = jsdom("<section class='js_fileupload fileupload'><div class='js_form wide'><div class='js_dropbox'>bla</div><div class='js_fileinputs'></div><ul class='js_list'></ul></div></section>");
-global.window   = document.parentWindow;
 
 var optionsMock = {};
 var self = {};
@@ -296,58 +292,6 @@ describe('easyformfileuploadutils', function() {
 			it('return false if filename has forbidden characters', function(){
 				expect(utils.validateFileName(fileMockB, options)).to.be(false);
 			});
-		});
-	});
-
-	describe('show error message', function(){
-		var errorTimeoutId;
-		var removeErrors = sinon.spy();
-		var error        = 'An error';
-		var options      = {errorMessageTimeout: 5000};
-		var errorWrapper = document.createElement('div');
-		var form         = document.querySelector('.js_form');
-		var fileView     = document.querySelector('.js_list');
-
-		var formSpy = sinon.spy(form, 'insertBefore');
-		var errorWrapperSpy = sinon.spy(errorWrapper, 'appendChild');
-		var createElementSpy = sinon.spy(document, 'createElement');
-
-		before(function(){
-			utils.showErrorMessage(error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
-		});
-
-		describe('showErrorMessage', function(){
-			it('has to call all expected functions', function(){
-				assert(createElementSpy.calledOnce)
-				assert(formSpy.calledOnce);
-				assert(errorWrapperSpy.calledOnce);
-				assert(errorWrapperSpy.calledBefore(formSpy));
-				assert(formSpy.calledWith(errorWrapper, fileView));
-			});
-		});
-
-		describe('showErrorMessage Integration', function(){
-			it('the DOM has to contain the Error Element', function(){
-				expect(document.documentElement.innerHTML).to.be.contain('error');
-			});
-		});
-	});
-
-	describe('removeErrors', function(){
-
-		var errorWrapper = {
-			innerHTML: 'an errorMessage'
-		};
-
-		var querySelectorSpy = sinon.spy(document, 'querySelectorAll');
-
-		beforeEach(function(){
-			utils.removeErrors(errorWrapper);
-		});
-
-		it('has to remove all errors', function(){
-			assert.equal('', errorWrapper.innerHTML);
-			assert(querySelectorSpy.calledOnce);
 		});
 	});
 });

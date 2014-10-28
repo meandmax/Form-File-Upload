@@ -4,9 +4,11 @@
   "description": "Form-File-Upload",
   "author": "Maximilian Heinz",
   "devDependencies": {
-    "gulp": "3.8.7",
+    "browser-sync": "1.6.1",
+    "expect.js": "0.3.1",
+    "gulp": "3.8.9",
     "gulp-browserify": "0.5.0",
-    "gulp-concat": "^2.4.1",
+    "gulp-concat": "2.4.1",
     "gulp-csso": "0.2.9",
     "gulp-jshint": "1.6.3",
     "gulp-less": "1.2.3",
@@ -15,14 +17,12 @@
     "gulp-sourcemaps": "0.4.1",
     "gulp-uglify": "0.3.1",
     "gulp-watch": "0.6.7",
-    "jsdom": "^1.0.0-pre.6",
     "jshint-stylish": "0.2.0",
     "mocha": "1.21.4",
-    "expect.js": "0.3.1",
     "sinon": "1.10.3"
   },
   "scripts": {
-    "start": "node --harmony server.js",
     "test": "node_modules/.bin/gulp"
-  }
+  },
+  "engines": { "node" : "0.10.3" }
 }

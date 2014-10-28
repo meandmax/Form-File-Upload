@@ -17,37 +17,23 @@ var reload        = browserSync.reload;
  */
 gulp.task('lint', function() {
     return gulp.src('./src/js/*.js')
-        .pipe(jshint())
+        .pipe(jshint('./.jshintrc'))
         .pipe(jshint.reporter(jshintStylish));
 });
 
 /**
  * executes the javascript tests
  */
-gulp.task('test', function() {
+gulp.task('test', ['lint'], function() {
     return gulp.src('./test/*.js')
         .pipe(mocha());
-});
-
-gulp.task('jQuery', function() {
-    return gulp.src(['./src/js/formfileupload.js', './src/js/jquery.plugin.js'])
-        .pipe(concat('jquery.formfileupload.js'))
-        .pipe(browserify())
-        .pipe(gulp.dest('./dist'))
-        .pipe(gulp.dest('./demo/js'))
-        .pipe(uglify())
-        .pipe(rename(function(path){
-            path.basename += '.min';
-        }))
-        .pipe(gulp.dest('./dist'))
-        .pipe(gulp.dest('./demo/js'));
 });
 
 /**
  * Build task for the final css files
  */
 gulp.task('less', function() {
-    var stream = gulp.src('./src/less/app.less')
+    return gulp.src('./src/less/app.less')
         .pipe(less())
         .pipe(csso())
         .pipe(gulp.dest('./demo'))
@@ -65,9 +51,8 @@ gulp.task('browser-sync', function() {
 /**
  * Build task for the final javascript files
  */
-gulp.task('scripts', ['jQuery', 'lint', 'test'], function() {
-    // Single entry point to browserify
-    var stream = gulp.src('./src/js/formfileupload.js')
+gulp.task('scripts', ['test'], function() {
+    return gulp.src('./src/js/formfileupload.js')
         .pipe(browserify({standalone: 'FormFileUpload'}))
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
@@ -80,9 +65,30 @@ gulp.task('scripts', ['jQuery', 'lint', 'test'], function() {
         .pipe(reload({stream:true}));
 });
 
+
+/**
+ * Task to build the module as a proper jQuery Plugin
+ */
+gulp.task('jQuery', function() {
+    return gulp.src(['./src/js/formfileupload.js', './src/js/jquery.plugin.js'])
+        .pipe(concat('jquery.formfileupload.js'))
+        .pipe(browserify({ debug: true }))
+        .pipe(gulp.dest('./dist'))
+        .pipe(gulp.dest('./demo/js'))
+        .pipe(uglify())
+        .pipe(rename(function(path){
+            path.basename += '.min';
+        }))
+        .pipe(gulp.dest('./dist'))
+        .pipe(gulp.dest('./demo/js'));
+});
+
+/**
+ * Dev Task uses browser-sync instead of livereload and runs tests, linters and scripts on js file change and less task on less file changes
+ */
 gulp.task('dev', ['browser-sync'], function() {
-    gulp.watch('./src/js/**/*.js', ['scripts', 'test', 'lint']);
+    gulp.watch('./src/js/**/*.js', ['scripts']);
     gulp.watch('./src/less/**/*.less', ['less']);
 });
 
-gulp.task('default', ['scripts', 'less']);
+gulp.task('default', ['scripts', 'less', 'jQuery']);

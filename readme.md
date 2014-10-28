@@ -111,14 +111,6 @@ Chrome, Safari, FireFox, Internet Explorer 9+ & Fallback for IE8
 **objectstructur:** {'image/png': 'PNG-Bild', 'image/jpeg': 'JPEG-Bild'}  
 **description:** objects contains all allowed mimetypes as keys & the prettified filenames as values  
 
-## Development Server
-
-Use the ``--harmony`` flag and the latest version of node to start the server. The server should be able to handle the base64 filedata and also files which are attached to fileinputs for the IE8 fallback at writing them into an files folder in the project. 
-
-```
-node --harmony server.js
-```
-
 ## Tests
 
 Just run in your terminal  ``gulp test`` to run the tests.

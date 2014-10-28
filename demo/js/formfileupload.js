@@ -28,7 +28,7 @@ var FormFileUpload = function(fileUpload_, opts){
 		 * [timeout specifies how long the error messages are displayed]
 		 * @type {Number}
 		 */
-		errorMessageTimeout: 5000,
+		errorMessageTimeout: 4000,
 
 		/**
 		 * [the maximum filesize of each file in bytes]

@@ -1,4 +1,10 @@
+/* global $, FormFileUpload */
+
+
 $.fn.formFileUpload = function(options) {
+
+	"use strict";
+
 	return this.each(function() {
 		var instanceOptions;
 

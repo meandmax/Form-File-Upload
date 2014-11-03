@@ -1,8 +1,10 @@
-var utils    = require('./formfileuploadutils.js');
+/* global document, FileReader */
+
+var utils = require('./formfileuploadutils.js');
 
 var FormFileUpload = function(fileUpload_, opts){
 
-	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+	'use strict';
 
 	var errorTimeoutId;
 	var fileInputId = 0;
@@ -13,7 +15,6 @@ var FormFileUpload = function(fileUpload_, opts){
 	};
 
 	var self         = this;
-	var fileUpload   = utils.extractDOMNodes(fileUpload_);
 	var dropBox      = document.querySelector('.js_dropbox');
 	var fileView     = document.querySelector('.js_list');
 	var fileInputs   = document.querySelector('.js_fileinputs');
@@ -181,7 +182,7 @@ var FormFileUpload = function(fileUpload_, opts){
 
 
 			if(typeof validateFile(file) === 'string') {
-				utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+				utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
 				return false;
 			}
 
@@ -194,7 +195,7 @@ var FormFileUpload = function(fileUpload_, opts){
 				});
 			});
 
-			reader.addEventListener('error', function(event) {
+			reader.addEventListener('error', function() {
 				utils.convertBase64FileHandler(options.unknownFileReaderError);
 			});
 

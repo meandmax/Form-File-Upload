@@ -1,3 +1,5 @@
+/* global window, document, define, jQuery, setInterval, clearInterval */
+
 /**
  * [extractDOMNodes description]
  * @param  {[type]} obj [description]
@@ -211,6 +213,8 @@ var removeErrors = function(errorWrapper) {
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
 var addThumbnail = function(file, element, options){
+	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+
 	var reader = new FileReader();
 	var factor = window.devicePixelRatio;
 	var imgWrapper = document.createElement('span');

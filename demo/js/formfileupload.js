@@ -1,9 +1,11 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.FormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var utils    = _dereq_('./formfileuploadutils.js');
+/* global document, FileReader */
+
+var utils = _dereq_('./formfileuploadutils.js');
 
 var FormFileUpload = function(fileUpload_, opts){
 
-	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+	'use strict';
 
 	var errorTimeoutId;
 	var fileInputId = 0;
@@ -14,7 +16,6 @@ var FormFileUpload = function(fileUpload_, opts){
 	};
 
 	var self         = this;
-	var fileUpload   = utils.extractDOMNodes(fileUpload_);
 	var dropBox      = document.querySelector('.js_dropbox');
 	var fileView     = document.querySelector('.js_list');
 	var fileInputs   = document.querySelector('.js_fileinputs');
@@ -182,7 +183,7 @@ var FormFileUpload = function(fileUpload_, opts){
 
 
 			if(typeof validateFile(file) === 'string') {
-				utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+				utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
 				return false;
 			}
 
@@ -195,7 +196,7 @@ var FormFileUpload = function(fileUpload_, opts){
 				});
 			});
 
-			reader.addEventListener('error', function(event) {
+			reader.addEventListener('error', function() {
 				utils.convertBase64FileHandler(options.unknownFileReaderError);
 			});
 
@@ -304,6 +305,8 @@ var FormFileUpload = function(fileUpload_, opts){
 module.exports = FormFileUpload;
 
 },{"./formfileuploadutils.js":2}],2:[function(_dereq_,module,exports){
+/* global window, document, define, jQuery, setInterval, clearInterval */
+
 /**
  * [extractDOMNodes description]
  * @param  {[type]} obj [description]
@@ -517,6 +520,8 @@ var removeErrors = function(errorWrapper) {
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
 var addThumbnail = function(file, element, options){
+	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+
 	var reader = new FileReader();
 	var factor = window.devicePixelRatio;
 	var imgWrapper = document.createElement('span');

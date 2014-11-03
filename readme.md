@@ -30,7 +30,7 @@ Even if you could use jQuery objects, you can also just pass normal DOM objects 
     var fileUpload = document.querySelector('.js_fileupload');
     var dropBox    = document.querySelector('.js_dropbox');
 
-    new EasyFormFileUpload(fileUpload, dropBox, {
+    new EasyFormFileUpload(fileUpload, {
         // your options are going here
     });
 </script>
@@ -46,7 +46,7 @@ To use the Form-File-Upload as a jQuery Plugin you need to load the a version of
 <script>
         $(function() {
             $('.js_fileupload').formFileUpload({
-                // your options goes here
+                // your options are going here
             });
         });
 </script>
@@ -80,7 +80,7 @@ Just run in your terminal  ``gulp test`` to run the tests.
 
 ## Customizing
 
-If you want to customize the module before using it just start the development server with ``gulp dev`` and you are ready to start!
+If you want to customize the module before using it, just start the development server with ``gulp dev`` and you are ready to dev!
 
 ## Credits
 

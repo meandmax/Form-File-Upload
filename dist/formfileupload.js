@@ -305,7 +305,7 @@ var FormFileUpload = function(fileUpload_, opts){
 module.exports = FormFileUpload;
 
 },{"./formfileuploadutils.js":2}],2:[function(_dereq_,module,exports){
-/* global window, document, define, jQuery, setInterval, clearInterval */
+/* global window, document, FileReader, Image */
 
 /**
  * [extractDOMNodes description]
@@ -313,9 +313,13 @@ module.exports = FormFileUpload;
  * @return {[type]}     [description]
  */
 var extractDOMNodes = function(obj) {
+
+	'use strict';
+
 	if(typeof obj === 'function'){
 		return obj[0];
 	}
+
 	return obj;
 };
 
@@ -325,6 +329,9 @@ var extractDOMNodes = function(obj) {
  * @return {[type]}        [description]
  */
 var toArray = function(object) {
+
+	'use strict';
+
 	return Array.prototype.slice.call(object, 0);
 };
 
@@ -333,6 +340,9 @@ var toArray = function(object) {
  * @return {Boolean} [description]
  */
 var hasFileReader = function() {
+
+	'use strict';
+
 	return !!(window.File && window.FileList && window.FileReader);
 };
 
@@ -342,7 +352,11 @@ var hasFileReader = function() {
  * @return {[type]}   [description]
  */
 var noPropagation = function(e) {
+
+	'use strict';
+
 	e.stopPropagation();
+
 	if (e.preventDefault) {
 		return e.preventDefault();
 	} else {
@@ -358,17 +372,27 @@ var noPropagation = function(e) {
  * @return {[type]}                [description]
  */
 var mergeOptions = function(opts, defaultOptions, self) {
+
+	'use strict';
+
 	var options = {};
+
 	for (var i in defaultOptions) {
+
 		if(opts && opts.hasOwnProperty(i)) {
+
 			options[i] = opts[i];
+
 			if (typeof(options[i]) === 'function') {
 				options[i] = options[i].bind(self);
 			}
-		} else{
+
+		} else {
 			options[i] = defaultOptions[i];
 		}
+
 	}
+
 	return options;
 };
 
@@ -378,6 +402,9 @@ var mergeOptions = function(opts, defaultOptions, self) {
  * @return {[type]}            [description]
  */
 var getFileType = function (file) {
+
+	'use strict';
+
 	// Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
 	if ((/\.xls$/).test(file.name) && !file.type) {
 		return 'application/vnd.ms-excel';
@@ -391,6 +418,9 @@ var getFileType = function (file) {
  * @return {[string]}      [prettified filesize]
  */
 var getReadableFileSize = function(file) {
+
+	'use strict';
+
 	var size = file.size;
 	var string;
 
@@ -420,6 +450,9 @@ var getReadableFileSize = function(file) {
  * @return {Boolean}      [description]
  */
 var isImage = function(file) {
+
+	'use strict';
+
 	return (/^image\//).test(getFileType(file));
 };
 
@@ -429,6 +462,9 @@ var isImage = function(file) {
  * @param  {[object]} trackData
  */
 var trackFile = function(file, trackData) {
+
+	'use strict';
+
 	trackData.fileNumber += 1;
 	trackData.requestSize += file.size;
 };
@@ -439,6 +475,8 @@ var trackFile = function(file, trackData) {
  * @param  {[object]} trackData
  */
 var untrackFile = function (file, trackData) {
+	'use strict';
+
 	trackData.fileNumber -= 1;
 	trackData.requestSize -= file.size;
 };
@@ -449,41 +487,64 @@ var untrackFile = function (file, trackData) {
  * @return {[string]}      [prettified typestring]
  */
 var getReadableFileType = function (fileType, options) {
+
+	'use strict';
+
 	return options.acceptedTypes[fileType] || 'unknown filetype';
 };
 
 var validateFileNumber = function(trackData, options) {
+
+	'use strict';
+
 	if (trackData.fileNumber >= options.maxFileNumber) {
 		return false;
 	}
+
 	return true;
 };
 
 var validateRequestSize = function(requestSize, options) {
+
+	'use strict';
+
 	if (requestSize >= options.maxRequestSize) {
 		return false;
 	}
+
 	return true;
 };
 
 var validateFileType = function(fileType, options) {
+
+	'use strict';
+
 	if (!options.acceptedTypes[fileType]) {
 		return false;
 	}
+
 	return true;
 };
 
 var validateFileSize = function(file, options) {
+
+	'use strict';
+
 	if (file.size > options.maxFileSize) {
 		return false;
 	}
+
 	return true;
 };
 
 var validateFileName = function(file, options) {
+
+	'use strict';
+
 	if (!(options.fileNameRe).test(file.name)) {
 		return false;
 	}
+
 	return true;
 };
 
@@ -492,7 +553,11 @@ var validateFileName = function(file, options) {
  * @param  {[string]} error [error message which has to be displayed]
  */
 var showErrorMessage = function(error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+
+	'use strict';
+
 	var errorElement = document.createElement('li');
+
 	errorElement.className = 'error';
 	errorElement.innerHTML = error;
 
@@ -510,7 +575,9 @@ var showErrorMessage = function(error, errorTimeoutId, removeErrors, errorWrappe
  * [removes all errors]
  */
 var removeErrors = function(errorWrapper) {
-	var errors = document.querySelectorAll('.error');
+
+	'use strict';
+
 	errorWrapper.innerHTML = '';
 };
 
@@ -520,6 +587,9 @@ var removeErrors = function(errorWrapper) {
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
 var addThumbnail = function(file, element, options){
+
+	'use strict';
+
 	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
 	var reader = new FileReader();
@@ -527,6 +597,7 @@ var addThumbnail = function(file, element, options){
 	var imgWrapper = document.createElement('span');
 
 	var canvas = document.createElement('canvas');
+
 	canvas.width  = options.thumbnailSize * factor;
 	canvas.height = options.thumbnailSize * factor;
 
@@ -541,7 +612,7 @@ var addThumbnail = function(file, element, options){
 	var image = new Image();
 	imgWrapper.className = 'thumbnail';
 
-	image.addEventListener('load', function(event){
+	image.addEventListener('load', function(){
 		var ratio = this.height / this.width;
 
 		canvas.height = canvas.width * ratio;
@@ -569,6 +640,8 @@ var addThumbnail = function(file, element, options){
  */
 var createListElement = function(fileName, fileSize, fileType){
 
+	'use strict';
+
 	var fileElement = document.createElement('li');
 	fileElement.className = 'file';
 
@@ -591,6 +664,8 @@ var createListElement = function(fileName, fileSize, fileType){
  */
 var addFileToView = function(fileObj, removeFileHandlerCallback, trackData, fileView, listElement){
 
+	'use strict';
+
 	// Add remove Element & register remove Handler
 	var removeButton = document.createElement('span');
 	removeButton.className = 'remove';
@@ -598,7 +673,7 @@ var addFileToView = function(fileObj, removeFileHandlerCallback, trackData, file
 
 	fileView.appendChild(listElement);
 
-	removeButton.addEventListener('click', function(event) {
+	removeButton.addEventListener('click', function() {
 
 		// calls the callback of the DND Handler
 		removeFileHandlerCallback(trackData);
@@ -615,13 +690,18 @@ var addFileToView = function(fileObj, removeFileHandlerCallback, trackData, file
  * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
  */
 var addBase64ToDom = function(fileObj, form){
+
+	'use strict';
+
 	var input = document.createElement("input");
+
 	input.type = "hidden";
 	input.value = fileObj.data;
 	input.name = 'file:' + fileObj.file.name;
+
 	form.appendChild(input);
 
-	return function(file, trackData){
+	return function(){
 		input.parentNode.removeChild(input);
 	};
 };
@@ -631,6 +711,9 @@ var addBase64ToDom = function(fileObj, form){
  * @return {[type]} [description]
  */
 var createInputElement = function(fileInputId){
+
+	'use strict';
+
 	var fileInput = document.createElement('input');
 
 	fileInput.type = 'file';

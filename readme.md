@@ -1,6 +1,6 @@
 # Form File Upload
 
-[![Version](http://img.shields.io/badge/version-0.0.1-green.svg)]()
+[![Version](http://img.shields.io/badge/version-0.0.2-green.svg)]()
 [![Build Status](https://travis-ci.org/meandmax/Form-File-Upload.svg?branch=master)](https://travis-ci.org/meandmax/Form-File-Upload)
 [![devDependency Status](https://david-dm.org/meandmax/Form-File-Upload/dev-status.svg)](https://david-dm.org/meandmax/Form-File-Upload#info=devDependencies)
 [![Dependency Status](https://david-dm.org/meandmax/Form-File-Upload.svg)](https://david-dm.org/meandmax/Form-File-Upload.svg)
@@ -12,7 +12,7 @@ Form-File-Upload is a very lightweight module to implement a Drag & Drop Fileupl
 * Super easy to implement
 * Lightweight, no dependencies (written vanilla)
 * Fallback for uploading files even with IE8 (normal fileinput fallback)
-* Development Server written in KOA.
+* Using Browsersync as development server
 
 ## Get Started
 

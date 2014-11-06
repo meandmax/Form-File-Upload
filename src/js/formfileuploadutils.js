@@ -5,15 +5,14 @@
  * @param  {[type]} obj [description]
  * @return {[type]}     [description]
  */
-var extractDOMNodes = function(obj) {
+var extractDOMNodes = function (obj) {
+    'use strict';
 
-	'use strict';
+    if (typeof obj === 'function') {
+        return obj[0];
+    }
 
-	if(typeof obj === 'function'){
-		return obj[0];
-	}
-
-	return obj;
+    return obj;
 };
 
 /**
@@ -21,22 +20,20 @@ var extractDOMNodes = function(obj) {
  * @param  {[type]} object [description]
  * @return {[type]}        [description]
  */
-var toArray = function(object) {
+var toArray = function (object) {
+    'use strict';
 
-	'use strict';
-
-	return Array.prototype.slice.call(object, 0);
+    return Array.prototype.slice.call(object, 0);
 };
 
 /**
  * [hasFileReader description]
  * @return {Boolean} [description]
  */
-var hasFileReader = function() {
+var hasFileReader = function () {
+    'use strict';
 
-	'use strict';
-
-	return !!(window.File && window.FileList && window.FileReader);
+    return !!(window.File && window.FileList && window.FileReader);
 };
 
 /**
@@ -44,18 +41,17 @@ var hasFileReader = function() {
  * @param  {[type]} e [description]
  * @return {[type]}   [description]
  */
-var noPropagation = function(e) {
+var noPropagation = function (e) {
+    'use strict';
 
-	'use strict';
+    e.stopPropagation();
 
-	e.stopPropagation();
-
-	if (e.preventDefault) {
-		return e.preventDefault();
-	} else {
-		e.returnValue = false;
-		return false;
-	}
+    if (e.preventDefault) {
+        return e.preventDefault();
+    } else {
+        e.returnValue = false;
+        return false;
+    }
 };
 
 /**
@@ -64,29 +60,23 @@ var noPropagation = function(e) {
  * @param  {[type]} defaultoptions [description]
  * @return {[type]}                [description]
  */
-var mergeOptions = function(opts, defaultOptions, self) {
+var mergeOptions = function (opts, defaultOptions, self) {
+    'use strict';
 
-	'use strict';
+    var options = {};
 
-	var options = {};
+    for (var i in defaultOptions) {
+        if (opts && opts.hasOwnProperty(i)) {
+            options[i] = opts[i];
 
-	for (var i in defaultOptions) {
-
-		if(opts && opts.hasOwnProperty(i)) {
-
-			options[i] = opts[i];
-
-			if (typeof(options[i]) === 'function') {
-				options[i] = options[i].bind(self);
-			}
-
-		} else {
-			options[i] = defaultOptions[i];
-		}
-
-	}
-
-	return options;
+            if (typeof (options[i]) === 'function') {
+                options[i] = options[i].bind(self);
+            }
+        } else {
+            options[i] = defaultOptions[i];
+        }
+    }
+    return options;
 };
 
 /**
@@ -95,14 +85,13 @@ var mergeOptions = function(opts, defaultOptions, self) {
  * @return {[type]}            [description]
  */
 var getFileType = function (file) {
+    'use strict';
 
-	'use strict';
-
-	// Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
-	if ((/\.xls$/).test(file.name) && !file.type) {
-		return 'application/vnd.ms-excel';
-	}
-	return file.type;
+    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
+    if ((/\.xls$/).test(file.name) && !file.type) {
+        return 'application/vnd.ms-excel';
+    }
+    return file.type;
 };
 
 /**
@@ -110,31 +99,30 @@ var getFileType = function (file) {
  * @param  {[object]} file [contains the size of the file]
  * @return {[string]}      [prettified filesize]
  */
-var getReadableFileSize = function(file) {
+var getReadableFileSize = function (file) {
+    'use strict';
 
-	'use strict';
+    var size = file.size;
+    var string;
 
-	var size = file.size;
-	var string;
+    if (size >= 1024 * 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 * 1024 / 10);
+        string = 'TB';
+    } else if (size >= 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 / 10);
+        string = 'GB';
+    } else if (size >= 1024 * 1024) {
+        size = size / (1024 * 1024 / 10);
+        string = 'MB';
+    } else if (size >= 1024) {
+        size = size / (1024 / 10);
+        string = 'KB';
+    } else {
+        size = size * 10;
+        string = 'B';
+    }
 
-	if (size >= 1024 * 1024 * 1024 * 1024 ) {
-		size = size / (1024 * 1024 * 1024 * 1024 / 10);
-		string = 'TB';
-	} else if (size >= 1024 * 1024 * 1024 ) {
-		size = size / (1024 * 1024 * 1024 / 10);
-		string = 'GB';
-	} else if (size >= 1024 * 1024) {
-		size = size / (1024 * 1024 / 10);
-		string = 'MB';
-	} else if (size >= 1024) {
-		size = size / (1024 / 10);
-		string = 'KB';
-	} else {
-		size = size * 10;
-		string = 'B';
-	}
-
-	return (Math.round(size) / 10) + ' ' + string;
+    return (Math.round(size) / 10) + ' ' + string;
 };
 
 /**
@@ -142,11 +130,10 @@ var getReadableFileSize = function(file) {
  * @param  {[type]}  file [description]
  * @return {Boolean}      [description]
  */
-var isImage = function(file) {
+var isImage = function (file) {
+    'use strict';
 
-	'use strict';
-
-	return (/^image\//).test(getFileType(file));
+    return (/^image\//).test(getFileType(file));
 };
 
 /**
@@ -154,12 +141,11 @@ var isImage = function(file) {
  * @param  {[object]} file
  * @param  {[object]} trackData
  */
-var trackFile = function(file, trackData) {
+var trackFile = function (file, trackData) {
+    'use strict';
 
-	'use strict';
-
-	trackData.fileNumber += 1;
-	trackData.requestSize += file.size;
+    trackData.fileNumber += 1;
+    trackData.requestSize += file.size;
 };
 
 /**
@@ -168,10 +154,10 @@ var trackFile = function(file, trackData) {
  * @param  {[object]} trackData
  */
 var untrackFile = function (file, trackData) {
-	'use strict';
+    'use strict';
 
-	trackData.fileNumber -= 1;
-	trackData.requestSize -= file.size;
+    trackData.fileNumber -= 1;
+    trackData.requestSize -= file.size;
 };
 
 /**
@@ -180,98 +166,90 @@ var untrackFile = function (file, trackData) {
  * @return {[string]}      [prettified typestring]
  */
 var getReadableFileType = function (fileType, options) {
+    'use strict';
 
-	'use strict';
-
-	return options.acceptedTypes[fileType] || 'unknown filetype';
+    return options.acceptedTypes[fileType] || 'unknown filetype';
 };
 
-var validateFileNumber = function(trackData, options) {
+var validateFileNumber = function (trackData, options) {
+    'use strict';
 
-	'use strict';
+    if (trackData.fileNumber >= options.maxFileNumber) {
+        return false;
+    }
 
-	if (trackData.fileNumber >= options.maxFileNumber) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateRequestSize = function(requestSize, options) {
+var validateRequestSize = function (requestSize, options) {
+    'use strict';
 
-	'use strict';
+    if (requestSize >= options.maxRequestSize) {
+        return false;
+    }
 
-	if (requestSize >= options.maxRequestSize) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileType = function(fileType, options) {
+var validateFileType = function (fileType, options) {
+    'use strict';
 
-	'use strict';
+    if (!options.acceptedTypes[fileType]) {
+        return false;
+    }
 
-	if (!options.acceptedTypes[fileType]) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileSize = function(file, options) {
+var validateFileSize = function (file, options) {
+    'use strict';
 
-	'use strict';
+    if (file.size > options.maxFileSize) {
+        return false;
+    }
 
-	if (file.size > options.maxFileSize) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileName = function(file, options) {
+var validateFileName = function (file, options) {
+    'use strict';
 
-	'use strict';
+    if (!(options.fileNameRe).test(file.name)) {
+        return false;
+    }
 
-	if (!(options.fileNameRe).test(file.name)) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
 /**
  * [displays the Error message & removes it also after the specified timeout]
  * @param  {[string]} error [error message which has to be displayed]
  */
-var showErrorMessage = function(error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+    'use strict';
 
-	'use strict';
+    var errorElement = document.createElement('li');
 
-	var errorElement = document.createElement('li');
+    errorElement.className = 'error';
+    errorElement.innerHTML = error;
 
-	errorElement.className = 'error';
-	errorElement.innerHTML = error;
+    clearTimeout(errorTimeoutId);
 
-	clearTimeout(errorTimeoutId);
+    errorTimeoutId = setTimeout(function () {
+        removeErrors(errorWrapper);
+    }, options.errorMessageTimeout);
 
-	errorTimeoutId = setTimeout(function() {
-		removeErrors(errorWrapper);
-	}, options.errorMessageTimeout);
-
-	errorWrapper.appendChild(errorElement);
-	form.insertBefore(errorWrapper, fileView);
+    errorWrapper.appendChild(errorElement);
+    form.insertBefore(errorWrapper, fileView);
 };
 
 /**
  * [removes all errors]
  */
-var removeErrors = function(errorWrapper) {
+var removeErrors = function (errorWrapper) {
+    'use strict';
 
-	'use strict';
-
-	errorWrapper.innerHTML = '';
+    errorWrapper.innerHTML = '';
 };
 
 /**
@@ -279,51 +257,50 @@ var removeErrors = function(errorWrapper) {
  * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
-var addThumbnail = function(file, element, options){
+var addThumbnail = function (file, element, options) {
+    'use strict';
 
-	'use strict';
+    var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
-	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+    var reader = new FileReader();
+    var factor = window.devicePixelRatio;
+    var imgWrapper = document.createElement('span');
 
-	var reader = new FileReader();
-	var factor = window.devicePixelRatio;
-	var imgWrapper = document.createElement('span');
+    var canvas = document.createElement('canvas');
 
-	var canvas = document.createElement('canvas');
+    canvas.width  = options.thumbnailSize * factor;
+    canvas.height = options.thumbnailSize * factor;
 
-	canvas.width  = options.thumbnailSize * factor;
-	canvas.height = options.thumbnailSize * factor;
+    var ctx = canvas.getContext('2d');
 
-	var ctx = canvas.getContext("2d");
+    if (factor > 1) {
+        ctx.webkitBackingStorePixelRatio = factor;
+        ctx.scale(factor, factor);
+    }
 
-	if(factor > 1){
-		ctx.webkitBackingStorePixelRatio = factor;
-		ctx.scale(factor, factor);
-	}
+    var fileName = element.querySelector('.js_name');
+    var image = new Image();
+    imgWrapper.className = 'thumbnail';
 
-	var fileName = element.querySelector('.js_name');
-	var image = new Image();
-	imgWrapper.className = 'thumbnail';
+    image.addEventListener('load', function () {
+        var ratio = this.height / this.width;
 
-	image.addEventListener('load', function(){
-		var ratio = this.height / this.width;
+        canvas.height = canvas.width * ratio;
+        ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
+    });
 
-		canvas.height = canvas.width * ratio;
-		ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
-	});
+    reader.addEventListener('load', function (event) {
+        if (isImage(file)) {
+            image.src = event.target.result;
+        } else {
+            image.src = EMPTY_IMAGE;
+        }
 
-	reader.addEventListener('load', function(event){
-		if (isImage(file)) {
-			image.src = event.target.result;
-		} else {
-			image.src = EMPTY_IMAGE;
-		}
+        imgWrapper.appendChild(canvas);
+        element.insertBefore(imgWrapper, fileName);
+    });
 
-		imgWrapper.appendChild(canvas);
-		element.insertBefore(imgWrapper, fileName);
-	});
-
-	reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
 };
 
 /**
@@ -331,23 +308,22 @@ var addThumbnail = function(file, element, options){
  * @param  {[type]} fileObj [used to put the information of the file in the listElememt]
  * @return {[object]}       [the listElement which gets injected in the DOM]
  */
-var createListElement = function(fileName, fileSize, fileType){
+var createListElement = function (fileName, fileSize, fileType) {
+    'use strict';
 
-	'use strict';
+    var fileElement = document.createElement('li');
+    fileElement.className = 'file';
 
-	var fileElement = document.createElement('li');
-	fileElement.className = 'file';
+    fileElement.innerHTML = [
+    '<span class="label js_name name">',
+    fileName,
+    '</span><span class="label size">',
+    fileSize,
+    '</span><span class="label type">',
+    fileType,
+    '</span>' ].join('');
 
-	fileElement.innerHTML = [
-	'<span class="label js_name name">',
-	fileName,
-	'</span><span class="label size">',
-	fileSize,
-	'</span><span class="label type">',
-	fileType,
-	'</span>'].join('');
-
-	return fileElement;
+    return fileElement;
 };
 
 /**
@@ -355,67 +331,63 @@ var createListElement = function(fileName, fileSize, fileType){
  * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
  * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
  */
-var addFileToView = function(fileObj, removeFileHandlerCallback, trackData, fileView, listElement){
+var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
+    'use strict';
 
-	'use strict';
+    // Add remove Element & register remove Handler
+    var removeButton = document.createElement('span');
+    removeButton.className = 'remove';
+    listElement.appendChild(removeButton);
 
-	// Add remove Element & register remove Handler
-	var removeButton = document.createElement('span');
-	removeButton.className = 'remove';
-	listElement.appendChild(removeButton);
+    fileView.appendChild(listElement);
 
-	fileView.appendChild(listElement);
+    removeButton.addEventListener('click', function () {
+        // calls the callback of the DND Handler
+        removeFileHandlerCallback(trackData);
 
-	removeButton.addEventListener('click', function() {
+        // remove fileViewElement
+        listElement.parentNode.removeChild(listElement);
 
-		// calls the callback of the DND Handler
-		removeFileHandlerCallback(trackData);
-
-		// remove fileViewElement
-		listElement.parentNode.removeChild(listElement);
-
-		untrackFile(fileObj.file, trackData);
-	});
+        untrackFile(fileObj.file, trackData);
+    });
 };
 
 /**
  * [Creates a hidden input field where the base64 data is stored]
  * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
  */
-var addBase64ToDom = function(fileObj, form){
+var addBase64ToDom = function (fileObj, form) {
+    'use strict';
 
-	'use strict';
+    var input = document.createElement('input');
 
-	var input = document.createElement("input");
+    input.type = 'hidden';
+    input.value = fileObj.data;
+    input.name = 'file:' + fileObj.file.name;
 
-	input.type = "hidden";
-	input.value = fileObj.data;
-	input.name = 'file:' + fileObj.file.name;
+    form.appendChild(input);
 
-	form.appendChild(input);
-
-	return function(){
-		input.parentNode.removeChild(input);
-	};
+    return function () {
+        input.parentNode.removeChild(input);
+    };
 };
 
 /**
  * [createInputElement description]
  * @return {[type]} [description]
  */
-var createInputElement = function(fileInputId){
+var createInputElement = function (fileInputId) {
+    'use strict';
 
-	'use strict';
+    var fileInput = document.createElement('input');
 
-	var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.className = 'fileinput';
+    fileInputId += 1;
 
-	fileInput.type = 'file';
-	fileInput.className = 'fileinput';
-	fileInputId += 1;
+    fileInput.name = 'fileInput ' + fileInputId;
 
-	fileInput.name = 'fileInput ' + fileInputId;
-
-	return fileInput;
+    return fileInput;
 };
 
 exports.extractDOMNodes     = extractDOMNodes;

@@ -5,6 +5,7 @@ var csso          = require('gulp-csso');
 var watch         = require('gulp-watch');
 var uglify        = require('gulp-uglify');
 var jshint        = require('gulp-jshint');
+var jscs          = require('gulp-jscs');
 var rename        = require('gulp-rename');
 var mocha         = require('gulp-mocha');
 var concat        = require('gulp-concat');
@@ -18,7 +19,8 @@ var reload        = browserSync.reload;
 gulp.task('lint', function() {
     return gulp.src('./src/js/*.js')
         .pipe(jshint('./.jshintrc'))
-        .pipe(jshint.reporter(jshintStylish));
+        .pipe(jshint.reporter(jshintStylish))
+        .pipe(jscs('./.jscsrc'));
 });
 
 /**

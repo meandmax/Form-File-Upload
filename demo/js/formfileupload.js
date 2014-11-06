@@ -3,303 +3,303 @@
 
 var utils = _dereq_('./formfileuploadutils.js');
 
-var FormFileUpload = function(fileUpload_, opts){
+var FormFileUpload = function (fileUpload_, opts) {
+    'use strict';
 
-	'use strict';
+    var errorTimeoutId;
+    var fileInputId = 0;
 
-	var errorTimeoutId;
-	var fileInputId = 0;
+    var trackData = {
+        fileNumber: 0,
+        requestSize: 0
+    };
 
-	var trackData = {
-		fileNumber: 0,
-		requestSize: 0
-	};
+    var self         = this;
+    var dropBox      = document.querySelector('.js_dropbox');
+    var fileView     = document.querySelector('.js_list');
+    var fileInputs   = document.querySelector('.js_fileinputs');
+    var form         = document.querySelector('.js_form');
+    var errorWrapper = document.createElement('div');
+    var selectButton = document.createElement('div');
 
-	var self         = this;
-	var dropBox      = document.querySelector('.js_dropbox');
-	var fileView     = document.querySelector('.js_list');
-	var fileInputs   = document.querySelector('.js_fileinputs');
-	var form         = document.querySelector('.js_form');
-	var errorWrapper = document.createElement('div');
-	var selectButton = document.createElement('div');
+    var defaultOptions = {
 
-	var defaultOptions = {
+        /**
+         * [timeout specifies how long the error messages are displayed]
+         * @type {Number}
+         */
+        errorMessageTimeout: 5000,
 
-		/**
-		 * [timeout specifies how long the error messages are displayed]
-		 * @type {Number}
-		 */
-		errorMessageTimeout: 5000,
+        /**
+         * [the maximum filesize of each file in bytes]
+         * @type {Number}
+         */
+        maxFileSize: 3145728,
 
-		/**
-		 * [the maximum filesize of each file in bytes]
-		 * @type {Number}
-		 */
-		maxFileSize: 3145728,
+        /**
+         * [maxFileNumber defines how many files are allowed to upload with each request]
+         * @type {Number}
+         */
+        maxFileNumber: 3,
 
-		/**
-		 * [maxFileNumber defines how many files are allowed to upload with each request]
-		 * @type {Number}
-		 */
-		maxFileNumber: 3,
+        /**
+         * [Size of thumbnails displayed in the browser for preview the images]
+         * @type {Number}
+         */
+        thumbnailSize: 100,
 
-		/**
-		 * [Size of thumbnails displayed in the browser for preview the images]
-		 * @type {Number}
-		 */
-		thumbnailSize: 100,
+        /**
+         * [defines the maximum size of each request in bytes]
+         * @type {Number}
+         */
+        maxRequestSize: 9437184,
 
-		/**
-		 * [defines the maximum size of each request in bytes]
-		 * @type {Number}
-		 */
-		maxRequestSize: 9437184,
+        /**
+         * [If true the fallback for IE8 is activated]
+         * @type {Boolean}
+         */
+        fallbackForIE8: true,
 
-		/**
-		 * [If true the fallback for IE8 is activated]
-		 * @type {Boolean}
-		 */
-		fallbackForIE8: true,
+        /**
+         * [Regular Expression for filename matching]
+         * @type {String}
+         */
+        fileNameRe: /^[A-Za-z0-9.\-_ ]+$/,
 
-		/**
-		 * [Regular Expression for filename matching]
-		 * @type {String}
-		 */
-		fileNameRe: /^[A-Za-z0-9.\-_ ]+$/,
+        /**
+         * [errormessage displayed when the file has characters which are not allowed]
+         * @type {String}
+         */
+        invalidFileNameError: 'The name of the file has forbidden characters',
 
-		/**
-		 * [errormessage displayed when the file has characters which are not allowed]
-		 * @type {String}
-		 */
-		invalidFileNameError: 'The name of the file has forbidden characters',
+        /**
+         * [errormessage displayed when the filetype is not allowed]
+         * @type {String}
+         */
+        invalidFileTypeError: 'The fileformat is not allowed',
 
-		/**
-		 * [errormessage displayed when the filetype is not allowed]
-		 * @type {String}
-		 */
-		invalidFileTypeError: 'The fileformat is not allowed',
+        /**
+         * [errormessage displayed when the max. requestsize is reached]
+         * @type {String}
+         */
+        maxRequestSizeError: 'The requestsize of the files you want to upload is exceeded.',
 
-		/**
-		 * [errormessage displayed when the max. requestsize is reached]
-		 * @type {String}
-		 */
-		maxRequestSizeError: 'The requestsize of the files you want to upload is exceeded.',
+        /**
+         * [errormessage displayed when the max. filenumber is reached]
+         * @type {String}
+         */
+        maxFileNumberError: 'You can upload 3 files, not more!',
 
-		/**
-		 * [errormessage displayed when the max. filenumber is reached]
-		 * @type {String}
-		 */
-		maxFileNumberError: 'You can upload 3 files, not more!',
+        /**
+         * [errormessage displayed when the max. filensize is reached]
+         * @type {String}
+         */
+        maxFileSizeError: 'One of the files is too large. the maximum filesize is 3 MB.',
 
-		/**
-		 * [errormessage displayed when the max. filensize is reached]
-		 * @type {String}
-		 */
-		maxFileSizeError: 'One of the files is too large. the maximum filesize is 3 MB.',
+        /**
+         * [If something during the filereading process went wrong, then this message is displayed]
+         * @type {String}
+         */
+        unknownFileReaderError: 'Unknown Error while loading the file.',
 
-		/**
-		 * [If something during the filereading process went wrong, then this message is displayed]
-		 * @type {String}
-		 */
-		unknownFileReaderError: 'Unknown Error while loading the file.',
+        /**
+         * [Objects contains all allowed mimetypes as keys & the prettified filenames as values]
+         * @type {Object}
+         */
+        acceptedTypes: {
+            'image/png': 'PNG-Bild',
+            'image/jpeg': 'JPEG-Bild',
+            'image/gif': 'GIF-Bild',
+            'image/tiff': 'TIFF-Bild',
+            'application/pdf': 'PDF-Dokument',
+            'application/vnd.ms-excel': 'Excel-Dokument',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel-Dokument',
+            'application/msword': 'Word-Dokument',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word-Dokument'
+        }
+    };
 
-		/**
-		 * [Objects contains all allowed mimetypes as keys & the prettified filenames as values]
-		 * @type {Object}
-		 */
-		acceptedTypes: {
-			'image/png': 'PNG-Bild',
-			'image/jpeg': 'JPEG-Bild',
-			'image/gif': 'GIF-Bild',
-			'image/tiff': 'TIFF-Bild',
-			'application/pdf': 'PDF-Dokument',
-			'application/vnd.ms-excel': 'Excel-Dokument',
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel-Dokument',
-			'application/msword': 'Word-Dokument',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word-Dokument'
-		}
-	};
+    /**
+     * Merging the default options with the user passed options together
+     * @type {[object]}
+     */
+    var options = utils.mergeOptions(opts, defaultOptions, self);
 
-	/**
-	 * Merging the default options with the user passed options together
-	 * @type {[object]}
-	 */
-	var options = utils.mergeOptions(opts, defaultOptions, self);
+    /**
+     *
+     * Callback function for handling the async filereader response
+     * @param  {[string]} err     [the errormessage which gets thrown when the filereader errored]
+     * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
+     */
+    var convertBase64FileHandler = function (err, fileObj) {
+        if (err) {
+            console.log(err);
+        }
 
-	/**
-	 *
-	 * Callback function for handling the async filereader response
-	 * @param  {[string]} err     [the errormessage which gets thrown when the filereader errored]
-	 * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
-	 */
-	var convertBase64FileHandler = function(err, fileObj) {
-		if (err) {
-			console.log(err);
-		}
+        if (fileObj) {
+            var removeHandler = utils.addBase64ToDom(fileObj, form);
+            var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
+            var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
+            utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-		if (fileObj) {
-			var removeHandler = utils.addBase64ToDom(fileObj, form);
-			var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
-			var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
-			utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+            if (utils.hasFileReader) {
+                utils.addThumbnail(fileObj.file, listElement, options);
+            }
+        }
+    };
 
-			if (utils.hasFileReader) {
-				utils.addThumbnail(fileObj.file, listElement, options);
-			}
-		}
-	};
+    var validateFile = function (file) {
+        if (!utils.validateFileNumber(trackData, options)) {
+            return options.maxFileNumberError;
+        }
 
-	var validateFile = function(file) {
-		if(!utils.validateFileNumber(trackData, options)){
-			return options.maxFileNumberError;
-		}
+        if (!utils.validateRequestSize(trackData, options)) {
+            return options.maxRequestSizeError;
+        }
 
-		if(!utils.validateRequestSize(trackData, options)){
-			return options.maxRequestSizeError;
-		}
+        if (!utils.validateFileType(utils.getFileType(file), options)) {
+            return options.invalidFileTypeError;
+        }
 
-		if(!utils.validateFileType(utils.getFileType(file), options)){
-			return options.invalidFileTypeError;
-		}
+        if (!utils.validateFileSize(file, options)) {
+            return options.maxFileSizeError;
+        }
 
-		if(!utils.validateFileSize(file, options)){
-			return options.maxFileSizeError;
-		}
+        if (!utils.validateFileName(file, options)) {
+            return options.invalidFileNameError;
+        }
 
-		if(!utils.validateFileName(file, options)){
-			return options.invalidFileNameError;
-		}
+        return true;
+    };
 
-		return true;
-	};
+    /**
+     * [converts the filedata into a base64 string and validates the filedata]
+     * @param  {[array]}  files  [the converted fileListObject]
+     */
+    this.convertFilesToBase64 = function (files) {
+        files.every(function (file) {
+            var reader = new FileReader();
 
-	/**
-	 * [converts the filedata into a base64 string and validates the filedata]
-	 * @param  {[array]}  files  [the converted fileListObject]
-	 */
-	this.convertFilesToBase64 = function(files){
-		files.every(function(file) {
-			var reader = new FileReader();
+            if (typeof validateFile(file) === 'string') {
+                utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                return false;
+            }
 
+            utils.trackFile(file, trackData);
 
-			if(typeof validateFile(file) === 'string') {
-				utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
-				return false;
-			}
+            reader.addEventListener('load', function (event) {
+                convertBase64FileHandler(null, {
+                    data: event.target.result,
+                    file: file
+                });
+            });
 
-			utils.trackFile(file, trackData);
+            reader.addEventListener('error', function () {
+                utils.convertBase64FileHandler(options.unknownFileReaderError);
+            });
 
-			reader.addEventListener('load', function(event) {
-				convertBase64FileHandler(null, {
-					data: event.target.result,
-					file: file
-				});
-			});
+            reader.readAsDataURL(file);
 
-			reader.addEventListener('error', function() {
-				utils.convertBase64FileHandler(options.unknownFileReaderError);
-			});
+            return true;
+        });
+    };
 
-			reader.readAsDataURL(file);
+    /**
+     * [Add a fileInput with the selected file to form]
+     */
+    this.addSelectedFile = function () {
+        var fileInput = utils.createInputElement(fileInputId);
 
-			return true;
-		});
-	};
+        form.insertBefore(selectButton, dropBox);
+        selectButton.appendChild(fileInput);
 
-	/**
-	 * [Add a fileInput with the selected file to form]
-	 */
-	this.addSelectedFile = function () {
+        fileInput.addEventListener('change', function () {
+            utils.removeErrors(errorWrapper);
 
-		var fileInput = utils.createInputElement(fileInputId);
+            var file = this.files[0];
 
-		form.insertBefore(selectButton, dropBox);
-		selectButton.appendChild(fileInput);
+            var fileObj = {
+                file: file
+            };
 
-		fileInput.addEventListener('change', function () {
-			utils.removeErrors(errorWrapper);
+            var removeHandler = function () {
+                utils.untrackFile(file, trackData);
+                fileInput.parentNode.removeChild(fileInput);
+            };
 
-			var file = this.files[0];
-			var fileObj = { file: file };
+            if (typeof validateFile(file) === 'string') {
+                utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                fileInput.parentNode.removeChild(fileInput);
+            } else {
+                var fileType = utils.getReadableFileType(utils.getFileType(file), options);
+                var listElement = utils.createListElement(file.name, fileType, utils.getReadableFileSize(fileObj.file));
 
-			var removeHandler = function() {
-				utils.untrackFile(file, trackData);
-				fileInput.parentNode.removeChild(fileInput);
-			};
+                utils.trackFile(file, trackData);
+                utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-			if(typeof validateFile(file) === 'string') {
-				utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
-				fileInput.parentNode.removeChild(fileInput);
-			} else {
-				var fileType = utils.getReadableFileType(utils.getFileType(file), options);
-				var listElement = utils.createListElement(file.name, fileType, utils.getReadableFileSize(fileObj.file));
+                if (utils.hasFileReader) {
+                    utils.addThumbnail(file, listElement, options);
+                }
 
-				utils.trackFile(file, trackData);
-				utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+                fileInputs.appendChild(fileInput);
+            }
 
-				if (utils.hasFileReader) {
-					utils.addThumbnail(file, listElement, options);
-				}
+            self.addSelectedFile();
+        });
+    };
 
-				fileInputs.appendChild(fileInput);
-			}
+    /**
+     * drophandler calls the dndHandler always whenn a file gets dropped
+     * @param {[object]} event [dropEvent where the filelist is binded]
+     */
+    dropBox.addEventListener('drop', function (event) {
+        utils.noPropagation(event);
+        var files = utils.toArray(event.dataTransfer.files);
+        self.convertFilesToBase64(files);
+        this.classList.toggle('active');
+    });
 
-			self.addSelectedFile();
-		});
-	};
+    /**
+     * The other events are also handled cause they have to be
+     * @param {[object]} event [dropEvent where the filelist is binded]
+     */
+    dropBox.addEventListener('dragenter', function (event) {
+        utils.noPropagation(event);
+        this.classList.toggle('active');
+    });
 
-	/**
-	 * drophandler calls the dndHandler always whenn a file gets dropped
-	 * @param {[object]} event [dropEvent where the filelist is binded]
-	 */
-	dropBox.addEventListener('drop', function(event) {
-		utils.noPropagation(event);
-		var files = utils.toArray(event.dataTransfer.files);
-		self.convertFilesToBase64(files);
-		this.classList.toggle('active');
-	});
+    /**
+     * The other events are also handled cause they have to be
+     * @param {[object]} event [dropEvent where the filelist is binded]
+     */
+    dropBox.addEventListener('dragover', function (event) {
+        utils.noPropagation(event);
+    });
 
-	/**
-	 * The other events are also handled cause they have to be
-	 * @param {[object]} event [dropEvent where the filelist is binded]
-	 */
-	dropBox.addEventListener('dragenter', function(event) {
-		utils.noPropagation(event);
-		this.classList.toggle('active');
-	});
+    /**
+     * The other events are also handled cause they have to be
+     * @param {[object]} event [dropEvent where the filelist is binded]
+     */
 
-	/**
-	 * The other events are also handled cause they have to be
-	 * @param {[object]} event [dropEvent where the filelist is binded]
-	 */
-	dropBox.addEventListener('dragover', function(event) {
-		utils.noPropagation(event);
-	});
+    dropBox.addEventListener('dragleave', function (event) {
+        utils.noPropagation(event);
+        this.classList.toggle('active');
+    });
 
-	/**
-	 * The other events are also handled cause they have to be
-	 * @param {[object]} event [dropEvent where the filelist is binded]
-	 */
+    /**
+     * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
+     */
+    if (!utils.hasFileReader() && options.fallbackForIE8) {
+        selectButton.className = 'selectbutton js_selectbutton';
 
-	dropBox.addEventListener('dragleave', function(event) {
-		utils.noPropagation(event);
-		this.classList.toggle('active');
-	});
+        var span = document.createElement('span');
+        span.innerHTML = 'Select File';
 
-	/**
-	 * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
-	 */
-	if (!utils.hasFileReader() && options.fallbackForIE8 ) {
-		selectButton.className = 'selectbutton js_selectbutton';
+        selectButton.appendChild(span);
 
-		var span = document.createElement('span');
-		span.innerHTML = 'Select File';
-
-		selectButton.appendChild(span);
-
-		self.addSelectedFile();
-		dropBox.style.display = "none";
-	}
+        self.addSelectedFile();
+        dropBox.style.display = 'none';
+    }
 };
 
 module.exports = FormFileUpload;
@@ -312,15 +312,14 @@ module.exports = FormFileUpload;
  * @param  {[type]} obj [description]
  * @return {[type]}     [description]
  */
-var extractDOMNodes = function(obj) {
+var extractDOMNodes = function (obj) {
+    'use strict';
 
-	'use strict';
+    if (typeof obj === 'function') {
+        return obj[0];
+    }
 
-	if(typeof obj === 'function'){
-		return obj[0];
-	}
-
-	return obj;
+    return obj;
 };
 
 /**
@@ -328,22 +327,20 @@ var extractDOMNodes = function(obj) {
  * @param  {[type]} object [description]
  * @return {[type]}        [description]
  */
-var toArray = function(object) {
+var toArray = function (object) {
+    'use strict';
 
-	'use strict';
-
-	return Array.prototype.slice.call(object, 0);
+    return Array.prototype.slice.call(object, 0);
 };
 
 /**
  * [hasFileReader description]
  * @return {Boolean} [description]
  */
-var hasFileReader = function() {
+var hasFileReader = function () {
+    'use strict';
 
-	'use strict';
-
-	return !!(window.File && window.FileList && window.FileReader);
+    return !!(window.File && window.FileList && window.FileReader);
 };
 
 /**
@@ -351,18 +348,17 @@ var hasFileReader = function() {
  * @param  {[type]} e [description]
  * @return {[type]}   [description]
  */
-var noPropagation = function(e) {
+var noPropagation = function (e) {
+    'use strict';
 
-	'use strict';
+    e.stopPropagation();
 
-	e.stopPropagation();
-
-	if (e.preventDefault) {
-		return e.preventDefault();
-	} else {
-		e.returnValue = false;
-		return false;
-	}
+    if (e.preventDefault) {
+        return e.preventDefault();
+    } else {
+        e.returnValue = false;
+        return false;
+    }
 };
 
 /**
@@ -371,29 +367,23 @@ var noPropagation = function(e) {
  * @param  {[type]} defaultoptions [description]
  * @return {[type]}                [description]
  */
-var mergeOptions = function(opts, defaultOptions, self) {
+var mergeOptions = function (opts, defaultOptions, self) {
+    'use strict';
 
-	'use strict';
+    var options = {};
 
-	var options = {};
+    for (var i in defaultOptions) {
+        if (opts && opts.hasOwnProperty(i)) {
+            options[i] = opts[i];
 
-	for (var i in defaultOptions) {
-
-		if(opts && opts.hasOwnProperty(i)) {
-
-			options[i] = opts[i];
-
-			if (typeof(options[i]) === 'function') {
-				options[i] = options[i].bind(self);
-			}
-
-		} else {
-			options[i] = defaultOptions[i];
-		}
-
-	}
-
-	return options;
+            if (typeof (options[i]) === 'function') {
+                options[i] = options[i].bind(self);
+            }
+        } else {
+            options[i] = defaultOptions[i];
+        }
+    }
+    return options;
 };
 
 /**
@@ -402,14 +392,13 @@ var mergeOptions = function(opts, defaultOptions, self) {
  * @return {[type]}            [description]
  */
 var getFileType = function (file) {
+    'use strict';
 
-	'use strict';
-
-	// Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
-	if ((/\.xls$/).test(file.name) && !file.type) {
-		return 'application/vnd.ms-excel';
-	}
-	return file.type;
+    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
+    if ((/\.xls$/).test(file.name) && !file.type) {
+        return 'application/vnd.ms-excel';
+    }
+    return file.type;
 };
 
 /**
@@ -417,31 +406,30 @@ var getFileType = function (file) {
  * @param  {[object]} file [contains the size of the file]
  * @return {[string]}      [prettified filesize]
  */
-var getReadableFileSize = function(file) {
+var getReadableFileSize = function (file) {
+    'use strict';
 
-	'use strict';
+    var size = file.size;
+    var string;
 
-	var size = file.size;
-	var string;
+    if (size >= 1024 * 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 * 1024 / 10);
+        string = 'TB';
+    } else if (size >= 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 / 10);
+        string = 'GB';
+    } else if (size >= 1024 * 1024) {
+        size = size / (1024 * 1024 / 10);
+        string = 'MB';
+    } else if (size >= 1024) {
+        size = size / (1024 / 10);
+        string = 'KB';
+    } else {
+        size = size * 10;
+        string = 'B';
+    }
 
-	if (size >= 1024 * 1024 * 1024 * 1024 ) {
-		size = size / (1024 * 1024 * 1024 * 1024 / 10);
-		string = 'TB';
-	} else if (size >= 1024 * 1024 * 1024 ) {
-		size = size / (1024 * 1024 * 1024 / 10);
-		string = 'GB';
-	} else if (size >= 1024 * 1024) {
-		size = size / (1024 * 1024 / 10);
-		string = 'MB';
-	} else if (size >= 1024) {
-		size = size / (1024 / 10);
-		string = 'KB';
-	} else {
-		size = size * 10;
-		string = 'B';
-	}
-
-	return (Math.round(size) / 10) + ' ' + string;
+    return (Math.round(size) / 10) + ' ' + string;
 };
 
 /**
@@ -449,11 +437,10 @@ var getReadableFileSize = function(file) {
  * @param  {[type]}  file [description]
  * @return {Boolean}      [description]
  */
-var isImage = function(file) {
+var isImage = function (file) {
+    'use strict';
 
-	'use strict';
-
-	return (/^image\//).test(getFileType(file));
+    return (/^image\//).test(getFileType(file));
 };
 
 /**
@@ -461,12 +448,11 @@ var isImage = function(file) {
  * @param  {[object]} file
  * @param  {[object]} trackData
  */
-var trackFile = function(file, trackData) {
+var trackFile = function (file, trackData) {
+    'use strict';
 
-	'use strict';
-
-	trackData.fileNumber += 1;
-	trackData.requestSize += file.size;
+    trackData.fileNumber += 1;
+    trackData.requestSize += file.size;
 };
 
 /**
@@ -475,10 +461,10 @@ var trackFile = function(file, trackData) {
  * @param  {[object]} trackData
  */
 var untrackFile = function (file, trackData) {
-	'use strict';
+    'use strict';
 
-	trackData.fileNumber -= 1;
-	trackData.requestSize -= file.size;
+    trackData.fileNumber -= 1;
+    trackData.requestSize -= file.size;
 };
 
 /**
@@ -487,98 +473,90 @@ var untrackFile = function (file, trackData) {
  * @return {[string]}      [prettified typestring]
  */
 var getReadableFileType = function (fileType, options) {
+    'use strict';
 
-	'use strict';
-
-	return options.acceptedTypes[fileType] || 'unknown filetype';
+    return options.acceptedTypes[fileType] || 'unknown filetype';
 };
 
-var validateFileNumber = function(trackData, options) {
+var validateFileNumber = function (trackData, options) {
+    'use strict';
 
-	'use strict';
+    if (trackData.fileNumber >= options.maxFileNumber) {
+        return false;
+    }
 
-	if (trackData.fileNumber >= options.maxFileNumber) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateRequestSize = function(requestSize, options) {
+var validateRequestSize = function (requestSize, options) {
+    'use strict';
 
-	'use strict';
+    if (requestSize >= options.maxRequestSize) {
+        return false;
+    }
 
-	if (requestSize >= options.maxRequestSize) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileType = function(fileType, options) {
+var validateFileType = function (fileType, options) {
+    'use strict';
 
-	'use strict';
+    if (!options.acceptedTypes[fileType]) {
+        return false;
+    }
 
-	if (!options.acceptedTypes[fileType]) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileSize = function(file, options) {
+var validateFileSize = function (file, options) {
+    'use strict';
 
-	'use strict';
+    if (file.size > options.maxFileSize) {
+        return false;
+    }
 
-	if (file.size > options.maxFileSize) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
-var validateFileName = function(file, options) {
+var validateFileName = function (file, options) {
+    'use strict';
 
-	'use strict';
+    if (!(options.fileNameRe).test(file.name)) {
+        return false;
+    }
 
-	if (!(options.fileNameRe).test(file.name)) {
-		return false;
-	}
-
-	return true;
+    return true;
 };
 
 /**
  * [displays the Error message & removes it also after the specified timeout]
  * @param  {[string]} error [error message which has to be displayed]
  */
-var showErrorMessage = function(error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+    'use strict';
 
-	'use strict';
+    var errorElement = document.createElement('li');
 
-	var errorElement = document.createElement('li');
+    errorElement.className = 'error';
+    errorElement.innerHTML = error;
 
-	errorElement.className = 'error';
-	errorElement.innerHTML = error;
+    clearTimeout(errorTimeoutId);
 
-	clearTimeout(errorTimeoutId);
+    errorTimeoutId = setTimeout(function () {
+        removeErrors(errorWrapper);
+    }, options.errorMessageTimeout);
 
-	errorTimeoutId = setTimeout(function() {
-		removeErrors(errorWrapper);
-	}, options.errorMessageTimeout);
-
-	errorWrapper.appendChild(errorElement);
-	form.insertBefore(errorWrapper, fileView);
+    errorWrapper.appendChild(errorElement);
+    form.insertBefore(errorWrapper, fileView);
 };
 
 /**
  * [removes all errors]
  */
-var removeErrors = function(errorWrapper) {
+var removeErrors = function (errorWrapper) {
+    'use strict';
 
-	'use strict';
-
-	errorWrapper.innerHTML = '';
+    errorWrapper.innerHTML = '';
 };
 
 /**
@@ -586,51 +564,50 @@ var removeErrors = function(errorWrapper) {
  * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
-var addThumbnail = function(file, element, options){
+var addThumbnail = function (file, element, options) {
+    'use strict';
 
-	'use strict';
+    var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
-	var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+    var reader = new FileReader();
+    var factor = window.devicePixelRatio;
+    var imgWrapper = document.createElement('span');
 
-	var reader = new FileReader();
-	var factor = window.devicePixelRatio;
-	var imgWrapper = document.createElement('span');
+    var canvas = document.createElement('canvas');
 
-	var canvas = document.createElement('canvas');
+    canvas.width  = options.thumbnailSize * factor;
+    canvas.height = options.thumbnailSize * factor;
 
-	canvas.width  = options.thumbnailSize * factor;
-	canvas.height = options.thumbnailSize * factor;
+    var ctx = canvas.getContext('2d');
 
-	var ctx = canvas.getContext("2d");
+    if (factor > 1) {
+        ctx.webkitBackingStorePixelRatio = factor;
+        ctx.scale(factor, factor);
+    }
 
-	if(factor > 1){
-		ctx.webkitBackingStorePixelRatio = factor;
-		ctx.scale(factor, factor);
-	}
+    var fileName = element.querySelector('.js_name');
+    var image = new Image();
+    imgWrapper.className = 'thumbnail';
 
-	var fileName = element.querySelector('.js_name');
-	var image = new Image();
-	imgWrapper.className = 'thumbnail';
+    image.addEventListener('load', function () {
+        var ratio = this.height / this.width;
 
-	image.addEventListener('load', function(){
-		var ratio = this.height / this.width;
+        canvas.height = canvas.width * ratio;
+        ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
+    });
 
-		canvas.height = canvas.width * ratio;
-		ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
-	});
+    reader.addEventListener('load', function (event) {
+        if (isImage(file)) {
+            image.src = event.target.result;
+        } else {
+            image.src = EMPTY_IMAGE;
+        }
 
-	reader.addEventListener('load', function(event){
-		if (isImage(file)) {
-			image.src = event.target.result;
-		} else {
-			image.src = EMPTY_IMAGE;
-		}
+        imgWrapper.appendChild(canvas);
+        element.insertBefore(imgWrapper, fileName);
+    });
 
-		imgWrapper.appendChild(canvas);
-		element.insertBefore(imgWrapper, fileName);
-	});
-
-	reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
 };
 
 /**
@@ -638,23 +615,22 @@ var addThumbnail = function(file, element, options){
  * @param  {[type]} fileObj [used to put the information of the file in the listElememt]
  * @return {[object]}       [the listElement which gets injected in the DOM]
  */
-var createListElement = function(fileName, fileSize, fileType){
+var createListElement = function (fileName, fileSize, fileType) {
+    'use strict';
 
-	'use strict';
+    var fileElement = document.createElement('li');
+    fileElement.className = 'file';
 
-	var fileElement = document.createElement('li');
-	fileElement.className = 'file';
+    fileElement.innerHTML = [
+    '<span class="label js_name name">',
+    fileName,
+    '</span><span class="label size">',
+    fileSize,
+    '</span><span class="label type">',
+    fileType,
+    '</span>' ].join('');
 
-	fileElement.innerHTML = [
-	'<span class="label js_name name">',
-	fileName,
-	'</span><span class="label size">',
-	fileSize,
-	'</span><span class="label type">',
-	fileType,
-	'</span>'].join('');
-
-	return fileElement;
+    return fileElement;
 };
 
 /**
@@ -662,67 +638,63 @@ var createListElement = function(fileName, fileSize, fileType){
  * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
  * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
  */
-var addFileToView = function(fileObj, removeFileHandlerCallback, trackData, fileView, listElement){
+var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
+    'use strict';
 
-	'use strict';
+    // Add remove Element & register remove Handler
+    var removeButton = document.createElement('span');
+    removeButton.className = 'remove';
+    listElement.appendChild(removeButton);
 
-	// Add remove Element & register remove Handler
-	var removeButton = document.createElement('span');
-	removeButton.className = 'remove';
-	listElement.appendChild(removeButton);
+    fileView.appendChild(listElement);
 
-	fileView.appendChild(listElement);
+    removeButton.addEventListener('click', function () {
+        // calls the callback of the DND Handler
+        removeFileHandlerCallback(trackData);
 
-	removeButton.addEventListener('click', function() {
+        // remove fileViewElement
+        listElement.parentNode.removeChild(listElement);
 
-		// calls the callback of the DND Handler
-		removeFileHandlerCallback(trackData);
-
-		// remove fileViewElement
-		listElement.parentNode.removeChild(listElement);
-
-		untrackFile(fileObj.file, trackData);
-	});
+        untrackFile(fileObj.file, trackData);
+    });
 };
 
 /**
  * [Creates a hidden input field where the base64 data is stored]
  * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
  */
-var addBase64ToDom = function(fileObj, form){
+var addBase64ToDom = function (fileObj, form) {
+    'use strict';
 
-	'use strict';
+    var input = document.createElement('input');
 
-	var input = document.createElement("input");
+    input.type = 'hidden';
+    input.value = fileObj.data;
+    input.name = 'file:' + fileObj.file.name;
 
-	input.type = "hidden";
-	input.value = fileObj.data;
-	input.name = 'file:' + fileObj.file.name;
+    form.appendChild(input);
 
-	form.appendChild(input);
-
-	return function(){
-		input.parentNode.removeChild(input);
-	};
+    return function () {
+        input.parentNode.removeChild(input);
+    };
 };
 
 /**
  * [createInputElement description]
  * @return {[type]} [description]
  */
-var createInputElement = function(fileInputId){
+var createInputElement = function (fileInputId) {
+    'use strict';
 
-	'use strict';
+    var fileInput = document.createElement('input');
 
-	var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.className = 'fileinput';
+    fileInputId += 1;
 
-	fileInput.type = 'file';
-	fileInput.className = 'fileinput';
-	fileInputId += 1;
+    fileInput.name = 'fileInput ' + fileInputId;
 
-	fileInput.name = 'fileInput ' + fileInputId;
-
-	return fileInput;
+    return fileInput;
 };
 
 exports.extractDOMNodes     = extractDOMNodes;

@@ -1,4 +1,4 @@
-/* global document, FileReader */
+/* globals document, FileReader */
 
 var utils = require('./formfileuploadutils.js');
 

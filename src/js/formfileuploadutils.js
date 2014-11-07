@@ -1,4 +1,4 @@
-/* global window, document, FileReader, Image */
+/* globals window, document, FileReader, Image */
 
 /**
  * [extractDOMNodes description]

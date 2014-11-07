@@ -1,4 +1,4 @@
-/* global $, FormFileUpload */
+/* globals $, FormFileUpload */
 
 $.fn.formFileUpload = function (options) {
     'use strict';

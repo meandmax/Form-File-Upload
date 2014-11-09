@@ -89,7 +89,7 @@ gulp.task('jQuery', function() {
  * Dev Task uses browser-sync instead of livereload and runs tests, linters and scripts on js file change and less task on less file changes
  */
 gulp.task('dev', ['browser-sync'], function() {
-    gulp.watch('./src/js/**/*.js', ['scripts']);
+    gulp.watch('./src/js/**/*.js', ['scripts', 'jQuery']);
     gulp.watch('./src/less/**/*.less', ['less']);
 });
 

@@ -312,7 +312,7 @@ module.exports = FormFileUpload;
  * @param  {[type]} obj [description]
  * @return {[type]}     [description]
  */
-var extractDOMNodes = function (obj) {
+exports.extractDOMNodes = function (obj) {
     'use strict';
 
     if (typeof obj === 'function') {
@@ -327,7 +327,7 @@ var extractDOMNodes = function (obj) {
  * @param  {[type]} object [description]
  * @return {[type]}        [description]
  */
-var toArray = function (object) {
+exports.toArray = function (object) {
     'use strict';
 
     return Array.prototype.slice.call(object, 0);
@@ -337,7 +337,7 @@ var toArray = function (object) {
  * [hasFileReader description]
  * @return {Boolean} [description]
  */
-var hasFileReader = function () {
+exports.hasFileReader = function () {
     'use strict';
 
     return !!(window.File && window.FileList && window.FileReader);
@@ -348,7 +348,7 @@ var hasFileReader = function () {
  * @param  {[type]} e [description]
  * @return {[type]}   [description]
  */
-var noPropagation = function (e) {
+exports.noPropagation = function (e) {
     'use strict';
 
     e.stopPropagation();
@@ -367,7 +367,7 @@ var noPropagation = function (e) {
  * @param  {[type]} defaultoptions [description]
  * @return {[type]}                [description]
  */
-var mergeOptions = function (opts, defaultOptions, self) {
+exports.mergeOptions = function (opts, defaultOptions, self) {
     'use strict';
 
     var options = {};
@@ -391,7 +391,7 @@ var mergeOptions = function (opts, defaultOptions, self) {
  * @param  {[type]} nativeFile [description]
  * @return {[type]}            [description]
  */
-var getFileType = function (file) {
+exports.getFileType = function (file) {
     'use strict';
 
     // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
@@ -406,7 +406,7 @@ var getFileType = function (file) {
  * @param  {[object]} file [contains the size of the file]
  * @return {[string]}      [prettified filesize]
  */
-var getReadableFileSize = function (file) {
+exports.getReadableFileSize = function (file) {
     'use strict';
 
     var size = file.size;
@@ -437,10 +437,10 @@ var getReadableFileSize = function (file) {
  * @param  {[type]}  file [description]
  * @return {Boolean}      [description]
  */
-var isImage = function (file) {
+exports.isImage = function (file) {
     'use strict';
 
-    return (/^image\//).test(getFileType(file));
+    return (/^image\//).test(exports.getFileType(file));
 };
 
 /**
@@ -448,7 +448,7 @@ var isImage = function (file) {
  * @param  {[object]} file
  * @param  {[object]} trackData
  */
-var trackFile = function (file, trackData) {
+exports.trackFile = function (file, trackData) {
     'use strict';
 
     trackData.fileNumber += 1;
@@ -460,7 +460,7 @@ var trackFile = function (file, trackData) {
  * @param  {[object]} file
  * @param  {[object]} trackData
  */
-var untrackFile = function (file, trackData) {
+exports.untrackFile = function (file, trackData) {
     'use strict';
 
     trackData.fileNumber -= 1;
@@ -472,13 +472,13 @@ var untrackFile = function (file, trackData) {
  * @param  {[string]} fileType [mimetype of file]
  * @return {[string]}      [prettified typestring]
  */
-var getReadableFileType = function (fileType, options) {
+exports.getReadableFileType = function (fileType, options) {
     'use strict';
 
     return options.acceptedTypes[fileType] || 'unknown filetype';
 };
 
-var validateFileNumber = function (trackData, options) {
+exports.validateFileNumber = function (trackData, options) {
     'use strict';
 
     if (trackData.fileNumber >= options.maxFileNumber) {
@@ -488,7 +488,7 @@ var validateFileNumber = function (trackData, options) {
     return true;
 };
 
-var validateRequestSize = function (requestSize, options) {
+exports.validateRequestSize = function (requestSize, options) {
     'use strict';
 
     if (requestSize >= options.maxRequestSize) {
@@ -498,7 +498,7 @@ var validateRequestSize = function (requestSize, options) {
     return true;
 };
 
-var validateFileType = function (fileType, options) {
+exports.validateFileType = function (fileType, options) {
     'use strict';
 
     if (!options.acceptedTypes[fileType]) {
@@ -508,7 +508,7 @@ var validateFileType = function (fileType, options) {
     return true;
 };
 
-var validateFileSize = function (file, options) {
+exports.validateFileSize = function (file, options) {
     'use strict';
 
     if (file.size > options.maxFileSize) {
@@ -518,7 +518,7 @@ var validateFileSize = function (file, options) {
     return true;
 };
 
-var validateFileName = function (file, options) {
+exports.validateFileName = function (file, options) {
     'use strict';
 
     if (!(options.fileNameRe).test(file.name)) {
@@ -532,7 +532,7 @@ var validateFileName = function (file, options) {
  * [displays the Error message & removes it also after the specified timeout]
  * @param  {[string]} error [error message which has to be displayed]
  */
-var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+exports.showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
     'use strict';
 
     var errorElement = document.createElement('li');
@@ -553,7 +553,7 @@ var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapp
 /**
  * [removes all errors]
  */
-var removeErrors = function (errorWrapper) {
+exports.removeErrors = function (errorWrapper) {
     'use strict';
 
     errorWrapper.innerHTML = '';
@@ -564,7 +564,7 @@ var removeErrors = function (errorWrapper) {
  * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
  * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
  */
-var addThumbnail = function (file, element, options) {
+exports.addThumbnail = function (file, element, options) {
     'use strict';
 
     var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
@@ -597,7 +597,7 @@ var addThumbnail = function (file, element, options) {
     });
 
     reader.addEventListener('load', function (event) {
-        if (isImage(file)) {
+        if (exports.isImage(file)) {
             image.src = event.target.result;
         } else {
             image.src = EMPTY_IMAGE;
@@ -615,7 +615,7 @@ var addThumbnail = function (file, element, options) {
  * @param  {[type]} fileObj [used to put the information of the file in the listElememt]
  * @return {[object]}       [the listElement which gets injected in the DOM]
  */
-var createListElement = function (fileName, fileSize, fileType) {
+exports.createListElement = function (fileName, fileSize, fileType) {
     'use strict';
 
     var fileElement = document.createElement('li');
@@ -638,7 +638,7 @@ var createListElement = function (fileName, fileSize, fileType) {
  * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
  * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
  */
-var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
+exports.addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
     'use strict';
 
     // Add remove Element & register remove Handler
@@ -655,7 +655,7 @@ var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fil
         // remove fileViewElement
         listElement.parentNode.removeChild(listElement);
 
-        untrackFile(fileObj.file, trackData);
+        exports.untrackFile(fileObj.file, trackData);
     });
 };
 
@@ -663,7 +663,7 @@ var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fil
  * [Creates a hidden input field where the base64 data is stored]
  * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
  */
-var addBase64ToDom = function (fileObj, form) {
+exports.addBase64ToDom = function (fileObj, form) {
     'use strict';
 
     var input = document.createElement('input');
@@ -683,7 +683,7 @@ var addBase64ToDom = function (fileObj, form) {
  * [createInputElement description]
  * @return {[type]} [description]
  */
-var createInputElement = function (fileInputId) {
+exports.createInputElement = function (fileInputId) {
     'use strict';
 
     var fileInput = document.createElement('input');
@@ -696,32 +696,6 @@ var createInputElement = function (fileInputId) {
 
     return fileInput;
 };
-
-exports.extractDOMNodes     = extractDOMNodes;
-exports.toArray             = toArray;
-exports.hasFileReader       = hasFileReader;
-exports.noPropagation       = noPropagation;
-exports.mergeOptions        = mergeOptions;
-exports.getFileType         = getFileType;
-exports.getReadableFileSize = getReadableFileSize;
-exports.isImage             = isImage;
-exports.addBase64ToDom      = addBase64ToDom;
-exports.createInputElement  = createInputElement;
-exports.removeErrors        = removeErrors;
-exports.trackFile           = trackFile;
-exports.untrackFile         = untrackFile;
-exports.getReadableFileType = getReadableFileType;
-exports.validateFileNumber  = validateFileNumber;
-exports.validateRequestSize = validateRequestSize;
-exports.validateFileType    = validateFileType;
-exports.validateFileSize    = validateFileSize;
-exports.validateFileName    = validateFileName;
-exports.showErrorMessage    = showErrorMessage;
-exports.createListElement   = createListElement;
-exports.addThumbnail        = addThumbnail;
-exports.addFileToView       = addFileToView;
-exports.addBase64ToDom      = addBase64ToDom;
-exports.createInputElement  = createInputElement;
 
 },{}]},{},[1])
 (1)

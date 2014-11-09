@@ -1,4 +1,4 @@
-/* globals document, FileReader */
+/* globals window, document, FileReader, Image */
 
 var mergeOptions        = require('./utils/merge-options.js');
 var getFileType         = require('./utils/get-file-type.js');
@@ -7,8 +7,6 @@ var hasFileReader       = require('./utils/has-filereader.js');
 var createFileInput     = require('./utils/create-file-input.js');
 var noPropagation       = require('./utils/no-propagation.js');
 var toArray             = require('./utils/to-array.js');
-
-var formUploadUtils     = require('./formfileuploadutils.js');
 
 var FormFileUpload = function (fileUpload_, opts) {
     'use strict';
@@ -133,6 +131,216 @@ var FormFileUpload = function (fileUpload_, opts) {
     var options = mergeOptions(opts, defaultOptions, self);
 
     /**
+     * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]
+     * @param  {[object]} file
+     * @param  {[object]} trackData
+     */
+    var trackFile = function (file, trackData) {
+        trackData.fileNumber += 1;
+        trackData.requestSize += file.size;
+    };
+
+    /**
+     * [decrement the filenumber for each deleted file by one & decrement the requestsize by the current filesize]
+     * @param  {[object]} file
+     * @param  {[object]} trackData
+     */
+    var untrackFile = function (file, trackData) {
+        trackData.fileNumber -= 1;
+        trackData.requestSize -= file.size;
+    };
+
+    /**
+     * [Creates a hidden input field where the base64 data is stored]
+     * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
+     */
+    var addBase64ToDom = function (fileObj, form) {
+        var input = document.createElement('input');
+
+        input.type = 'hidden';
+        input.value = fileObj.data;
+        input.name = 'file:' + fileObj.file.name;
+
+        form.appendChild(input);
+
+        return function () {
+            input.parentNode.removeChild(input);
+        };
+    };
+
+    /**
+     * [Creates a list item which gets injected to the DOM]
+     * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
+     * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
+     */
+    var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
+        var removeButton = document.createElement('span');
+
+        removeButton.className = 'remove';
+        listElement.appendChild(removeButton);
+
+        fileView.appendChild(listElement);
+
+        removeButton.addEventListener('click', function () {
+            // calls the callback of the DND Handler
+            removeFileHandlerCallback(trackData);
+
+            // remove fileViewElement
+            listElement.parentNode.removeChild(listElement);
+
+            untrackFile(fileObj.file, trackData);
+        });
+    };
+
+    /**
+     * [if possible adds a thumbnail of the given file to the DOM]
+     * @param {[object]}     file    [filedata to create a thumbnail which gets injected]
+     * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
+     */
+    var addThumbnail = function (file, element, options) {
+        var isImage = require('./utils/is-image.js');
+
+        var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+
+        var reader = new FileReader();
+        var factor = window.devicePixelRatio;
+        var imgWrapper = document.createElement('span');
+
+        var canvas = document.createElement('canvas');
+
+        canvas.width  = options.thumbnailSize * factor;
+        canvas.height = options.thumbnailSize * factor;
+
+        var ctx = canvas.getContext('2d');
+
+        if (factor > 1) {
+            ctx.webkitBackingStorePixelRatio = factor;
+            ctx.scale(factor, factor);
+        }
+
+        var fileName = element.querySelector('.js_name');
+        var image = new Image();
+        imgWrapper.className = 'thumbnail';
+
+        image.addEventListener('load', function () {
+            var ratio = this.height / this.width;
+
+            canvas.height = canvas.width * ratio;
+            ctx.drawImage(this, 0, 0, options.thumbnailSize * factor, options.thumbnailSize * ratio * factor);
+        });
+
+        reader.addEventListener('load', function (event) {
+            if (isImage(file)) {
+                image.src = event.target.result;
+            } else {
+                image.src = EMPTY_IMAGE;
+            }
+
+            imgWrapper.appendChild(canvas);
+            element.insertBefore(imgWrapper, fileName);
+        });
+
+        reader.readAsDataURL(file);
+    };
+
+    /**
+     * [Creates a listElement with the data of the passed object]
+     * @param  {[type]} fileObj [used to put the information of the file in the listElememt]
+     * @return {[object]}       [the listElement which gets injected in the DOM]
+     */
+    var createListElement = function (fileName, fileSize, fileType) {
+        var fileElement = document.createElement('li');
+        fileElement.className = 'file';
+
+        fileElement.innerHTML = [
+        '<span class="label js_name name">',
+        fileName,
+        '</span><span class="label size">',
+        fileSize,
+        '</span><span class="label type">',
+        fileType,
+        '</span>' ].join('');
+
+        return fileElement;
+    };
+
+        /**
+     * [returns the prettified filestype string based on the specified options]
+     * @param  {[string]} fileType [mimetype of file]
+     * @return {[string]}      [prettified typestring]
+     */
+    var getReadableFileType = function (fileType, options) {
+        return options.acceptedTypes[fileType] || 'unknown filetype';
+    };
+
+    var validateFileNumber = function (trackData, options) {
+        if (trackData.fileNumber >= options.maxFileNumber) {
+            return false;
+        }
+
+        return true;
+    };
+
+    var validateRequestSize = function (requestSize, options) {
+        if (requestSize >= options.maxRequestSize) {
+            return false;
+        }
+
+        return true;
+    };
+
+    var validateFileType = function (fileType, options) {
+        if (!options.acceptedTypes[fileType]) {
+            return false;
+        }
+
+        return true;
+    };
+
+    var validateFileSize = function (file, options) {
+        if (file.size > options.maxFileSize) {
+            return false;
+        }
+
+        return true;
+    };
+
+    var validateFileName = function (file, options) {
+        if (!(options.fileNameRe).test(file.name)) {
+            return false;
+        }
+
+        return true;
+    };
+
+    /**
+     * [displays the Error message & removes it also after the specified timeout]
+     * @param  {[string]} error [error message which has to be displayed]
+     */
+    var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+        var errorElement = document.createElement('li');
+
+        errorElement.className = 'error';
+        errorElement.innerHTML = error;
+
+        clearTimeout(errorTimeoutId);
+
+        errorTimeoutId = setTimeout(function () {
+            removeErrors(errorWrapper);
+        }, options.errorMessageTimeout);
+
+        errorWrapper.appendChild(errorElement);
+        form.insertBefore(errorWrapper, fileView);
+    };
+
+    /**
+     * [removes all errors]
+     */
+    var removeErrors = function (errorWrapper) {
+        errorWrapper.innerHTML = '';
+    };
+
+    /**
      *
      * Callback function for handling the async filereader response
      * @param  {[string]} err     [the errormessage which gets thrown when the filereader errored]
@@ -144,35 +352,35 @@ var FormFileUpload = function (fileUpload_, opts) {
         }
 
         if (fileObj) {
-            var removeHandler = formUploadUtils.addBase64ToDom(fileObj, form);
-            var fileType = formUploadUtils.getReadableFileType(getFileType(fileObj.file), options);
-            var listElement = formUploadUtils.createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
-            formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+            var removeHandler = addBase64ToDom(fileObj, form);
+            var fileType = getReadableFileType(getFileType(fileObj.file), options);
+            var listElement = createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
+            addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
             if (hasFileReader()) {
-                formUploadUtils.addThumbnail(fileObj.file, listElement, options);
+                addThumbnail(fileObj.file, listElement, options);
             }
         }
     };
 
     var validateFile = function (file) {
-        if (!formUploadUtils.validateFileNumber(trackData, options)) {
+        if (!validateFileNumber(trackData, options)) {
             return options.maxFileNumberError;
         }
 
-        if (!formUploadUtils.validateRequestSize(trackData, options)) {
+        if (!validateRequestSize(trackData, options)) {
             return options.maxRequestSizeError;
         }
 
-        if (!formUploadUtils.validateFileType(getFileType(file), options)) {
+        if (!validateFileType(getFileType(file), options)) {
             return options.invalidFileTypeError;
         }
 
-        if (!formUploadUtils.validateFileSize(file, options)) {
+        if (!validateFileSize(file, options)) {
             return options.maxFileSizeError;
         }
 
-        if (!formUploadUtils.validateFileName(file, options)) {
+        if (!validateFileName(file, options)) {
             return options.invalidFileNameError;
         }
 
@@ -188,11 +396,11 @@ var FormFileUpload = function (fileUpload_, opts) {
             var reader = new FileReader();
 
             if (typeof validateFile(file) === 'string') {
-                formUploadUtils.showErrorMessage(validateFile(file), errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
+                showErrorMessage(validateFile(file), errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
                 return false;
             }
 
-            formUploadUtils.trackFile(file, trackData);
+            trackFile(file, trackData);
 
             reader.addEventListener('load', function (event) {
                 convertBase64FileHandler(null, {
@@ -202,7 +410,7 @@ var FormFileUpload = function (fileUpload_, opts) {
             });
 
             reader.addEventListener('error', function () {
-                formUploadUtils.convertBase64FileHandler(options.unknownFileReaderError);
+                convertBase64FileHandler(options.unknownFileReaderError);
             });
 
             reader.readAsDataURL(file);
@@ -221,7 +429,7 @@ var FormFileUpload = function (fileUpload_, opts) {
         selectButton.appendChild(fileInput);
 
         fileInput.addEventListener('change', function () {
-            formUploadUtils.removeErrors(errorWrapper);
+            removeErrors(errorWrapper);
 
             var file = this.files[0];
 
@@ -230,22 +438,22 @@ var FormFileUpload = function (fileUpload_, opts) {
             };
 
             var removeHandler = function () {
-                formUploadUtils.untrackFile(file, trackData);
+                untrackFile(file, trackData);
                 fileInput.parentNode.removeChild(fileInput);
             };
 
             if (typeof validateFile(file) === 'string') {
-                formUploadUtils.showErrorMessage(validateFile(file), options.errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
+                showErrorMessage(validateFile(file), options.errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
                 fileInput.parentNode.removeChild(fileInput);
             } else {
-                var fileType = formUploadUtils.getReadableFileType(getFileType(file), options);
-                var listElement = formUploadUtils.createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
+                var fileType = getReadableFileType(getFileType(file), options);
+                var listElement = createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
-                formUploadUtils.trackFile(file, trackData);
-                formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+                trackFile(file, trackData);
+                addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
                 if (hasFileReader()) {
-                    formUploadUtils.addThumbnail(file, listElement, options);
+                    addThumbnail(file, listElement, options);
                 }
 
                 fileInputs.appendChild(fileInput);

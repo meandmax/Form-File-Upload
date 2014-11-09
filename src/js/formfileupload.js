@@ -1,6 +1,14 @@
 /* globals document, FileReader */
 
-var utils = require('./formfileuploadutils.js');
+var mergeOptions        = require('./utils/merge-options.js');
+var getFileType         = require('./utils/get-file-type.js');
+var getReadableFileSize = require('./utils/get-readable-file-size.js');
+var hasFileReader       = require('./utils/has-filereader.js');
+var createFileInput     = require('./utils/create-file-input.js');
+var noPropagation       = require('./utils/no-propagation.js');
+var toArray             = require('./utils/to-array.js');
+
+var formUploadUtils     = require('./formfileuploadutils.js');
 
 var FormFileUpload = function (fileUpload_, opts) {
     'use strict';
@@ -122,7 +130,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * Merging the default options with the user passed options together
      * @type {[object]}
      */
-    var options = utils.mergeOptions(opts, defaultOptions, self);
+    var options = mergeOptions(opts, defaultOptions, self);
 
     /**
      *
@@ -136,35 +144,35 @@ var FormFileUpload = function (fileUpload_, opts) {
         }
 
         if (fileObj) {
-            var removeHandler = utils.addBase64ToDom(fileObj, form);
-            var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
-            var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
-            utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+            var removeHandler = formUploadUtils.addBase64ToDom(fileObj, form);
+            var fileType = formUploadUtils.getReadableFileType(getFileType(fileObj.file), options);
+            var listElement = formUploadUtils.createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
+            formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-            if (utils.hasFileReader) {
-                utils.addThumbnail(fileObj.file, listElement, options);
+            if (hasFileReader()) {
+                formUploadUtils.addThumbnail(fileObj.file, listElement, options);
             }
         }
     };
 
     var validateFile = function (file) {
-        if (!utils.validateFileNumber(trackData, options)) {
+        if (!formUploadUtils.validateFileNumber(trackData, options)) {
             return options.maxFileNumberError;
         }
 
-        if (!utils.validateRequestSize(trackData, options)) {
+        if (!formUploadUtils.validateRequestSize(trackData, options)) {
             return options.maxRequestSizeError;
         }
 
-        if (!utils.validateFileType(utils.getFileType(file), options)) {
+        if (!formUploadUtils.validateFileType(getFileType(file), options)) {
             return options.invalidFileTypeError;
         }
 
-        if (!utils.validateFileSize(file, options)) {
+        if (!formUploadUtils.validateFileSize(file, options)) {
             return options.maxFileSizeError;
         }
 
-        if (!utils.validateFileName(file, options)) {
+        if (!formUploadUtils.validateFileName(file, options)) {
             return options.invalidFileNameError;
         }
 
@@ -180,11 +188,11 @@ var FormFileUpload = function (fileUpload_, opts) {
             var reader = new FileReader();
 
             if (typeof validateFile(file) === 'string') {
-                utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                formUploadUtils.showErrorMessage(validateFile(file), errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
                 return false;
             }
 
-            utils.trackFile(file, trackData);
+            formUploadUtils.trackFile(file, trackData);
 
             reader.addEventListener('load', function (event) {
                 convertBase64FileHandler(null, {
@@ -194,7 +202,7 @@ var FormFileUpload = function (fileUpload_, opts) {
             });
 
             reader.addEventListener('error', function () {
-                utils.convertBase64FileHandler(options.unknownFileReaderError);
+                formUploadUtils.convertBase64FileHandler(options.unknownFileReaderError);
             });
 
             reader.readAsDataURL(file);
@@ -207,13 +215,13 @@ var FormFileUpload = function (fileUpload_, opts) {
      * [Add a fileInput with the selected file to form]
      */
     this.addSelectedFile = function () {
-        var fileInput = utils.createInputElement(fileInputId);
+        var fileInput = createFileInput(fileInputId);
 
         form.insertBefore(selectButton, dropBox);
         selectButton.appendChild(fileInput);
 
         fileInput.addEventListener('change', function () {
-            utils.removeErrors(errorWrapper);
+            formUploadUtils.removeErrors(errorWrapper);
 
             var file = this.files[0];
 
@@ -222,22 +230,22 @@ var FormFileUpload = function (fileUpload_, opts) {
             };
 
             var removeHandler = function () {
-                utils.untrackFile(file, trackData);
+                formUploadUtils.untrackFile(file, trackData);
                 fileInput.parentNode.removeChild(fileInput);
             };
 
             if (typeof validateFile(file) === 'string') {
-                utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                formUploadUtils.showErrorMessage(validateFile(file), options.errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
                 fileInput.parentNode.removeChild(fileInput);
             } else {
-                var fileType = utils.getReadableFileType(utils.getFileType(file), options);
-                var listElement = utils.createListElement(file.name, fileType, utils.getReadableFileSize(fileObj.file));
+                var fileType = formUploadUtils.getReadableFileType(getFileType(file), options);
+                var listElement = formUploadUtils.createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
-                utils.trackFile(file, trackData);
-                utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+                formUploadUtils.trackFile(file, trackData);
+                formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-                if (utils.hasFileReader) {
-                    utils.addThumbnail(file, listElement, options);
+                if (hasFileReader()) {
+                    formUploadUtils.addThumbnail(file, listElement, options);
                 }
 
                 fileInputs.appendChild(fileInput);
@@ -252,8 +260,10 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('drop', function (event) {
-        utils.noPropagation(event);
-        var files = utils.toArray(event.dataTransfer.files);
+        noPropagation(event);
+
+        var files = toArray(event.dataTransfer.files);
+
         self.convertFilesToBase64(files);
         this.classList.toggle('active');
     });
@@ -263,7 +273,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('dragenter', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
         this.classList.toggle('active');
     });
 
@@ -272,7 +282,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('dragover', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
     });
 
     /**
@@ -281,22 +291,24 @@ var FormFileUpload = function (fileUpload_, opts) {
      */
 
     dropBox.addEventListener('dragleave', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
         this.classList.toggle('active');
     });
 
     /**
      * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
      */
-    if (!utils.hasFileReader() && options.fallbackForIE8) {
+    if (!hasFileReader() && options.fallbackForIE8) {
         selectButton.className = 'selectbutton js_selectbutton';
 
         var span = document.createElement('span');
+
         span.innerHTML = 'Select File';
 
         selectButton.appendChild(span);
 
         self.addSelectedFile();
+
         dropBox.style.display = 'none';
     }
 };

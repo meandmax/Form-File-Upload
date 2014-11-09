@@ -1,142 +1,6 @@
 /* globals window, document, FileReader, Image */
 
 /**
- * [extractDOMNodes description]
- * @param  {[type]} obj [description]
- * @return {[type]}     [description]
- */
-exports.extractDOMNodes = function (obj) {
-    'use strict';
-
-    if (typeof obj === 'function') {
-        return obj[0];
-    }
-
-    return obj;
-};
-
-/**
- * [toArray description]
- * @param  {[type]} object [description]
- * @return {[type]}        [description]
- */
-exports.toArray = function (object) {
-    'use strict';
-
-    return Array.prototype.slice.call(object, 0);
-};
-
-/**
- * [hasFileReader description]
- * @return {Boolean} [description]
- */
-exports.hasFileReader = function () {
-    'use strict';
-
-    return !!(window.File && window.FileList && window.FileReader);
-};
-
-/**
- * [noPropagation description]
- * @param  {[type]} e [description]
- * @return {[type]}   [description]
- */
-exports.noPropagation = function (e) {
-    'use strict';
-
-    e.stopPropagation();
-
-    if (e.preventDefault) {
-        return e.preventDefault();
-    } else {
-        e.returnValue = false;
-        return false;
-    }
-};
-
-/**
- * [mergeOptions description]
- * @param  {[type]} opts           [description]
- * @param  {[type]} defaultoptions [description]
- * @return {[type]}                [description]
- */
-exports.mergeOptions = function (opts, defaultOptions, self) {
-    'use strict';
-
-    var options = {};
-
-    for (var i in defaultOptions) {
-        if (opts && opts.hasOwnProperty(i)) {
-            options[i] = opts[i];
-
-            if (typeof (options[i]) === 'function') {
-                options[i] = options[i].bind(self);
-            }
-        } else {
-            options[i] = defaultOptions[i];
-        }
-    }
-    return options;
-};
-
-/**
- * Returns the Filetype
- * @param  {[type]} nativeFile [description]
- * @return {[type]}            [description]
- */
-exports.getFileType = function (file) {
-    'use strict';
-
-    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
-    if ((/\.xls$/).test(file.name) && !file.type) {
-        return 'application/vnd.ms-excel';
-    }
-    return file.type;
-};
-
-/**
- * Takes the native filesize in bytes and returns the prettified filesize
- * @param  {[object]} file [contains the size of the file]
- * @return {[string]}      [prettified filesize]
- */
-exports.getReadableFileSize = function (file) {
-    'use strict';
-
-    var size = file.size;
-    var string;
-
-    if (size >= 1024 * 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 * 1024 / 10);
-        string = 'TB';
-    } else if (size >= 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 / 10);
-        string = 'GB';
-    } else if (size >= 1024 * 1024) {
-        size = size / (1024 * 1024 / 10);
-        string = 'MB';
-    } else if (size >= 1024) {
-        size = size / (1024 / 10);
-        string = 'KB';
-    } else {
-        size = size * 10;
-        string = 'B';
-    }
-
-    return (Math.round(size) / 10) + ' ' + string;
-};
-
-/**
- * [isImage description]
- * @param  {[type]}  file [description]
- * @return {Boolean}      [description]
- */
-exports.isImage = function (file) {
-    'use strict';
-
-    return (/^image\//).test(exports.getFileType(file));
-};
-
-/**
  * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]
  * @param  {[object]} file
  * @param  {[object]} trackData
@@ -260,6 +124,8 @@ exports.removeErrors = function (errorWrapper) {
 exports.addThumbnail = function (file, element, options) {
     'use strict';
 
+    var isImage = require('./utils/is-image.js');
+
     var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
     var reader = new FileReader();
@@ -286,11 +152,11 @@ exports.addThumbnail = function (file, element, options) {
         var ratio = this.height / this.width;
 
         canvas.height = canvas.width * ratio;
-        ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
+        ctx.drawImage(this, 0, 0, options.thumbnailSize * factor, options.thumbnailSize * ratio * factor);
     });
 
     reader.addEventListener('load', function (event) {
-        if (exports.isImage(file)) {
+        if (isImage(file)) {
             image.src = event.target.result;
         } else {
             image.src = EMPTY_IMAGE;
@@ -370,22 +236,4 @@ exports.addBase64ToDom = function (fileObj, form) {
     return function () {
         input.parentNode.removeChild(input);
     };
-};
-
-/**
- * [createInputElement description]
- * @return {[type]} [description]
- */
-exports.createInputElement = function (fileInputId) {
-    'use strict';
-
-    var fileInput = document.createElement('input');
-
-    fileInput.type = 'file';
-    fileInput.className = 'fileinput';
-    fileInputId += 1;
-
-    fileInput.name = 'fileInput ' + fileInputId;
-
-    return fileInput;
 };

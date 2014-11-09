@@ -17,10 +17,10 @@ var reload        = browserSync.reload;
  * jshint task for all javascript files
  */
 gulp.task('lint', function() {
-    return gulp.src('./src/js/*.js')
-        .pipe(jshint('./.jshintrc'))
+    return gulp.src('./src/js/**/*.js')
+        .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter(jshintStylish))
-        .pipe(jscs('./.jscsrc'));
+        .pipe(jscs('.jscsrc'));
 });
 
 /**
@@ -53,7 +53,7 @@ gulp.task('browser-sync', function() {
 /**
  * Build task for the final javascript files
  */
-gulp.task('scripts', ['test'], function() {
+gulp.task('scripts', function() {
     return gulp.src('./src/js/formfileupload.js')
         .pipe(browserify({standalone: 'FormFileUpload'}))
         .pipe(gulp.dest('./dist'))

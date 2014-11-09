@@ -1,7 +1,15 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.FormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /* globals document, FileReader */
 
-var utils = _dereq_('./formfileuploadutils.js');
+var mergeOptions        = _dereq_('./utils/merge-options.js');
+var getFileType         = _dereq_('./utils/get-file-type.js');
+var getReadableFileSize = _dereq_('./utils/get-readable-file-size.js');
+var hasFileReader       = _dereq_('./utils/has-filereader.js');
+var createFileInput     = _dereq_('./utils/create-file-input.js');
+var noPropagation       = _dereq_('./utils/no-propagation.js');
+var toArray             = _dereq_('./utils/to-array.js');
+
+var formUploadUtils     = _dereq_('./formfileuploadutils.js');
 
 var FormFileUpload = function (fileUpload_, opts) {
     'use strict';
@@ -123,7 +131,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * Merging the default options with the user passed options together
      * @type {[object]}
      */
-    var options = utils.mergeOptions(opts, defaultOptions, self);
+    var options = mergeOptions(opts, defaultOptions, self);
 
     /**
      *
@@ -137,35 +145,35 @@ var FormFileUpload = function (fileUpload_, opts) {
         }
 
         if (fileObj) {
-            var removeHandler = utils.addBase64ToDom(fileObj, form);
-            var fileType = utils.getReadableFileType(utils.getFileType(fileObj.file), options);
-            var listElement = utils.createListElement(fileObj.file.name, utils.getReadableFileSize(fileObj.file), fileType);
-            utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+            var removeHandler = formUploadUtils.addBase64ToDom(fileObj, form);
+            var fileType = formUploadUtils.getReadableFileType(getFileType(fileObj.file), options);
+            var listElement = formUploadUtils.createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
+            formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-            if (utils.hasFileReader) {
-                utils.addThumbnail(fileObj.file, listElement, options);
+            if (hasFileReader()) {
+                formUploadUtils.addThumbnail(fileObj.file, listElement, options);
             }
         }
     };
 
     var validateFile = function (file) {
-        if (!utils.validateFileNumber(trackData, options)) {
+        if (!formUploadUtils.validateFileNumber(trackData, options)) {
             return options.maxFileNumberError;
         }
 
-        if (!utils.validateRequestSize(trackData, options)) {
+        if (!formUploadUtils.validateRequestSize(trackData, options)) {
             return options.maxRequestSizeError;
         }
 
-        if (!utils.validateFileType(utils.getFileType(file), options)) {
+        if (!formUploadUtils.validateFileType(getFileType(file), options)) {
             return options.invalidFileTypeError;
         }
 
-        if (!utils.validateFileSize(file, options)) {
+        if (!formUploadUtils.validateFileSize(file, options)) {
             return options.maxFileSizeError;
         }
 
-        if (!utils.validateFileName(file, options)) {
+        if (!formUploadUtils.validateFileName(file, options)) {
             return options.invalidFileNameError;
         }
 
@@ -181,11 +189,11 @@ var FormFileUpload = function (fileUpload_, opts) {
             var reader = new FileReader();
 
             if (typeof validateFile(file) === 'string') {
-                utils.showErrorMessage(validateFile(file), errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                formUploadUtils.showErrorMessage(validateFile(file), errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
                 return false;
             }
 
-            utils.trackFile(file, trackData);
+            formUploadUtils.trackFile(file, trackData);
 
             reader.addEventListener('load', function (event) {
                 convertBase64FileHandler(null, {
@@ -195,7 +203,7 @@ var FormFileUpload = function (fileUpload_, opts) {
             });
 
             reader.addEventListener('error', function () {
-                utils.convertBase64FileHandler(options.unknownFileReaderError);
+                formUploadUtils.convertBase64FileHandler(options.unknownFileReaderError);
             });
 
             reader.readAsDataURL(file);
@@ -208,13 +216,13 @@ var FormFileUpload = function (fileUpload_, opts) {
      * [Add a fileInput with the selected file to form]
      */
     this.addSelectedFile = function () {
-        var fileInput = utils.createInputElement(fileInputId);
+        var fileInput = createFileInput(fileInputId);
 
         form.insertBefore(selectButton, dropBox);
         selectButton.appendChild(fileInput);
 
         fileInput.addEventListener('change', function () {
-            utils.removeErrors(errorWrapper);
+            formUploadUtils.removeErrors(errorWrapper);
 
             var file = this.files[0];
 
@@ -223,22 +231,22 @@ var FormFileUpload = function (fileUpload_, opts) {
             };
 
             var removeHandler = function () {
-                utils.untrackFile(file, trackData);
+                formUploadUtils.untrackFile(file, trackData);
                 fileInput.parentNode.removeChild(fileInput);
             };
 
             if (typeof validateFile(file) === 'string') {
-                utils.showErrorMessage(validateFile(file), options.errorTimeoutId, utils.removeErrors, errorWrapper, form, fileView, options);
+                formUploadUtils.showErrorMessage(validateFile(file), options.errorTimeoutId, formUploadUtils.removeErrors, errorWrapper, form, fileView, options);
                 fileInput.parentNode.removeChild(fileInput);
             } else {
-                var fileType = utils.getReadableFileType(utils.getFileType(file), options);
-                var listElement = utils.createListElement(file.name, fileType, utils.getReadableFileSize(fileObj.file));
+                var fileType = formUploadUtils.getReadableFileType(getFileType(file), options);
+                var listElement = formUploadUtils.createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
-                utils.trackFile(file, trackData);
-                utils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+                formUploadUtils.trackFile(file, trackData);
+                formUploadUtils.addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
-                if (utils.hasFileReader) {
-                    utils.addThumbnail(file, listElement, options);
+                if (hasFileReader()) {
+                    formUploadUtils.addThumbnail(file, listElement, options);
                 }
 
                 fileInputs.appendChild(fileInput);
@@ -253,8 +261,10 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('drop', function (event) {
-        utils.noPropagation(event);
-        var files = utils.toArray(event.dataTransfer.files);
+        noPropagation(event);
+
+        var files = toArray(event.dataTransfer.files);
+
         self.convertFilesToBase64(files);
         this.classList.toggle('active');
     });
@@ -264,7 +274,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('dragenter', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
         this.classList.toggle('active');
     });
 
@@ -273,7 +283,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} event [dropEvent where the filelist is binded]
      */
     dropBox.addEventListener('dragover', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
     });
 
     /**
@@ -282,166 +292,32 @@ var FormFileUpload = function (fileUpload_, opts) {
      */
 
     dropBox.addEventListener('dragleave', function (event) {
-        utils.noPropagation(event);
+        noPropagation(event);
         this.classList.toggle('active');
     });
 
     /**
      * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
      */
-    if (!utils.hasFileReader() && options.fallbackForIE8) {
+    if (!hasFileReader() && options.fallbackForIE8) {
         selectButton.className = 'selectbutton js_selectbutton';
 
         var span = document.createElement('span');
+
         span.innerHTML = 'Select File';
 
         selectButton.appendChild(span);
 
         self.addSelectedFile();
+
         dropBox.style.display = 'none';
     }
 };
 
 module.exports = FormFileUpload;
 
-},{"./formfileuploadutils.js":2}],2:[function(_dereq_,module,exports){
+},{"./formfileuploadutils.js":2,"./utils/create-file-input.js":3,"./utils/get-file-type.js":4,"./utils/get-readable-file-size.js":5,"./utils/has-filereader.js":6,"./utils/merge-options.js":8,"./utils/no-propagation.js":9,"./utils/to-array.js":10}],2:[function(_dereq_,module,exports){
 /* globals window, document, FileReader, Image */
-
-/**
- * [extractDOMNodes description]
- * @param  {[type]} obj [description]
- * @return {[type]}     [description]
- */
-exports.extractDOMNodes = function (obj) {
-    'use strict';
-
-    if (typeof obj === 'function') {
-        return obj[0];
-    }
-
-    return obj;
-};
-
-/**
- * [toArray description]
- * @param  {[type]} object [description]
- * @return {[type]}        [description]
- */
-exports.toArray = function (object) {
-    'use strict';
-
-    return Array.prototype.slice.call(object, 0);
-};
-
-/**
- * [hasFileReader description]
- * @return {Boolean} [description]
- */
-exports.hasFileReader = function () {
-    'use strict';
-
-    return !!(window.File && window.FileList && window.FileReader);
-};
-
-/**
- * [noPropagation description]
- * @param  {[type]} e [description]
- * @return {[type]}   [description]
- */
-exports.noPropagation = function (e) {
-    'use strict';
-
-    e.stopPropagation();
-
-    if (e.preventDefault) {
-        return e.preventDefault();
-    } else {
-        e.returnValue = false;
-        return false;
-    }
-};
-
-/**
- * [mergeOptions description]
- * @param  {[type]} opts           [description]
- * @param  {[type]} defaultoptions [description]
- * @return {[type]}                [description]
- */
-exports.mergeOptions = function (opts, defaultOptions, self) {
-    'use strict';
-
-    var options = {};
-
-    for (var i in defaultOptions) {
-        if (opts && opts.hasOwnProperty(i)) {
-            options[i] = opts[i];
-
-            if (typeof (options[i]) === 'function') {
-                options[i] = options[i].bind(self);
-            }
-        } else {
-            options[i] = defaultOptions[i];
-        }
-    }
-    return options;
-};
-
-/**
- * Returns the Filetype
- * @param  {[type]} nativeFile [description]
- * @return {[type]}            [description]
- */
-exports.getFileType = function (file) {
-    'use strict';
-
-    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
-    if ((/\.xls$/).test(file.name) && !file.type) {
-        return 'application/vnd.ms-excel';
-    }
-    return file.type;
-};
-
-/**
- * Takes the native filesize in bytes and returns the prettified filesize
- * @param  {[object]} file [contains the size of the file]
- * @return {[string]}      [prettified filesize]
- */
-exports.getReadableFileSize = function (file) {
-    'use strict';
-
-    var size = file.size;
-    var string;
-
-    if (size >= 1024 * 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 * 1024 / 10);
-        string = 'TB';
-    } else if (size >= 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 / 10);
-        string = 'GB';
-    } else if (size >= 1024 * 1024) {
-        size = size / (1024 * 1024 / 10);
-        string = 'MB';
-    } else if (size >= 1024) {
-        size = size / (1024 / 10);
-        string = 'KB';
-    } else {
-        size = size * 10;
-        string = 'B';
-    }
-
-    return (Math.round(size) / 10) + ' ' + string;
-};
-
-/**
- * [isImage description]
- * @param  {[type]}  file [description]
- * @return {Boolean}      [description]
- */
-exports.isImage = function (file) {
-    'use strict';
-
-    return (/^image\//).test(exports.getFileType(file));
-};
 
 /**
  * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]
@@ -567,6 +443,8 @@ exports.removeErrors = function (errorWrapper) {
 exports.addThumbnail = function (file, element, options) {
     'use strict';
 
+    var isImage = _dereq_('./utils/is-image.js');
+
     var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
     var reader = new FileReader();
@@ -593,11 +471,11 @@ exports.addThumbnail = function (file, element, options) {
         var ratio = this.height / this.width;
 
         canvas.height = canvas.width * ratio;
-        ctx.drawImage(this, 0, 0, options.thumbnailSize, options.thumbnailSize * ratio);
+        ctx.drawImage(this, 0, 0, options.thumbnailSize * factor, options.thumbnailSize * ratio * factor);
     });
 
     reader.addEventListener('load', function (event) {
-        if (exports.isImage(file)) {
+        if (isImage(file)) {
             image.src = event.target.result;
         } else {
             image.src = EMPTY_IMAGE;
@@ -679,11 +557,12 @@ exports.addBase64ToDom = function (fileObj, form) {
     };
 };
 
+},{"./utils/is-image.js":7}],3:[function(_dereq_,module,exports){
 /**
  * [createInputElement description]
  * @return {[type]} [description]
  */
-exports.createInputElement = function (fileInputId) {
+var createFileInput = function (fileInputId) {
     'use strict';
 
     var fileInput = document.createElement('input');
@@ -696,6 +575,152 @@ exports.createInputElement = function (fileInputId) {
 
     return fileInput;
 };
+
+module.exports = createFileInput;
+
+},{}],4:[function(_dereq_,module,exports){
+/**
+ * Returns the Filetype
+ * @param  {[type]} nativeFile [description]
+ * @return {[type]}            [description]
+ */
+var getFileType = function (file) {
+    'use strict';
+
+    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
+    if ((/\.xls$/).test(file.name) && !file.type) {
+        return 'application/vnd.ms-excel';
+    }
+    return file.type;
+};
+
+module.exports = getFileType;
+
+},{}],5:[function(_dereq_,module,exports){
+/**
+ * Takes the native filesize in bytes and returns the prettified filesize
+ * @param  {[object]} file [contains the size of the file]
+ * @return {[string]}      [prettified filesize]
+ */
+var getReadableFileSize = function (file) {
+    'use strict';
+
+    var size = file.size;
+    var string;
+
+    if (size >= 1024 * 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 * 1024 / 10);
+        string = 'TB';
+    } else if (size >= 1024 * 1024 * 1024) {
+        size = size / (1024 * 1024 * 1024 / 10);
+        string = 'GB';
+    } else if (size >= 1024 * 1024) {
+        size = size / (1024 * 1024 / 10);
+        string = 'MB';
+    } else if (size >= 1024) {
+        size = size / (1024 / 10);
+        string = 'KB';
+    } else {
+        size = size * 10;
+        string = 'B';
+    }
+
+    return (Math.round(size) / 10) + ' ' + string;
+};
+
+module.exports = getReadableFileSize;
+
+},{}],6:[function(_dereq_,module,exports){
+/**
+ * [hasFileReader description]
+ * @return {Boolean} [description]
+ */
+var hasFileReader = function () {
+    'use strict';
+
+    return !!(window.File && window.FileList && window.FileReader);
+};
+
+module.exports = hasFileReader;
+
+},{}],7:[function(_dereq_,module,exports){
+var getFileType = _dereq_('./get-file-type.js')
+
+/**
+ * [isImage description]
+ * @param  {[type]}  file [description]
+ * @return {Boolean}      [description]
+ */
+var isImage = function (file) {
+    'use strict';
+
+    return (/^image\//).test(getFileType(file));
+};
+
+module.exports = isImage;
+
+},{"./get-file-type.js":4}],8:[function(_dereq_,module,exports){
+/**
+ * [mergeOptions description]
+ * @param  {[type]} opts           [description]
+ * @param  {[type]} defaultoptions [description]
+ * @return {[type]}                [description]
+ */
+var mergeOptions = function (opts, defaultOptions, self) {
+    'use strict';
+
+    var options = {};
+
+    for (var i in defaultOptions) {
+        if (opts && opts.hasOwnProperty(i)) {
+            options[i] = opts[i];
+
+            if (typeof (options[i]) === 'function') {
+                options[i] = options[i].bind(self);
+            }
+        } else {
+            options[i] = defaultOptions[i];
+        }
+    }
+    return options;
+};
+
+module.exports = mergeOptions;
+
+},{}],9:[function(_dereq_,module,exports){
+/**
+ * [noPropagation description]
+ * @param  {[type]} e [description]
+ * @return {[type]}   [description]
+ */
+var noPropagation = function (event) {
+    'use strict';
+
+    event.stopPropagation();
+
+    if (event.preventDefault) {
+        return event.preventDefault();
+    } else {
+        event.returnValue = false;
+        return false;
+    }
+};
+
+module.exports = noPropagation;
+
+},{}],10:[function(_dereq_,module,exports){
+/**
+ * [toArray description]
+ * @param  {[type]} object [description]
+ * @return {[type]}        [description]
+ */
+var toArray = function (object) {
+    'use strict';
+
+    return Array.prototype.slice.call(object, 0);
+};
+
+module.exports = toArray;
 
 },{}]},{},[1])
 (1)

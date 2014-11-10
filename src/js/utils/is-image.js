@@ -1,4 +1,4 @@
-var getFileType = require('./get-file-type.js')
+var getFileType = require('./get-file-type.js');
 
 /**
  * [isImage description]

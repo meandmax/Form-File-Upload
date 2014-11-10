@@ -8,6 +8,7 @@ var hasFileReader       = _dereq_('./utils/has-filereader.js');
 var createFileInput     = _dereq_('./utils/create-file-input.js');
 var noPropagation       = _dereq_('./utils/no-propagation.js');
 var toArray             = _dereq_('./utils/to-array.js');
+var isImage             = _dereq_('./utils/is-image.js');
 
 var FormFileUpload = function (fileUpload_, opts) {
     'use strict';
@@ -136,7 +137,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param  {[object]} file
      * @param  {[object]} trackData
      */
-    var trackFile = function (file, trackData) {
+    var trackFile = function (file) {
         trackData.fileNumber += 1;
         trackData.requestSize += file.size;
     };
@@ -146,7 +147,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param  {[object]} file
      * @param  {[object]} trackData
      */
-    var untrackFile = function (file, trackData) {
+    var untrackFile = function (file) {
         trackData.fileNumber -= 1;
         trackData.requestSize -= file.size;
     };
@@ -155,7 +156,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * [Creates a hidden input field where the base64 data is stored]
      * @param  {[object]} fileObj [the base64 string & all metadata combined in one object]
      */
-    var addBase64ToDom = function (fileObj, form) {
+    var addBase64ToDom = function (fileObj) {
         var input = document.createElement('input');
 
         input.type = 'hidden';
@@ -174,22 +175,18 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[object]} fileObj             [filedata for adding the filedata & preview to the DOM]
      * @param {[function]} removeFileHandler [callback for notifying that the specified file was deleted]
      */
-    var addFileToView = function (fileObj, removeFileHandlerCallback, trackData, fileView, listElement) {
+    var addFileToView = function (fileObj, removeFileHandlerCallback, listElement) {
         var removeButton = document.createElement('span');
 
         removeButton.className = 'remove';
-        listElement.appendChild(removeButton);
 
+        listElement.appendChild(removeButton);
         fileView.appendChild(listElement);
 
         removeButton.addEventListener('click', function () {
-            // calls the callback of the DND Handler
             removeFileHandlerCallback(trackData);
-
-            // remove fileViewElement
             listElement.parentNode.removeChild(listElement);
-
-            untrackFile(fileObj.file, trackData);
+            untrackFile(fileObj.file);
         });
     };
 
@@ -199,20 +196,16 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param {[DOM object]} element [DOM element to specify where the thumbnail has to be injected]
      */
     var addThumbnail = function (file, element, options) {
-        var isImage = _dereq_('./utils/is-image.js');
-
+        var canvas      = document.createElement('canvas');
         var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
+        var factor      = window.devicePixelRatio;
+        var imgWrapper  = document.createElement('span');
+        var reader      = new FileReader();
 
-        var reader = new FileReader();
-        var factor = window.devicePixelRatio;
-        var imgWrapper = document.createElement('span');
-
-        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
 
         canvas.width  = options.thumbnailSize * factor;
         canvas.height = options.thumbnailSize * factor;
-
-        var ctx = canvas.getContext('2d');
 
         if (factor > 1) {
             ctx.webkitBackingStorePixelRatio = factor;
@@ -251,6 +244,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      */
     var createListElement = function (fileName, fileSize, fileType) {
         var fileElement = document.createElement('li');
+
         fileElement.className = 'file';
 
         fileElement.innerHTML = [
@@ -265,7 +259,7 @@ var FormFileUpload = function (fileUpload_, opts) {
         return fileElement;
     };
 
-        /**
+    /**
      * [returns the prettified filestype string based on the specified options]
      * @param  {[string]} fileType [mimetype of file]
      * @return {[string]}      [prettified typestring]
@@ -315,10 +309,17 @@ var FormFileUpload = function (fileUpload_, opts) {
     };
 
     /**
+     * [removes all errors]
+     */
+    var removeErrors = function (errorWrapper) {
+        errorWrapper.innerHTML = '';
+    };
+
+    /**
      * [displays the Error message & removes it also after the specified timeout]
      * @param  {[string]} error [error message which has to be displayed]
      */
-    var showErrorMessage = function (error, errorTimeoutId, removeErrors, errorWrapper, form, fileView, options) {
+    var showErrorMessage = function (error) {
         var errorElement = document.createElement('li');
 
         errorElement.className = 'error';
@@ -335,13 +336,6 @@ var FormFileUpload = function (fileUpload_, opts) {
     };
 
     /**
-     * [removes all errors]
-     */
-    var removeErrors = function (errorWrapper) {
-        errorWrapper.innerHTML = '';
-    };
-
-    /**
      *
      * Callback function for handling the async filereader response
      * @param  {[string]} err     [the errormessage which gets thrown when the filereader errored]
@@ -353,7 +347,7 @@ var FormFileUpload = function (fileUpload_, opts) {
         }
 
         if (fileObj) {
-            var removeHandler = addBase64ToDom(fileObj, form);
+            var removeHandler = addBase64ToDom(fileObj);
             var fileType = getReadableFileType(getFileType(fileObj.file), options);
             var listElement = createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
             addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
@@ -397,11 +391,11 @@ var FormFileUpload = function (fileUpload_, opts) {
             var reader = new FileReader();
 
             if (typeof validateFile(file) === 'string') {
-                showErrorMessage(validateFile(file), errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
+                showErrorMessage(validateFile(file));
                 return false;
             }
 
-            trackFile(file, trackData);
+            trackFile(file);
 
             reader.addEventListener('load', function (event) {
                 convertBase64FileHandler(null, {
@@ -451,7 +445,7 @@ var FormFileUpload = function (fileUpload_, opts) {
                 var listElement = createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
                 trackFile(file, trackData);
-                addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+                addFileToView(fileObj, removeHandler, listElement);
 
                 if (hasFileReader()) {
                     addThumbnail(file, listElement, options);
@@ -463,6 +457,22 @@ var FormFileUpload = function (fileUpload_, opts) {
             self.addSelectedFile();
         });
     };
+
+    /**
+     * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
+     */
+    if (!hasFileReader() && options.fallbackForIE8) {
+        selectButton.className = 'selectbutton js_selectbutton';
+
+        var span = document.createElement('span');
+
+        span.innerHTML = 'Select File';
+
+        selectButton.appendChild(span);
+        self.addSelectedFile();
+
+        dropBox.style.display = 'none';
+    }
 
     /**
      * drophandler calls the dndHandler always whenn a file gets dropped
@@ -503,23 +513,6 @@ var FormFileUpload = function (fileUpload_, opts) {
         noPropagation(event);
         this.classList.toggle('active');
     });
-
-    /**
-     * If there is no filereader available, then the dropzone should not be displayed and the Fallback is displayed
-     */
-    if (!hasFileReader() && options.fallbackForIE8) {
-        selectButton.className = 'selectbutton js_selectbutton';
-
-        var span = document.createElement('span');
-
-        span.innerHTML = 'Select File';
-
-        selectButton.appendChild(span);
-
-        self.addSelectedFile();
-
-        dropBox.style.display = 'none';
-    }
 };
 
 module.exports = FormFileUpload;
@@ -611,7 +604,7 @@ var hasFileReader = function () {
 module.exports = hasFileReader;
 
 },{}],6:[function(_dereq_,module,exports){
-var getFileType = _dereq_('./get-file-type.js')
+var getFileType = _dereq_('./get-file-type.js');
 
 /**
  * [isImage description]

@@ -1,8 +1,9 @@
+'use strict';
+
 var gulp          = require('gulp');
 var browserify    = require('gulp-browserify');
 var less          = require('gulp-less');
 var csso          = require('gulp-csso');
-var watch         = require('gulp-watch');
 var uglify        = require('gulp-uglify');
 var jshint        = require('gulp-jshint');
 var jscs          = require('gulp-jscs');
@@ -16,8 +17,11 @@ var reload        = browserSync.reload;
 /**
  * jshint task for all javascript files
  */
-gulp.task('lint', function() {
-    return gulp.src('./src/js/**/*.js')
+gulp.task('lint', function () {
+    return gulp.src([
+            './src/js/**/*.js',
+            'gulpfile.js'
+        ])
         .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter(jshintStylish))
         .pipe(jscs('.jscsrc'));
@@ -26,7 +30,7 @@ gulp.task('lint', function() {
 /**
  * executes the javascript tests
  */
-gulp.task('test', ['lint'], function() {
+gulp.task('test', [ 'lint' ], function () {
     return gulp.src('./test/*.js')
         .pipe(mocha());
 });
@@ -34,18 +38,20 @@ gulp.task('test', ['lint'], function() {
 /**
  * Build task for the final css files
  */
-gulp.task('less', function() {
+gulp.task('less', function () {
     return gulp.src('./src/less/app.less')
         .pipe(less())
         .pipe(csso())
         .pipe(gulp.dest('./demo'))
-        .pipe(reload({stream:true}));
+        .pipe(reload({
+            stream: true
+        }));
 });
 
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', function () {
     browserSync({
         server: {
-            baseDir: "./demo"
+            baseDir: './demo'
         }
     });
 });
@@ -53,32 +59,40 @@ gulp.task('browser-sync', function() {
 /**
  * Build task for the final javascript files
  */
-gulp.task('scripts', function() {
+gulp.task('scripts', [ 'lint' ], function () {
     return gulp.src('./src/js/formfileupload.js')
-        .pipe(browserify({standalone: 'FormFileUpload'}))
+        .pipe(browserify({
+            standalone: 'FormFileUpload'
+        }))
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
         .pipe(rename(function (path) {
-            path.basename += ".min";
+            path.basename += '.min';
         }))
         .pipe(uglify())
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
-        .pipe(reload({stream:true}));
+        .pipe(reload({
+            stream: true
+        }));
 });
-
 
 /**
  * Task to build the module as a proper jQuery Plugin
  */
-gulp.task('jQuery', function() {
-    return gulp.src(['./src/js/formfileupload.js', './src/js/jquery.plugin.js'])
+gulp.task('jQuery', function () {
+    return gulp.src([
+            './src/js/formfileupload.js',
+            './src/js/jquery.plugin.js'
+        ])
         .pipe(concat('jquery.formfileupload.js'))
-        .pipe(browserify({ debug: true }))
+        .pipe(browserify({
+            debug: true
+        }))
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
         .pipe(uglify())
-        .pipe(rename(function(path){
+        .pipe(rename(function (path) {
             path.basename += '.min';
         }))
         .pipe(gulp.dest('./dist'))
@@ -88,9 +102,19 @@ gulp.task('jQuery', function() {
 /**
  * Dev Task uses browser-sync instead of livereload and runs tests, linters and scripts on js file change and less task on less file changes
  */
-gulp.task('dev', ['browser-sync'], function() {
-    gulp.watch('./src/js/**/*.js', ['scripts', 'jQuery']);
-    gulp.watch('./src/less/**/*.less', ['less']);
+gulp.task('dev', [ 'browser-sync' ], function () {
+    gulp.watch('./src/js/**/*.js', [
+        'scripts',
+        'jQuery'
+    ]);
+
+    gulp.watch('./src/less/**/*.less', [
+        'less'
+    ]);
 });
 
-gulp.task('default', ['scripts', 'less', 'jQuery']);
+gulp.task('default', [
+    'scripts',
+    'less',
+    'jQuery'
+]);

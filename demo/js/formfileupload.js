@@ -1,4 +1,6 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.FormFileUpload=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
 /* globals window, document, FileReader, Image */
 
 var mergeOptions        = _dereq_('./utils/merge-options.js');
@@ -10,10 +12,11 @@ var noPropagation       = _dereq_('./utils/no-propagation.js');
 var toArray             = _dereq_('./utils/to-array.js');
 var isImage             = _dereq_('./utils/is-image.js');
 
-var FormFileUpload = function (fileUpload_, opts) {
-    'use strict';
+var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
+var FormFileUpload = function (fileUpload_, opts) {
     var errorTimeoutId;
+
     var fileInputId = 0;
 
     var trackData = {
@@ -138,7 +141,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param  {[object]} trackData
      */
     var trackFile = function (file) {
-        trackData.fileNumber += 1;
+        trackData.fileNumber  += 1;
         trackData.requestSize += file.size;
     };
 
@@ -148,7 +151,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      * @param  {[object]} trackData
      */
     var untrackFile = function (file) {
-        trackData.fileNumber -= 1;
+        trackData.fileNumber  -= 1;
         trackData.requestSize -= file.size;
     };
 
@@ -159,9 +162,9 @@ var FormFileUpload = function (fileUpload_, opts) {
     var addBase64ToDom = function (fileObj) {
         var input = document.createElement('input');
 
-        input.type = 'hidden';
+        input.type  = 'hidden';
         input.value = fileObj.data;
-        input.name = 'file:' + fileObj.file.name;
+        input.name  = 'file:' + fileObj.file.name;
 
         form.appendChild(input);
 
@@ -197,10 +200,12 @@ var FormFileUpload = function (fileUpload_, opts) {
      */
     var addThumbnail = function (file, element, options) {
         var canvas      = document.createElement('canvas');
-        var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
         var factor      = window.devicePixelRatio;
         var imgWrapper  = document.createElement('span');
-        var reader      = new FileReader();
+
+        imgWrapper.className = 'thumbnail';
+
+        var reader = new FileReader();
 
         var ctx = canvas.getContext('2d');
 
@@ -212,16 +217,17 @@ var FormFileUpload = function (fileUpload_, opts) {
             ctx.scale(factor, factor);
         }
 
-        var fileName = element.querySelector('.js_name');
         var image = new Image();
-        imgWrapper.className = 'thumbnail';
 
         image.addEventListener('load', function () {
             var ratio = this.height / this.width;
 
             canvas.height = canvas.width * ratio;
+
             ctx.drawImage(this, 0, 0, options.thumbnailSize * factor, options.thumbnailSize * ratio * factor);
         });
+
+        var fileName = element.querySelector('.js_name');
 
         reader.addEventListener('load', function (event) {
             if (isImage(file)) {
@@ -348,8 +354,9 @@ var FormFileUpload = function (fileUpload_, opts) {
 
         if (fileObj) {
             var removeHandler = addBase64ToDom(fileObj);
-            var fileType = getReadableFileType(getFileType(fileObj.file), options);
-            var listElement = createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
+            var fileType      = getReadableFileType(getFileType(fileObj.file), options);
+            var listElement   = createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
+
             addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
 
             if (hasFileReader()) {
@@ -392,6 +399,7 @@ var FormFileUpload = function (fileUpload_, opts) {
 
             if (typeof validateFile(file) === 'string') {
                 showErrorMessage(validateFile(file));
+
                 return false;
             }
 
@@ -441,10 +449,11 @@ var FormFileUpload = function (fileUpload_, opts) {
                 showErrorMessage(validateFile(file), options.errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
                 fileInput.parentNode.removeChild(fileInput);
             } else {
-                var fileType = getReadableFileType(getFileType(file), options);
+                var fileType    = getReadableFileType(getFileType(file), options);
                 var listElement = createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
                 trackFile(file, trackData);
+
                 addFileToView(fileObj, removeHandler, listElement);
 
                 if (hasFileReader()) {
@@ -484,6 +493,7 @@ var FormFileUpload = function (fileUpload_, opts) {
         var files = toArray(event.dataTransfer.files);
 
         self.convertFilesToBase64(files);
+
         this.classList.toggle('active');
     });
 
@@ -493,6 +503,7 @@ var FormFileUpload = function (fileUpload_, opts) {
      */
     dropBox.addEventListener('dragenter', function (event) {
         noPropagation(event);
+
         this.classList.toggle('active');
     });
 
@@ -511,6 +522,7 @@ var FormFileUpload = function (fileUpload_, opts) {
 
     dropBox.addEventListener('dragleave', function (event) {
         noPropagation(event);
+
         this.classList.toggle('active');
     });
 };

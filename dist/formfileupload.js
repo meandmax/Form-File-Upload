@@ -530,20 +530,20 @@ var FormFileUpload = function (fileUpload_, opts) {
 module.exports = FormFileUpload;
 
 },{"./utils/create-file-input.js":2,"./utils/get-file-type.js":3,"./utils/get-readable-file-size.js":4,"./utils/has-filereader.js":5,"./utils/is-image.js":6,"./utils/merge-options.js":7,"./utils/no-propagation.js":8,"./utils/to-array.js":9}],2:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * [createInputElement description]
  * @return {[type]} [description]
  */
 var createFileInput = function (fileInputId) {
-    'use strict';
-
     var fileInput = document.createElement('input');
 
-    fileInput.type = 'file';
+    fileInput.type      = 'file';
     fileInput.className = 'fileinput';
-    fileInputId += 1;
+    fileInput.name      = 'fileInput ' + fileInputId;
 
-    fileInput.name = 'fileInput ' + fileInputId;
+    fileInputId += 1;
 
     return fileInput;
 };
@@ -551,49 +551,51 @@ var createFileInput = function (fileInputId) {
 module.exports = createFileInput;
 
 },{}],3:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * Returns the Filetype
  * @param  {[type]} nativeFile [description]
  * @return {[type]}            [description]
+ * Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
  */
 var getFileType = function (file) {
-    'use strict';
-
-    // Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
     if ((/\.xls$/).test(file.name) && !file.type) {
         return 'application/vnd.ms-excel';
     }
+
     return file.type;
 };
 
 module.exports = getFileType;
 
 },{}],4:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * Takes the native filesize in bytes and returns the prettified filesize
  * @param  {[object]} file [contains the size of the file]
  * @return {[string]}      [prettified filesize]
  */
 var getReadableFileSize = function (file) {
-    'use strict';
-
-    var size = file.size;
     var string;
 
+    var size = file.size;
+
     if (size >= 1024 * 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 * 1024 / 10);
+        size   = size / (1024 * 1024 * 1024 * 1024 / 10);
         string = 'TB';
     } else if (size >= 1024 * 1024 * 1024) {
-        size = size / (1024 * 1024 * 1024 / 10);
+        size   = size / (1024 * 1024 * 1024 / 10);
         string = 'GB';
     } else if (size >= 1024 * 1024) {
-        size = size / (1024 * 1024 / 10);
+        size   = size / (1024 * 1024 / 10);
         string = 'MB';
     } else if (size >= 1024) {
-        size = size / (1024 / 10);
+        size   = size / (1024 / 10);
         string = 'KB';
     } else {
-        size = size * 10;
+        size   = size * 10;
         string = 'B';
     }
 
@@ -603,19 +605,21 @@ var getReadableFileSize = function (file) {
 module.exports = getReadableFileSize;
 
 },{}],5:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * [hasFileReader description]
  * @return {Boolean} [description]
  */
 var hasFileReader = function () {
-    'use strict';
-
     return !!(window.File && window.FileList && window.FileReader);
 };
 
 module.exports = hasFileReader;
 
 },{}],6:[function(_dereq_,module,exports){
+'use strict';
+
 var getFileType = _dereq_('./get-file-type.js');
 
 /**
@@ -624,14 +628,14 @@ var getFileType = _dereq_('./get-file-type.js');
  * @return {Boolean}      [description]
  */
 var isImage = function (file) {
-    'use strict';
-
     return (/^image\//).test(getFileType(file));
 };
 
 module.exports = isImage;
 
 },{"./get-file-type.js":3}],7:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * [mergeOptions description]
  * @param  {[type]} opts           [description]
@@ -639,8 +643,6 @@ module.exports = isImage;
  * @return {[type]}                [description]
  */
 var mergeOptions = function (opts, defaultOptions, self) {
-    'use strict';
-
     var options = {};
 
     for (var i in defaultOptions) {
@@ -660,14 +662,14 @@ var mergeOptions = function (opts, defaultOptions, self) {
 module.exports = mergeOptions;
 
 },{}],8:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * [noPropagation description]
  * @param  {[type]} e [description]
  * @return {[type]}   [description]
  */
 var noPropagation = function (event) {
-    'use strict';
-
     event.stopPropagation();
 
     if (event.preventDefault) {
@@ -681,14 +683,14 @@ var noPropagation = function (event) {
 module.exports = noPropagation;
 
 },{}],9:[function(_dereq_,module,exports){
+'use strict';
+
 /**
  * [toArray description]
  * @param  {[type]} object [description]
  * @return {[type]}        [description]
  */
 var toArray = function (object) {
-    'use strict';
-
     return Array.prototype.slice.call(object, 0);
 };
 

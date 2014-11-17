@@ -1,17 +1,17 @@
+'use strict';
+
 /**
  * [createInputElement description]
  * @return {[type]} [description]
  */
 var createFileInput = function (fileInputId) {
-    'use strict';
-
     var fileInput = document.createElement('input');
 
-    fileInput.type = 'file';
+    fileInput.type      = 'file';
     fileInput.className = 'fileinput';
-    fileInputId += 1;
+    fileInput.name      = 'fileInput ' + fileInputId;
 
-    fileInput.name = 'fileInput ' + fileInputId;
+    fileInputId += 1;
 
     return fileInput;
 };

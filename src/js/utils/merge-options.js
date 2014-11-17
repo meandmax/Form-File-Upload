@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * [mergeOptions description]
  * @param  {[type]} opts           [description]
@@ -5,8 +7,6 @@
  * @return {[type]}                [description]
  */
 var mergeOptions = function (opts, defaultOptions, self) {
-    'use strict';
-
     var options = {};
 
     for (var i in defaultOptions) {

@@ -1,11 +1,11 @@
+'use strict';
+
 /**
  * [noPropagation description]
  * @param  {[type]} e [description]
  * @return {[type]}   [description]
  */
 var noPropagation = function (event) {
-    'use strict';
-
     event.stopPropagation();
 
     if (event.preventDefault) {

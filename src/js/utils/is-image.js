@@ -1,3 +1,5 @@
+'use strict';
+
 var getFileType = require('./get-file-type.js');
 
 /**
@@ -6,8 +8,6 @@ var getFileType = require('./get-file-type.js');
  * @return {Boolean}      [description]
  */
 var isImage = function (file) {
-    'use strict';
-
     return (/^image\//).test(getFileType(file));
 };
 

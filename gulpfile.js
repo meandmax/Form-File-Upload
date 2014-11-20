@@ -20,6 +20,7 @@ var reload        = browserSync.reload;
 gulp.task('lint', function () {
     return gulp.src([
             './src/js/**/*.js',
+            './test/**/*.js',
             'gulpfile.js'
         ])
         .pipe(jshint('.jshintrc'))

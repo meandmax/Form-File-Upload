@@ -70,5 +70,14 @@
     "rhino":       false, // This option defines globals available when your code is running inside of the Rhino runtime environment.
     "worker":      false, // This option defines globals available when your code is running inside of a Web Worker.
     "wsh":         false, // This option defines globals available when your code is running as a script for the Windows Script Host.
-    "yui":         false  // This option defines globals exposed by the YUI JavaScript framework.
+    "yui":         false,  // This option defines globals exposed by the YUI JavaScript framework.
+
+    "globals": {
+        "describe"   : true,
+        "it"         : true,
+        "before"     : true,
+        "beforeEach" : true,
+        "after"      : true,
+        "afterEach"  : true
+    }
 }

@@ -1,11 +1,16 @@
+'use strict';
+
 var createFileInput = require('../src/js/utils/create-file-input.js');
 var assert = require('assert');
 var sinon  = require('sinon');
 var expect = require('expect.js');
-var mocha  = require('mocha');
 
 global.document = {
-    createElement: sinon.stub().returns({type: '', className: '', name: ''})
+    createElement: sinon.stub().returns({
+        type: '',
+        className: '',
+        name: ''
+    })
 };
 
 describe('Create File Input Element', function () {
@@ -22,5 +27,4 @@ describe('Create File Input Element', function () {
     it('increments the the fileInputId by 1', function () {
         expect(id, 1);
     });
-
 });

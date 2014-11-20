@@ -9,7 +9,7 @@ var createFileInput = function (fileInputId) {
 
     fileInput.type      = 'file';
     fileInput.className = 'fileinput';
-    fileInput.name      = 'fileInput ' + fileInputId;
+    fileInput.name      = 'fileinput-' + fileInputId;
 
     fileInputId += 1;
 

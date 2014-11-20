@@ -15,13 +15,22 @@ global.document = {
 
 describe('Create File Input Element', function () {
     var id = 0;
-
-    before('calls createFileInput', function () {
-        createFileInput(id);
-    });
+    var fileInput = createFileInput(id);
 
     it('calls document.createElement once', function () {
         assert(document.createElement.calledOnce);
+    });
+
+    it('type has to be set to file', function () {
+        expect(fileInput.type, 'file');
+    });
+
+    it('className has to be set to fileinput', function () {
+        expect(fileInput.className, 'fileinput');
+    });
+
+    it('name has to be set to fileinput-1', function () {
+        expect(fileInput.name, 'fileinput-' + id);
     });
 
     it('increments the the fileInputId by 1', function () {

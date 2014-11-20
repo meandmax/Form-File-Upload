@@ -21,7 +21,7 @@ gulp.task('lint', function () {
     return gulp.src([
             './src/js/**/*.js',
             './test/**/*.js',
-            'gulpfile.js'
+            './gulpfile.js'
         ])
         .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter(jshintStylish))
@@ -115,6 +115,7 @@ gulp.task('dev', [ 'browser-sync' ], function () {
 });
 
 gulp.task('default', [
+    'test',
     'scripts',
     'less',
     'jQuery'

@@ -13,8 +13,8 @@ global.document = {
     })
 };
 
-describe('Create File Input Element', function () {
-    var id = 0;
+describe('create file input element', function () {
+    var id        = 0;
     var fileInput = createFileInput(id);
 
     it('calls document.createElement once', function () {

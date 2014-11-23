@@ -1,7 +1,6 @@
 'use strict';
 
 var gulp          = require('gulp');
-var browserify    = require('gulp-browserify');
 var less          = require('gulp-less');
 var csso          = require('gulp-csso');
 var uglify        = require('gulp-uglify');
@@ -19,7 +18,7 @@ var reload        = browserSync.reload;
  */
 gulp.task('lint', function () {
     return gulp.src([
-            './src/js/**/*.js',
+            './src/js/formfileupload.js',
             './test/**/*.js',
             './gulpfile.js'
         ])
@@ -61,10 +60,12 @@ gulp.task('browser-sync', function () {
  * Build task for the final javascript files
  */
 gulp.task('scripts', [ 'lint' ], function () {
-    return gulp.src('./src/js/formfileupload.js')
-        .pipe(browserify({
-            standalone: 'FormFileUpload'
-        }))
+    return gulp.src([
+            './src/js/umd-header.js',
+            './src/js/formfileupload.js',
+            './src/js/umd-footer.js'
+        ])
+        .pipe(concat('formfileupload.js'))
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
         .pipe(rename(function (path) {
@@ -83,13 +84,12 @@ gulp.task('scripts', [ 'lint' ], function () {
  */
 gulp.task('jQuery', function () {
     return gulp.src([
+            './src/js/umd-header.js',
             './src/js/formfileupload.js',
-            './src/js/jquery.plugin.js'
+            './src/js/jquery.plugin.js',
+            './src/js/umd-footer.js'
         ])
         .pipe(concat('jquery.formfileupload.js'))
-        .pipe(browserify({
-            debug: true
-        }))
         .pipe(gulp.dest('./dist'))
         .pipe(gulp.dest('./demo/js'))
         .pipe(uglify())

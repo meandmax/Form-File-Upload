@@ -1,20 +1,9 @@
-'use strict';
-
-/* globals window, document, FileReader, Image */
-
-var mergeOptions        = require('./utils/merge-options.js');
-var getFileType         = require('./utils/get-file-type.js');
-var getReadableFileSize = require('./utils/get-readable-file-size.js');
-var hasFileReader       = require('./utils/has-filereader.js');
-var createFileInput     = require('./utils/create-file-input.js');
-var noPropagation       = require('./utils/no-propagation.js');
-var toArray             = require('./utils/to-array.js');
-var isImage             = require('./utils/is-image.js');
-
-var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
-
 var FormFileUpload = function (fileUpload_, opts) {
+    'use strict';
+
     var errorTimeoutId;
+
+    var EMPTY_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
 
     var fileInputId = 0;
 
@@ -129,6 +118,131 @@ var FormFileUpload = function (fileUpload_, opts) {
     };
 
     /**
+     * [mergeOptions description]
+     * @param  {[type]} opts           [description]
+     * @param  {[type]} defaultoptions [description]
+     * @return {[type]}                [description]
+     */
+    var mergeOptions = function (opts, defaultOptions, self) {
+        var options = {};
+
+        for (var i in defaultOptions) {
+            if (opts && opts.hasOwnProperty(i)) {
+                options[i] = opts[i];
+
+                if (typeof (options[i]) === 'function') {
+                    options[i] = options[i].bind(self);
+                }
+            } else {
+                options[i] = defaultOptions[i];
+            }
+        }
+        return options;
+    };
+
+    /**
+     * Returns the Filetype
+     * @param  {[type]} nativeFile [description]
+     * @return {[type]}            [description]
+     * Fix chromium issue 105382: Excel (.xls) FileReader mime type is empty.
+     */
+    var getFileType = function (file) {
+        if ((/\.xls$/).test(file.name) && !file.type) {
+            return 'application/vnd.ms-excel';
+        }
+
+        return file.type;
+    };
+
+    /**
+     * Takes the native filesize in bytes and returns the prettified filesize
+     * @param  {[object]} file [contains the size of the file]
+     * @return {[string]}      [prettified filesize]
+     */
+    var getReadableFileSize = function (file) {
+        var string;
+
+        var size = file.size;
+
+        if (size >= 1024 * 1024 * 1024 * 1024) {
+            size   = size / (1024 * 1024 * 1024 * 1024 / 10);
+            string = 'TB';
+        } else if (size >= 1024 * 1024 * 1024) {
+            size   = size / (1024 * 1024 * 1024 / 10);
+            string = 'GB';
+        } else if (size >= 1024 * 1024) {
+            size   = size / (1024 * 1024 / 10);
+            string = 'MB';
+        } else if (size >= 1024) {
+            size   = size / (1024 / 10);
+            string = 'KB';
+        } else {
+            size   = size * 10;
+            string = 'B';
+        }
+
+        return (Math.round(size) / 10) + ' ' + string;
+    };
+
+    /**
+     * [hasFileReader description]
+     * @return {Boolean} [description]
+     */
+    var hasFileReader = function () {
+        return !!(window.File && window.FileList && window.FileReader);
+    };
+
+    /**
+     * [createInputElement description]
+     * @return {[type]} [description]
+     */
+    var createFileInput = function (fileInputId) {
+        var fileInput = document.createElement('input');
+
+        fileInput.type      = 'file';
+        fileInput.className = 'fileinput';
+        fileInput.name      = 'fileinput-' + fileInputId;
+
+        fileInputId += 1;
+
+        return fileInput;
+    };
+
+    /**
+     * [noPropagation description]
+     * @param  {[type]} e [description]
+     * @return {[type]}   [description]
+     */
+    var noPropagation = function (event) {
+        event.stopPropagation();
+
+        if (event.preventDefault) {
+            return event.preventDefault();
+        } else {
+            event.returnValue = false;
+            return false;
+        }
+    };
+
+    /**
+     * [toArray description]
+     * @param  {[type]} object [description]
+     * @return {[type]}        [description]
+     */
+    var toArray = function (object) {
+        return Array.prototype.slice.call(object, 0);
+    };
+
+    /**
+     * [isImage description]
+     * @param  {[type]}  file [description]
+     * @return {Boolean}      [description]
+     */
+    var isImage = function (file) {
+        return (/^image\//).test(getFileType(file));
+    };
+
+    /**
      * Merging the default options with the user passed options together
      * @type {[object]}
      */
@@ -181,6 +295,8 @@ var FormFileUpload = function (fileUpload_, opts) {
         var removeButton = document.createElement('span');
 
         removeButton.className = 'remove';
+
+        console.log(listElement)
 
         listElement.appendChild(removeButton);
         fileView.appendChild(listElement);
@@ -356,7 +472,7 @@ var FormFileUpload = function (fileUpload_, opts) {
             var fileType      = getReadableFileType(getFileType(fileObj.file), options);
             var listElement   = createListElement(fileObj.file.name, getReadableFileSize(fileObj.file), fileType);
 
-            addFileToView(fileObj, removeHandler, trackData, fileView, listElement);
+            addFileToView(fileObj, removeHandler, listElement);
 
             if (hasFileReader()) {
                 addThumbnail(fileObj.file, listElement, options);
@@ -525,5 +641,3 @@ var FormFileUpload = function (fileUpload_, opts) {
         this.classList.toggle('active');
     });
 };
-
-module.exports = FormFileUpload;

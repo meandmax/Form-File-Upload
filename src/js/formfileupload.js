@@ -296,8 +296,6 @@ var FormFileUpload = function (fileUpload_, opts) {
 
         removeButton.className = 'remove';
 
-        console.log(listElement)
-
         listElement.appendChild(removeButton);
         fileView.appendChild(listElement);
 

@@ -22,7 +22,6 @@
     "disallowEmptyBlocks": true,
     "disallowSpacesInsideParentheses": true,
     "requireSpacesInsideObjectBrackets": "all",
-    "requireSpacesInsideArrayBrackets": "all",
     "disallowQuotedKeysInObjects": true,
     "disallowSpaceAfterObjectKeys": true,
     "requireSpaceBeforeObjectValues": true,

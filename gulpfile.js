@@ -30,7 +30,7 @@ gulp.task('lint', function () {
 /**
  * executes the javascript tests
  */
-gulp.task('test', [ 'lint' ], function () {
+gulp.task('test', ['lint'], function () {
     return gulp.src('./test/*.js')
         .pipe(mocha());
 });
@@ -59,7 +59,7 @@ gulp.task('browser-sync', function () {
 /**
  * Build task for the final javascript files
  */
-gulp.task('scripts', [ 'lint' ], function () {
+gulp.task('scripts', ['lint'], function () {
     return gulp.src([
             './src/js/umd-header.js',
             './src/js/formfileupload.js',
@@ -103,7 +103,7 @@ gulp.task('jQuery', function () {
 /**
  * Dev Task uses browser-sync instead of livereload and runs tests, linters and scripts on js file change and less task on less file changes
  */
-gulp.task('dev', [ 'browser-sync' ], function () {
+gulp.task('dev', ['browser-sync'], function () {
     gulp.watch('./src/js/**/*.js', [
         'scripts',
         'jQuery'
@@ -115,7 +115,6 @@ gulp.task('dev', [ 'browser-sync' ], function () {
 });
 
 gulp.task('default', [
-    'test',
     'scripts',
     'less',
     'jQuery'

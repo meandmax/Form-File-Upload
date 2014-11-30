@@ -25,14 +25,17 @@ You can download the latest generated and minified module here.
 Even if you could use jQuery objects, you can also just pass normal DOM objects to the module.
 
 ```html
-<script src="/path/to/easyformfileupload.min.js"></script>  
+<script src="/path/to/formfileupload.min.js"></script>  
 <script>
+var initializeFileUpload = function() {
     var fileUpload = document.querySelector('.js_fileupload');
-    var dropBox    = document.querySelector('.js_dropbox');
 
-    new EasyFormFileUpload(fileUpload, {
+    new FormFileUpload(fileUpload, {
         // your options are going here
     });
+};
+
+document.addEventListener("DOMContentLoaded", initializeFileUpload);
 </script>
 ```
 

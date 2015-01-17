@@ -225,15 +225,6 @@ var FormFileUpload = function (fileUpload_, opts) {
     };
 
     /**
-     * [toArray description]
-     * @param  {[type]} object [description]
-     * @return {[type]}        [description]
-     */
-    var toArray = function (object) {
-        return Array.prototype.slice.call(object, 0);
-    };
-
-    /**
      * [isImage description]
      * @param  {[type]}  file [description]
      * @return {Boolean}      [description]
@@ -603,7 +594,7 @@ var FormFileUpload = function (fileUpload_, opts) {
     dropBox.addEventListener('drop', function (event) {
         noPropagation(event);
 
-        var files = toArray(event.dataTransfer.files);
+        var files = Array.prototype.slice.call(event.dataTransfer.files, 0);
 
         self.convertFilesToBase64(files);
 

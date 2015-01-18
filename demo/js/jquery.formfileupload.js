@@ -153,6 +153,12 @@ var FormFileUpload = function (fileUpload_, opts) {
     };
 
     /**
+     * Merging the default options with the user passed options together
+     * @type {[object]}
+     */
+    var options = mergeOptions(opts, defaultOptions, self);
+
+    /**
      * Returns the Filetype
      * @param  {[type]} nativeFile [description]
      * @return {[type]}            [description]
@@ -244,12 +250,6 @@ var FormFileUpload = function (fileUpload_, opts) {
     var isImage = function (file) {
         return (/^image\//).test(getFileType(file));
     };
-
-    /**
-     * Merging the default options with the user passed options together
-     * @type {[object]}
-     */
-    var options = mergeOptions(opts, defaultOptions, self);
 
     /**
      * [increment the filenumber for each dropped file by one & increment the requestsize by the current filesize]

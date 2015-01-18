@@ -550,14 +550,13 @@ var FormFileUpload = function (fileUpload_, opts) {
             };
 
             if (typeof validateFile(file) === 'string') {
-                showErrorMessage(validateFile(file), options.errorTimeoutId, removeErrors, errorWrapper, form, fileView, options);
+                showErrorMessage(validateFile(file));
                 fileInput.parentNode.removeChild(fileInput);
             } else {
                 var fileType    = getReadableFileType(getFileType(file), options);
                 var listElement = createListElement(file.name, fileType, getReadableFileSize(fileObj.file));
 
                 trackFile(file, trackData);
-
                 addFileToView(fileObj, removeHandler, listElement);
 
                 if (hasFileReader()) {
